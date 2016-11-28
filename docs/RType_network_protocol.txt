@@ -1,0 +1,278 @@
+Network Working Group                                          G. Cadet
+Request for Comments: 8008                                   H. Dufourt
+STD: None                                         V. Lecouviour--Tuffet
+Obsolete: 1337                                             Q. Rochefort
+Category: Informational                         Rencontre du Rieme type
+                                                          November 2016
+
+
+            Network Communication Protocol for R-Type Project
+
+Abstract
+
+	This document describes the network protocol of the R-Type
+	project. It specifies the header code of each type of request,
+	the type of data they contain and when they are used.
+
+Status of This Memo
+
+       This document specifies an Informational protocol for the
+       communication client/server of the R-Type project.
+
+Copyright Notice
+
+       Copyright (c) 2016 All rights reserved.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cadet & Dufourt & Lecouviour & Rochefort    Informational      [Page 1]
+
+RFC 8008    Network Communication Protocol for R-Type    November 2016
+
+
+Table of Contents
+
+      1. Introduction .............................................2
+      2. Header Codes .............................................2
+      	 2.1 General Network ......................................2
+	 2.2 Main .................................................2
+	 2.3 Room .................................................2
+	 2.4 InGame Update ........................................3
+      3. Use cases ................................................3
+      	 3.1 Connection to Server .................................3
+	 3.2 Searching for Rooms ..................................3
+	 3.3 Waiting in a Room ....................................3
+	 3.4 InGame ...............................................3
+	 3.5 Whenever .............................................4
+      4. Data description .........................................4
+      	 4.1 Packet ...............................................4
+	 4.2 Data .................................................4
+
+
+1.    Introduction
+
+   What an awesome introduction !
+
+
+2.    Header Codes
+
+   2.1 	   General Network: 000
+
+       - 001: connection
+       - 002: connection accept
+       - 003: disconnect
+       - 004: return to main
+       - 005: ok
+
+   2.2 	   Main: 100
+
+       - 101: Rooms status request
+       - 102: Rooms status response
+       - 103: Room connection request
+       - 104: Room connection ok
+       - 105: Room connection denied
+
+   2.3 	   Room: 200
+
+       - 201: Room status request
+       - 202: Player ready
+       - 203: Room status response
+       - 204: Game launch
+
+
+
+Cadet & Dufourt & Lecouviour & Rochefort    Informational      [Page 2]
+
+RFC 8008    Network Communication Protocol for R-Type    November 2016
+
+
+   2.4 	   InGame Update: 300
+
+       - 301: client->server update
+       - 302: server->client update
+       - 303: game end
+
+
+3.    Use Cases
+
+
+   3.1     Connection to Server: [handshake]
+
+       - The client SHALL issue 001
+       - The server MUST answer 002 with The client uid
+       	 	=> the client MAY now search for rooms
+
+   3.2     Searching for Rooms:
+
+       - The client MAY issue 101
+       - The server MUST answer 102
+       - The client MAY either ask for an update (101)
+       	   or try to connect to a room (103)
+       - if the server received:
+    	   - a 103, it SHALL respond 104 on success => the client is
+	       now waiting in the requested room
+    	   - or a 103 it SHALL respond 105 (on deny)    => the client
+	       MAY contine to search for a room
+
+   3.3     Waiting in Room: [works as keepalive]
+
+       - client MAY issue:
+       - a 201: just asking for an update, no modification of status
+       - or a 202: client SHALL be set to ready
+       - the server SHALL answer:
+       - all players are ready: 204 => in game
+       - else: 203                  => still waiting in room
+
+   3.4     InGame:
+
+      - client MUST issue 301 at regular intervals
+      - server MUST issue 302 at regular intervals to all clients
+      	 => they are still in game
+      If a client disconnects with a 003: he is instantly killed  
+      - when no clients are left alive the server MUST send them a  303
+      	 => they are now waiting in the room
+
+
+
+
+
+
+Cadet & Dufourt & Lecouviour & Rochefort    Informational      [Page 3]
+
+RFC 8008    Network Communication Protocol for R-Type    November 2016
+
+
+   3.5     Whenever:
+      - client MAY issue a 004
+      - server SHALL answer a 005   
+      	 => the client is now searching for rooms
+      or
+      - client MAY issue a 003
+      - server SHALL answer a 005
+      - client MUST now be killed
+      If the client is in a room (waiting or ingame, he is either 
+      kicked or killed)
+      else he is simply disconnected
+
+
+4.    Data Description
+
+
+   4.1	   Packet:
+
+      - 0: header (request code)
+      - 1: sizeof data
+      - 3: data
+
+   4.2     Data:
+
+      no data: 001, 005, 101, 104, 105
+         - nothing
+
+      uid: 002, 003, 004
+         - uid: short int
+
+      room: 103, 201, 204, 303
+         - roomId: char
+
+      ids: 202
+         - roomId: unsigned int
+         - uid: short int
+
+      roomStatus: 203
+         slot = (occupied: bool, ready: bool)
+         - running: bool
+         - info: {p1: slot, p2: slot, p3: slot, p4:slot}
+
+      roomsStatus: 102
+         roomStatus = above
+         - {r1: roomStatus, r2: roomStatus, r3: roomStatus, 
+	   r4: roomStatus}
+
+      
+
+
+Cadet & Dufourt & Lecouviour & Rochefort    Informational      [Page 4]
+
+RFC 8008    Network Communication Protocol for R-Type    November 2016
+
+
+      update: 301, 303
+         object = {eid: uint, cid: uint, did: uint, datasize: uint, 
+	 	  data: void*}
+         - [objects]
+
+
+Author's Address
+
+	 gabriel.cadet@epitech.eu
+	 hubert.dufourt@epitech.eu
+	 victorien.lecouviour-tuffet@epitech.eu
+	 quentin.rochefort@epitech.eu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cadet & Dufourt & Lecouviour & Rochefort    Informational      [Page 5]
