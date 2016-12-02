@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec  2 16:47:02 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec  2 18:18:54 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -112,8 +112,8 @@ namespace	entity_component_system
       Component &	operator=(Component const &) = default;
       Component &	operator=(Component &&) = default;
 
-      template<typename T>
-      T &	attribute(std::string const & name) const	{ return _attributes[_namesIdxMap.at(name)]->value<T>(name); }
+      template<typename T> T &		attribute(std::string const & name)		{ return _attributes[_namesIdxMap.at(name)]->value<T>(name); }
+      template<typename T> T const &	attribute(std::string const & name) const	{ return _attributes[_namesIdxMap.at(name)]->value<T>(name); }
 
     private:
       std::map<std::string, unsigned>		_namesIdxMap;

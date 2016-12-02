@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec  2 17:21:56 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec  2 18:19:26 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -31,7 +31,8 @@ namespace	entity_component_system
       Entity(Entity &&) = default;
       ~Entity(void) {}
 
-      component::Component const &	component(std::string const & name) const { return _components[_namesIdxMap.at(name)]; }
+      component::Component &		component(std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
+      component::Component const &	component(std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
 
     private:
       std::vector<component::Component>		_components;
