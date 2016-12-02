@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Nov 28 15:31:01 2016 Gabriel CADET
-** Last update Tue Nov 29 14:42:04 2016 Gabriel CADET
+** Last update Fri Dec 02 19:39:35 2016 Gabriel CADET
 */
 
 #ifndef ASOCKET_HPP_
@@ -13,8 +13,13 @@
 
 #ifdef __linux__
 # include <sys/socket.h>
+# include <unistd.h>
+# include <netdb.h>
 typedef int t_socket;
 #else
+# ifndef _WIN32
+#  define _WIN32
+#endif
 # include <Winsock2.h>
 # include <ws2tcpip.h>
 
@@ -34,7 +39,7 @@ namespace network {
   */
   class ASocket {
     public:
-      /**  
+      /**
       ** \brief Generic enum describing shutdown() flags.
       */
       enum How {
@@ -51,7 +56,7 @@ namespace network {
 
       /**
       ** \brief The recv function receives data from a connected socket or a bound connectionless socket.
-      ** 
+      **
       ** \param [out] buf pointer to the memory in which received data will be written.
       ** \param [in] len size of the data buffer.
       ** \param [in] flags set of flags to change function behavior.
@@ -62,7 +67,7 @@ namespace network {
 
       /**
       ** \brief The send function sends data on a connected socket.
-      ** 
+      **
       ** \param [in] buf pointer to the memory containing the data to be sent.
       ** \param [in] len size of the data buffer.
       ** \param [in] flags set of flags to change function behavior.
@@ -73,7 +78,7 @@ namespace network {
 
       /**
       ** \brief The recvfrom function receives a datagram and stores the source address.
-      ** 
+      **
       ** \param [out] buf pointer to the memory in which received data will be written.
       ** \param [in] len size of the data buffer.
       ** \param [in] flags set of flags to change function behavior.
@@ -88,13 +93,13 @@ namespace network {
 
       /**
       ** \brief The sendto function sends data to a specific destination.
-      ** 
-      ** \param [in] buf pointer to the memory containing data to be sent. 
+      **
+      ** \param [in] buf pointer to the memory containing data to be sent.
       ** \param [in] len size of the data buffer.
       ** \param [in] flags set of flags to change function behavior.
       ** \param [in] dest An optional pointer to a buffer in a sockaddr structure that will hold the source address upon return
       ** \param [in] destlen An optional pointer to the size, in bytes, of the buffer pointed to by the from parameter.
-      ** \return If no error occurs, sendto returns the total number of bytes sent, which can be less than the number indicated by len. 
+      ** \return If no error occurs, sendto returns the total number of bytes sent, which can be less than the number indicated by len.
       */
       virtual ssize_t	sendTo(void *buf, size_t len, int flags, const sockaddr *dest, int destlen) = 0;
       virtual ssize_t	sendTo(void *buf, size_t len, int flags, std::string const & dest, std::string const &service) = 0;
@@ -103,8 +108,8 @@ namespace network {
 
       /**
       ** \brief The bind function associates a local address with a socket.
-      ** 
-      ** \param [in] addr A pointer to a sockaddr structure of the local address to assign to the bound socket . 
+      **
+      ** \param [in] addr A pointer to a sockaddr structure of the local address to assign to the bound socket .
       ** \param [in] addrlen The length, in bytes, of the value pointed to by the name parameter.
       ** \return If no error occurs, bind returns zero.
       */
@@ -113,7 +118,7 @@ namespace network {
 
       /**
       ** \brief The listen function places a socket in a state in which it is listening for an incoming connection.
-      ** 
+      **
       ** \param [in] backlog The maximum length of the queue of pending connections.
       ** \return If no error occurs, listen returns zero.
       */
@@ -131,7 +136,7 @@ namespace network {
 
       /**
       ** \brief The connect function establishes a connection to a specified socket.
-      ** 
+      **
       ** \param [in] addr A pointer to the sockaddr structure to which the connection should be established.
       ** \param [in] addrlen The length, in bytes, of the sockaddr structure pointed to by the name parameter.
       ** \return If no error occurs, connect returns zero.
@@ -194,6 +199,11 @@ namespace network {
       int       _dom;
       int       _type;
       int       _proto;
+
+#ifdef _WIN32
+      static int	nbSock;
+      static WSADATA	wsaData;
+#endif
   };
 } // namespace network
 

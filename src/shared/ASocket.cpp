@@ -5,12 +5,17 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Tue Nov 29 13:59:41 2016 Gabriel CADET
-** Last update Tue Nov 29 14:42:07 2016 Gabriel CADET
+** Last update Fri Dec 02 19:39:39 2016 Gabriel CADET
 */
 
 #include "ASocket.hpp"
 
 namespace network {
+#ifdef _WIN32
+  int		ASocket::nbSock = 0;
+  WSADATA	ASocket::wsaData;
+#endif
+
   int ASocket::shutdown(How flgs)
   {
     int   ret;
@@ -31,26 +36,26 @@ namespace network {
     fd_set wr;
     fd_set ex;
     int ndfs = -1;
-    
+
     FD_ZERO(&rd);
     FD_ZERO(&wr);
     FD_ZERO(&ex);
 
-    for each (ASocket *s in read) {
+    for (ASocket *s : read) {
       FD_SET(s->_sock, &rd);
 #ifdef __linux__
       ndfs = (ndfs < s->_sock ? s->_sock : ndfs);
 #endif
     }
 
-    for each (ASocket *s in write) {
+    for (ASocket *s : write) {
       FD_SET(s->_sock, &wr);
 #ifdef __linux__
       ndfs = (ndfs < s->_sock ? s->_sock : ndfs);
 #endif
     }
 
-    for each (ASocket *s in exept) {
+    for (ASocket *s : exept) {
       FD_SET(s->_sock, &ex);
 #ifdef __linux__
       ndfs = (ndfs < s->_sock ? s->_sock : ndfs);
@@ -66,7 +71,7 @@ namespace network {
     read.remove_if([&ex](ASocket *s) { return FD_ISSET(s->_sock, &ex); });
     return ret;
   }
- 
+
   int ASocket::getaddrinfo(const char * node, const char * service, addrinfo const * hints, addrinfo ** res)
   {
     int ret = 0;
