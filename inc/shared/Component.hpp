@@ -5,11 +5,12 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec  1 20:14:54 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec  2 13:58:00 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
+#include <cxxabi.h>
 #include <initializer_list>
 #include <map>
 #include <memory>
@@ -30,7 +31,12 @@ namespace	entity_component_system
       public:
 	BadType(std::string const & attrName, std::type_info const * goodTypeInfo, std::type_info const * badTypeInfo) : _what{0}
 	{
-	  std::string	tmp = attrName + " expected type was " + goodTypeInfo->name() + ", got " + badTypeInfo->name() + " instead.";
+	  std::string	tmp = attrName
+	    + " expected type was "
+	    + abi::__cxa_demangle(goodTypeInfo->name(), nullptr, nullptr, nullptr)
+	    + ", got "
+	    + abi::__cxa_demangle(badTypeInfo->name(), nullptr, nullptr, nullptr)
+	    + " instead.";
 
 	  std::copy(tmp.begin(), tmp.end(), _what);
 	}
@@ -56,7 +62,7 @@ namespace	entity_component_system
       class	Model : public Base
       {
       public:
-	Model(T && value) : _value(value), _typeInfo(&typeid(T)) {}
+	Model(T && value) : _value(std::forward<T>(value)), _typeInfo(&typeid(T)) {}
 	~Model(void) {}
 
 	Model *	copy(void) const { return new Model(*this); }
@@ -128,7 +134,7 @@ namespace	entity_component_system
       std::vector<Attribute*>
       _getAttributesImpl(std::true_type, std::tuple<AttrTypes...> & values, Attr... attr)
       {
-	return _getAttributes<AttrTypes...>(values, attr..., new Attribute(std::get<sizeof...(attr)>(values)));
+	return _getAttributes<AttrTypes...>(values, attr..., new Attribute(std::move(std::get<sizeof...(attr)>(values))));
       }
 
       template<typename... AttrTypes, typename... Attr>
