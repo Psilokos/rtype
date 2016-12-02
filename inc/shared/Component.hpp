@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec  2 13:58:00 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec  2 16:47:02 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -32,11 +32,11 @@ namespace	entity_component_system
 	BadType(std::string const & attrName, std::type_info const * goodTypeInfo, std::type_info const * badTypeInfo) : _what{0}
 	{
 	  std::string	tmp = attrName
-	    + " expected type was "
+	    + " expected type was '"
 	    + abi::__cxa_demangle(goodTypeInfo->name(), nullptr, nullptr, nullptr)
-	    + ", got "
+	    + "', got '"
 	    + abi::__cxa_demangle(badTypeInfo->name(), nullptr, nullptr, nullptr)
-	    + " instead.";
+	    + "' instead.";
 
 	  std::copy(tmp.begin(), tmp.end(), _what);
 	}
@@ -105,13 +105,9 @@ namespace	entity_component_system
       Component(std::tuple<AttrTypes...> & values, unsigned i, AttrNames&&... names) : _namesIdxMap({{names, i++}...}), _attributes(_getAttributes<AttrTypes...>(values)) {}
 
     public:
-      Component(Component const &) = default;
+      Component(Component const & src) = default;
       Component(Component &&) = default;
-      ~Component(void)
-      {
-	for (auto & attr : _attributes)
-	  delete attr;
-      }
+      ~Component(void) {}
 
       Component &	operator=(Component const &) = default;
       Component &	operator=(Component &&) = default;
@@ -120,28 +116,28 @@ namespace	entity_component_system
       T &	attribute(std::string const & name) const	{ return _attributes[_namesIdxMap.at(name)]->value<T>(name); }
 
     private:
-      std::map<std::string, unsigned>	_namesIdxMap;
-      std::vector<Attribute*>		_attributes;
+      std::map<std::string, unsigned>		_namesIdxMap;
+      std::vector<std::shared_ptr<Attribute>>	_attributes;
 
       template<typename... AttrTypes, typename... Attr>
-      std::vector<Attribute*>
+      std::vector<std::shared_ptr<Attribute>>
       _getAttributes(std::tuple<AttrTypes...> & values, Attr... attr)
       {
 	return _getAttributesImpl<AttrTypes...>(std::integral_constant<bool, sizeof...(Attr) < sizeof...(AttrTypes)>(), values, attr...);
       }
 
       template<typename... AttrTypes, typename... Attr>
-      std::vector<Attribute*>
+      std::vector<std::shared_ptr<Attribute>>
       _getAttributesImpl(std::true_type, std::tuple<AttrTypes...> & values, Attr... attr)
       {
-	return _getAttributes<AttrTypes...>(values, attr..., new Attribute(std::move(std::get<sizeof...(attr)>(values))));
+	return _getAttributes<AttrTypes...>(values, attr..., std::shared_ptr<Attribute>(new Attribute(std::move(std::get<sizeof...(attr)>(values)))));
       }
 
       template<typename... AttrTypes, typename... Attr>
-      std::vector<Attribute*>
+      std::vector<std::shared_ptr<Attribute>>
       _getAttributesImpl(std::false_type, std::tuple<AttrTypes...> & values, Attr... attr)
       {
-	return std::vector<Attribute*>({attr...});
+	return std::vector<std::shared_ptr<Attribute>>({attr...});
       }
     };
   }
