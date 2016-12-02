@@ -13,8 +13,10 @@
 
 #include <exception>
 
-class Network : public std::exception {
-  const char*	what() const noexcept { return "A Network Operation failed.\n"; }
-};
+namespace network {
+  class NetworkExcept : public std::exception {
+    const char*	what() const noexcept { return "A Network Operation failed.\n"; }
+  };
+}
 
 #endif /* !NETERRORS_HPP_ */
