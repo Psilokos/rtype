@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec  2 19:28:46 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec  5 19:42:01 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -20,24 +20,41 @@ namespace	entity_component_system
     {
     public:
       template<typename... ComponentsNames>
-      Entity(std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity(components, 0, names...) {}
+      Entity(std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity("unknownEntity", components, 0, names...) {}
+
+      template<typename... ComponentsNames>
+      Entity(std::string const & name, std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity(name, components, 0, names...) {}
 
     private:
       template<typename... ComponentsNames>
-      Entity(std::initializer_list<component::Component> const & components, unsigned i, ComponentsNames&&... names) : _components(components), _namesIdxMap({{names, i++}...}) {}
+      Entity(std::string const & name, std::initializer_list<component::Component> const & components, unsigned i, ComponentsNames&&... names)
+	: _name(name), _components(components), _namesIdxMap({{names, i++}...}) {}
 
     public:
       Entity(Entity const &) = default;
       Entity(Entity &&) = default;
       ~Entity(void) {}
 
-      void				addComponent(std::string const & name, component::Component const & component)
+      bool	hasComponent(std::string const & name)	{ return _namesIdxMap.find(name) != _namesIdxMap.end(); }
+
+      component::Component &		getComponent(std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
+      component::Component const &	getComponent(std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
+
+      component::Component &		operator[](std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
+      component::Component const &	operator[](std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
+
+      void				setComponent(std::string const & name, component::Component const & component)
       {
-	_namesIdxMap.emplace(name, _components.size());
-	_components.emplace(_components.end(), component);
+	if (_namesIdxMap.find(name) == _namesIdxMap.end())
+	  {
+	    _namesIdxMap.emplace(name, _components.size());
+	    _components.emplace(_components.end(), component);
+	  }
+	else
+	  _components[_namesIdxMap[name]] = component;
       }
 
-      component::Component		removeComponent(std::string const & name)
+      component::Component		delComponent(std::string const & name)
       {
 	component::Component const	component = (*this)[name];
 	unsigned const			idx = _namesIdxMap.at(name);
@@ -50,13 +67,20 @@ namespace	entity_component_system
 	return component;
       }
 
-      component::Component &		component(std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
-      component::Component const &	component(std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
-
-      component::Component &		operator[](std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
-      component::Component const &	operator[](std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
+      friend std::ostream &	operator<<(std::ostream & os, Entity const & e)
+      {
+	os << e._name << std::endl;
+	for (auto & pair : e._namesIdxMap)
+	  {
+	    os << '\t' << pair.first << std::endl;
+	    os << e._components[pair.second];
+	  }
+	os << "-------------------" << std::flush;
+	return os;
+      }
 
     private:
+      std::string const				_name;
       std::vector<component::Component>		_components;
       std::map<std::string, unsigned>		_namesIdxMap;
     };

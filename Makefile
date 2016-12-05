@@ -5,7 +5,7 @@
 ## Login   <lecouv_v@epitech.eu>
 ##
 ## Started on  Mon Nov 28 15:36:12 2016 Victorien LE COUVIOUR--TUFFET
-## Last update Mon Nov 28 15:38:50 2016 Victorien LE COUVIOUR--TUFFET
+## Last update Mon Dec  5 19:45:12 2016 Victorien LE COUVIOUR--TUFFET
 ##
 
 NAME_SERVER		= rtype-srv
@@ -30,7 +30,7 @@ DIR_SRC_SERVER_SHARED	= $(DIR_SRC)server_shared/
 DIR_SRC_CLIENT		= $(DIR_SRC)client/
 DIR_SRC_CLIENT_SHARED	= $(DIR_SRC)client_shared/
 
-SRCS_SERVER		=
+SRCS_SERVER		= test.cpp
 
 SRCS_CLIENT		=
 
