@@ -28,5 +28,5 @@
 *.out
 *.app
 
-# User defined files
+# Configuration files
 .syntastic_cpp_config
