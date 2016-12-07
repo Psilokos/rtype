@@ -27,3 +27,6 @@
 *.exe
 *.out
 *.app
+
+# User defined files
+.syntastic_cpp_config
