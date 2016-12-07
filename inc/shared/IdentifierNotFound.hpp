@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Tue Dec  6 16:43:20 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec  6 17:32:49 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec  7 14:29:38 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -23,7 +23,7 @@ namespace	entity_component_system
     IdentifierNotFound(std::string const & id) noexcept;
 
     //! \brief get the error message
-    //! \return the missing identifier
+    //! \return a pointer to the constant error message
     char const *	what(void) const noexcept;
 
   private:

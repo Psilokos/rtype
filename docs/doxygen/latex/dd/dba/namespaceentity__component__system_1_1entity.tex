@@ -5,3 +5,27 @@
 \item 
 class {\bf Entity}
 \begin{DoxyCompactList}\small\item\em Generic class for all entities. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& {\bf operator$<$$<$} (std\+::ostream \&os, {\bf Entity} const \&e)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\label{namespaceentity__component__system_1_1entity_aca8542b7becb1f6dad6768e16dc97bdc} 
+\index{entity\+\_\+component\+\_\+system\+::entity@{entity\+\_\+component\+\_\+system\+::entity}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!entity\+\_\+component\+\_\+system\+::entity@{entity\+\_\+component\+\_\+system\+::entity}}
+\subsubsection{operator$<$$<$()}
+{\footnotesize\ttfamily std\+::ostream \& entity\+\_\+component\+\_\+system\+::entity\+::operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{os,  }\item[{{\bf Entity} const \&}]{e }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em os} & the output stream in which the given entity will be inserted \\
+\hline
+\mbox{\tt in}  & {\em e} & the entity to insert in the stream \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a reference to the given output stream \textquotesingle{}os\textquotesingle{} to allow operator chaining 
+\end{DoxyReturn}

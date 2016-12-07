@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 14:17:13 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec  7 14:40:28 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -75,6 +75,7 @@ namespace	entity_component_system
       //! \brief Set a component
       //! \param [in] name the name of the component to set
       //! \param [in] component the component to set
+      //! \return a reference to the set component
       component::Component &		setComponent(std::string const & name, component::Component const & component);
 
       //! \brief Removes a component
@@ -85,7 +86,7 @@ namespace	entity_component_system
       //! \brief Insert an entity into an output stream
       //! \param [out] os the output stream in which the given entity will be inserted
       //! \param [in] e the entity to insert in the stream
-      //! \return the given output stream 'os' to allow operator chaining
+      //! \return a reference to the given output stream 'os' to allow operator chaining
       friend std::ostream &	operator<<(std::ostream & os, Entity const & e);
 
     private:

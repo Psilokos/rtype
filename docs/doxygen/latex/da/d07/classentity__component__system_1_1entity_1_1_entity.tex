@@ -22,7 +22,7 @@ Generic class for all entities.
 \begin{DoxyCompactList}\small\item\em Default move constructor. \end{DoxyCompactList}\item 
 {\bf $\sim$\+Entity} (void)
 \begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
-bool {\bf has\+Component} (std\+::string const \&name)
+bool {\bf has\+Component} (std\+::string const \&name) const
 \begin{DoxyCompactList}\small\item\em Check if a component exists. \end{DoxyCompactList}\item 
 {\bf component\+::\+Component} \& {\bf get\+Component} (std\+::string const \&name)
 \begin{DoxyCompactList}\small\item\em Get a component. \end{DoxyCompactList}\item 
@@ -32,7 +32,7 @@ bool {\bf has\+Component} (std\+::string const \&name)
 \begin{DoxyCompactList}\small\item\em Get a component. \end{DoxyCompactList}\item 
 {\bf component\+::\+Component} const  \& {\bf operator[$\,$]} (std\+::string const \&name) const
 \begin{DoxyCompactList}\small\item\em Get a constant component. \end{DoxyCompactList}\item 
-void {\bf set\+Component} (std\+::string const \&name, {\bf component\+::\+Component} const \&component)
+{\bf component\+::\+Component} \& {\bf set\+Component} (std\+::string const \&name, {\bf component\+::\+Component} const \&component)
 \begin{DoxyCompactList}\small\item\em Set a component. \end{DoxyCompactList}\item 
 {\bf component\+::\+Component} {\bf del\+Component} (std\+::string const \&name)
 \begin{DoxyCompactList}\small\item\em Removes a component. \end{DoxyCompactList}\end{DoxyCompactItemize}
@@ -109,7 +109,7 @@ Default move constructor.
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!````~Entity@{$\sim$\+Entity}}
 \index{````~Entity@{$\sim$\+Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{$\sim$\+Entity()}
-{\footnotesize\ttfamily entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::$\sim$\+Entity (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::$\sim$\+Entity (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
 
 
 
@@ -122,7 +122,7 @@ Destructor.
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!del\+Component@{del\+Component}}
 \index{del\+Component@{del\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{del\+Component()}
-{\footnotesize\ttfamily {\bf component\+::\+Component} entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::del\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::del\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
 
 
 
@@ -136,11 +136,11 @@ Removes a component.
 \begin{DoxyReturn}{Returns}
 a shallow copy of the removed component 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a804378afd22dd328a9a2c4f03ae3260e} 
+\label{classentity__component__system_1_1entity_1_1_entity_a7154f5da6afa09c0c6988c94d3bfe4a6} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!get\+Component@{get\+Component}}
 \index{get\+Component@{get\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{get\+Component()\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component}\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
 
 
 
@@ -152,13 +152,13 @@ Get a component.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-an lvalue reference to the requested component if found, raises an ??? exception otherwise 
+an lvalue reference to the requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_ad636ba1c5b1c59eb3cb5cf410ec04385} 
+\label{classentity__component__system_1_1entity_1_1_entity_af1ea7f087b1873b3d88a850c0d5a1d1c} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!get\+Component@{get\+Component}}
 \index{get\+Component@{get\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{get\+Component()\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component} const\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} const  \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
 
 
 
@@ -170,13 +170,13 @@ Get a constant component.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-an lvalue reference to the constant requested component if found, raises an ??? exception otherwise 
+an lvalue reference to the constant requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a6f6e2f41ef9674397d4ce26699039e44} 
+\label{classentity__component__system_1_1entity_1_1_entity_abc71d22109dd5ba9b6c6825299404cc0} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!has\+Component@{has\+Component}}
 \index{has\+Component@{has\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{has\+Component()}
-{\footnotesize\ttfamily bool entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::has\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily bool entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::has\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
 
 
 
@@ -190,11 +190,11 @@ Check if a component exists.
 \begin{DoxyReturn}{Returns}
 true if the component exists, false otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a1b78a595fb1bfcab10183de7589088ed} 
+\label{classentity__component__system_1_1entity_1_1_entity_a2888352392f840e1a438d048c5408c26} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator[]@{operator[]}}
 \index{operator[]@{operator[]}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{operator[]()\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component}\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
 
 
 
@@ -206,13 +206,13 @@ Get a component.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-an lvalue reference to the requested component if found, raises an ??? exception otherwise 
+an lvalue reference to the requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_adccaf4342f8b0df3e61ec089be907e94} 
+\label{classentity__component__system_1_1entity_1_1_entity_a57cfa49d47f456408c557b29b28be76f} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator[]@{operator[]}}
 \index{operator[]@{operator[]}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{operator[]()\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component} const\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} const  \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
 
 
 
@@ -224,13 +224,13 @@ Get a constant component.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-an lvalue reference to the constant requested component if found, raises an ??? exception otherwise 
+an lvalue reference to the constant requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_aacbd76a6d42dc5dc70fbd1638a149324} 
+\label{classentity__component__system_1_1entity_1_1_entity_a9709541ddf8c1fef7c1304ca04198052} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!set\+Component@{set\+Component}}
 \index{set\+Component@{set\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{set\+Component()}
-{\footnotesize\ttfamily void entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::set\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{{\bf component\+::\+Component} const \&}]{component }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::set\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{{\bf component\+::\+Component} const \&}]{component }\end{DoxyParamCaption})}
 
 
 
@@ -243,6 +243,9 @@ Set a component.
 \mbox{\tt in}  & {\em component} & the component to set \\
 \hline
 \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a reference to the set component 
+\end{DoxyReturn}
 
 
 \subsection{Friends And Related Function Documentation}
@@ -264,10 +267,11 @@ Insert an entity into an output stream.
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-the given output stream \textquotesingle{}os\textquotesingle{} to allow operator chaining 
+a reference to the given output stream \textquotesingle{}os\textquotesingle{} to allow operator chaining 
 \end{DoxyReturn}
 
 
-The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-inc/shared/{\bf Entity.\+hpp}\end{DoxyCompactItemize}
+inc/shared/{\bf Entity.\+hpp}\item 
+src/shared/{\bf Entity.\+cpp}\end{DoxyCompactItemize}

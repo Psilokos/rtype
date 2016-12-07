@@ -2,6 +2,11 @@
 \label{classentity__component__system_1_1component_1_1_component_1_1_attribute_1_1_bad_type}\index{entity\+\_\+component\+\_\+system\+::component\+::\+Component\+::\+Attribute\+::\+Bad\+Type@{entity\+\_\+component\+\_\+system\+::component\+::\+Component\+::\+Attribute\+::\+Bad\+Type}}
 
 
+Exception class Raised when an attribute\textquotesingle{}s type is not the expected one, when trying to retrieve it.  
+
+
+
+
 {\ttfamily \#include $<$Component.\+hpp$>$}
 
 Inheritance diagram for entity\+\_\+component\+\_\+system\+:\+:component\+:\+:Component\+:\+:Attribute\+:\+:Bad\+Type\+:\begin{figure}[H]
@@ -14,10 +19,13 @@ Inheritance diagram for entity\+\_\+component\+\_\+system\+:\+:component\+:\+:Co
 \begin{DoxyCompactItemize}
 \item 
 {\bf Bad\+Type} (std\+::string const \&attr\+Name, std\+::type\+\_\+info const $\ast$good\+Type\+Info, std\+::type\+\_\+info const $\ast$bad\+Type\+Info)
-\item 
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
 char const  $\ast$ {\bf what} (void) const noexcept
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em get the error message \end{DoxyCompactList}\end{DoxyCompactItemize}
 
+
+\subsection{Detailed Description}
+Exception class Raised when an attribute\textquotesingle{}s type is not the expected one, when trying to retrieve it. 
 
 \subsection{Constructor \& Destructor Documentation}
 \label{classentity__component__system_1_1component_1_1_component_1_1_attribute_1_1_bad_type_a7960ca3acf51ce3b53494cd62c23a93e} 
@@ -28,6 +36,19 @@ char const  $\ast$ {\bf what} (void) const noexcept
 
 
 
+Constructor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em attr\+Name} & the name of the requested attribute \\
+\hline
+\mbox{\tt in}  & {\em good\+Type\+Info} & a pointer to a type\+\_\+info, representing the expected type \\
+\hline
+\mbox{\tt in}  & {\em good\+Type\+Info} & a pointer to a type\+\_\+info, representing the given type \\
+\hline
+\end{DoxyParams}
+
+
 \subsection{Member Function Documentation}
 \label{classentity__component__system_1_1component_1_1_component_1_1_attribute_1_1_bad_type_a67a9eb74ffeb8fbceb96b70d79d8c627} 
 \index{entity\+\_\+component\+\_\+system\+::component\+::\+Component\+::\+Attribute\+::\+Bad\+Type@{entity\+\_\+component\+\_\+system\+::component\+::\+Component\+::\+Attribute\+::\+Bad\+Type}!what@{what}}
@@ -35,6 +56,13 @@ char const  $\ast$ {\bf what} (void) const noexcept
 \subsubsection{what()}
 {\footnotesize\ttfamily char const$\ast$ entity\+\_\+component\+\_\+system\+::component\+::\+Component\+::\+Attribute\+::\+Bad\+Type\+::what (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
 
+
+
+get the error message 
+
+\begin{DoxyReturn}{Returns}
+a pointer to the constant error message 
+\end{DoxyReturn}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

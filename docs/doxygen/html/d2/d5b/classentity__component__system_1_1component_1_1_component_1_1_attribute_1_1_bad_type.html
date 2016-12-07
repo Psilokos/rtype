@@ -87,6 +87,9 @@ $(document).ready(function(){initNavTree('d2/d5b/classentity__component__system_
 </div><!--header-->
 <div class="contents">
 
+<p>Exception class Raised when an attribute's type is not the expected one, when trying to retrieve it.  
+ <a href="../../d2/d5b/classentity__component__system_1_1component_1_1_component_1_1_attribute_1_1_bad_type.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="../../da/d5c/_component_8hpp_source.html">Component.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for entity_component_system::component::Component::Attribute::BadType:</div>
@@ -100,11 +103,15 @@ Inheritance diagram for entity_component_system::component::Component::Attribute
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a7960ca3acf51ce3b53494cd62c23a93e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d5b/classentity__component__system_1_1component_1_1_component_1_1_attribute_1_1_bad_type.html#a7960ca3acf51ce3b53494cd62c23a93e">BadType</a> (std::string const &amp;attrName, std::type_info const *goodTypeInfo, std::type_info const *badTypeInfo)</td></tr>
+<tr class="memdesc:a7960ca3acf51ce3b53494cd62c23a93e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#a7960ca3acf51ce3b53494cd62c23a93e">More...</a><br /></td></tr>
 <tr class="separator:a7960ca3acf51ce3b53494cd62c23a93e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67a9eb74ffeb8fbceb96b70d79d8c627"><td class="memItemLeft" align="right" valign="top">char const  *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d5b/classentity__component__system_1_1component_1_1_component_1_1_attribute_1_1_bad_type.html#a67a9eb74ffeb8fbceb96b70d79d8c627">what</a> (void) const noexcept</td></tr>
+<tr class="memdesc:a67a9eb74ffeb8fbceb96b70d79d8c627"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the error message  <a href="#a67a9eb74ffeb8fbceb96b70d79d8c627">More...</a><br /></td></tr>
 <tr class="separator:a67a9eb74ffeb8fbceb96b70d79d8c627"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Exception class Raised when an attribute's type is not the expected one, when trying to retrieve it. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a7960ca3acf51ce3b53494cd62c23a93e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7960ca3acf51ce3b53494cd62c23a93e">&sect;&nbsp;</a></span>BadType()</h2>
 
@@ -145,6 +152,16 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">attrName</td><td>the name of the requested attribute </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">goodTypeInfo</td><td>a pointer to a type_info, representing the expected type </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">goodTypeInfo</td><td>a pointer to a type_info, representing the given type </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -171,6 +188,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>get the error message </p>
+<dl class="section return"><dt>Returns</dt><dd>a pointer to the constant error message </dd></dl>
 
 </div>
 </div>

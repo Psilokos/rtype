@@ -5,6 +5,9 @@ var hierarchy =
     ] ],
     [ "entity_component_system::component::Component", "df/d06/classentity__component__system_1_1component_1_1_component.html", null ],
     [ "entity_component_system::entity::Entity", "da/d07/classentity__component__system_1_1entity_1_1_entity.html", null ],
+    [ "exception", null, [
+      [ "entity_component_system::IdentifierNotFound", "d0/d3f/classentity__component__system_1_1_identifier_not_found.html", null ]
+    ] ],
     [ "entity_component_system::database::ID< T >", "de/dc3/classentity__component__system_1_1database_1_1_i_d.html", null ],
     [ "entity_component_system::database::IDataBase< EntityType, ComponentType, AssemblyType >", "d7/d7e/classentity__component__system_1_1database_1_1_i_data_base.html", null ],
     [ "IDataBase", null, [
