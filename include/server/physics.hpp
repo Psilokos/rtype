@@ -11,11 +11,30 @@
 #ifndef _PHYSICS_HPP
 #define _PHYSICS_HPP_
 
-class DataBase {};
+#include "../../include/server/mock.hpp"
+#include "../../include/server/movement.hpp"
+
+#include <map>
+#include <experimental/any>
+#include <vector>
+#include <utility>
+
+
+# define STDE std::experimental
+
 
 class Physics {
 private:
-    DataBase    &_db;
+    DataBase            &_db;
+
+private:
+    void                mvtScroll(Entity &);
+
+    void                move(std::vector<Entity> &);
+    void                updateDir(Entity &);
+    void    collide(std::vector<Entity> &entities);
+    void    collider(Entity &obj, std::vector<Entity> &entities);
+
 
 public:
     Physics(DataBase &);
