@@ -5,23 +5,32 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec  5 19:42:01 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec  7 14:17:13 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include "Component.hpp"
+#include "IdentifierNotFound.hpp"
 
 namespace	entity_component_system
 {
   namespace	entity
   {
+    //! \brief Generic class for all entities
     class	Entity
     {
     public:
+      //! \brief Constructor
+      //! \param [in] components an initializer list of the components to store
+      //! \param [in] names the names of the components to store
       template<typename... ComponentsNames>
       Entity(std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity("unknownEntity", components, 0, names...) {}
 
+      //! \brief Constructor
+      //! \param [in] name the name of the entity
+      //! \param [in] components an initializer list of the components to store
+      //! \param [in] names the names of the components to store
       template<typename... ComponentsNames>
       Entity(std::string const & name, std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity(name, components, 0, names...) {}
 
@@ -31,53 +40,53 @@ namespace	entity_component_system
 	: _name(name), _components(components), _namesIdxMap({{names, i++}...}) {}
 
     public:
+      //! \brief Default copy constructor
       Entity(Entity const &) = default;
+      //! \brief Default move constructor
       Entity(Entity &&) = default;
-      ~Entity(void) {}
+      //! \brief Destructor
+      ~Entity(void);
 
-      bool	hasComponent(std::string const & name)	{ return _namesIdxMap.find(name) != _namesIdxMap.end(); }
+      //! \brief Check if a component exists
+      //! \param [in] name the name of the component to check
+      //! \return true if the component exists, false otherwise
+      bool	hasComponent(std::string const & name) const;
 
-      component::Component &		getComponent(std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
-      component::Component const &	getComponent(std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
+      //! \brief Get a component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      component::Component &		getComponent(std::string const & name);
 
-      component::Component &		operator[](std::string const & name)		{ return _components[_namesIdxMap.at(name)]; }
-      component::Component const &	operator[](std::string const & name) const	{ return _components[_namesIdxMap.at(name)]; }
+      //! \brief Get a constant component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the constant requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      component::Component const &	getComponent(std::string const & name) const;
 
-      void				setComponent(std::string const & name, component::Component const & component)
-      {
-	if (_namesIdxMap.find(name) == _namesIdxMap.end())
-	  {
-	    _namesIdxMap.emplace(name, _components.size());
-	    _components.emplace(_components.end(), component);
-	  }
-	else
-	  _components[_namesIdxMap[name]] = component;
-      }
+      //! \brief Get a component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      component::Component &		operator[](std::string const & name);
 
-      component::Component		delComponent(std::string const & name)
-      {
-	component::Component const	component = (*this)[name];
-	unsigned const			idx = _namesIdxMap.at(name);
+      //! \brief Get a constant component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the constant requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      component::Component const &	operator[](std::string const & name) const;
 
-	_components.erase(_components.begin() + idx);
-	_namesIdxMap.erase(name);
-	for (auto & pair : _namesIdxMap)
-	  if (pair.second > idx)
-	    --pair.second;
-	return component;
-      }
+      //! \brief Set a component
+      //! \param [in] name the name of the component to set
+      //! \param [in] component the component to set
+      component::Component &		setComponent(std::string const & name, component::Component const & component);
 
-      friend std::ostream &	operator<<(std::ostream & os, Entity const & e)
-      {
-	os << e._name << std::endl;
-	for (auto & pair : e._namesIdxMap)
-	  {
-	    os << '\t' << pair.first << std::endl;
-	    os << e._components[pair.second];
-	  }
-	os << "-------------------" << std::flush;
-	return os;
-      }
+      //! \brief Removes a component
+      //! \param [in] name the name of the component to remove
+      //! \return a shallow copy of the removed component
+      component::Component		delComponent(std::string const & name);
+
+      //! \brief Insert an entity into an output stream
+      //! \param [out] os the output stream in which the given entity will be inserted
+      //! \param [in] e the entity to insert in the stream
+      //! \return the given output stream 'os' to allow operator chaining
+      friend std::ostream &	operator<<(std::ostream & os, Entity const & e);
 
     private:
       std::string const				_name;

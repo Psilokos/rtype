@@ -5,13 +5,14 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec  5 19:46:08 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec  7 14:15:57 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include <cxxabi.h>
 #include <initializer_list>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -23,85 +24,88 @@ namespace	entity_component_system
 {
   namespace	component
   {
-    class	Attribute
-    {
-  public:
-      class	BadType : public std::bad_cast
-      {
-      public:
-	BadType(std::string const & attrName, std::type_info const * goodTypeInfo, std::type_info const * badTypeInfo) : _what{0}
-	{
-	  std::string	tmp = attrName
-	    + " expected type was '"
-	    + abi::__cxa_demangle(goodTypeInfo->name(), nullptr, nullptr, nullptr)
-	    + "', got '"
-	    + abi::__cxa_demangle(badTypeInfo->name(), nullptr, nullptr, nullptr)
-	    + "' instead.";
-
-	  std::copy(tmp.begin(), tmp.end(), _what);
-	}
-
-	char const *	what(void) const noexcept	{ return _what; }
-
-      private:
-	char			_what[1024];
-      };
-
-    private:
-      class	Base
-      {
-      public:
-	virtual ~Base(void) {}
-
-	virtual Base *	copy(void) const = 0;
-
-	virtual void *	value(std::string const & attrName, std::type_info const & typeInfo) = 0;
-
-	virtual std::ostream &	dump(std::ostream & os) const = 0;
-      };
-
-      template<typename T>
-      class	Model : public Base
-      {
-      public:
-	Model(T && value) : _value(std::forward<T>(value)), _typeInfo(&typeid(T)) {}
-	~Model(void) {}
-
-	Model *	copy(void) const { return new Model(*this); }
-
-	void *	value(std::string const & attrName, std::type_info const & typeInfo)
-	{
-	  if (typeInfo != *_typeInfo)
-	    throw BadType(attrName, _typeInfo, &typeInfo);
-	  return reinterpret_cast<void *>(&_value);
-	}
-
-	std::ostream &	dump(std::ostream & os) const	{ return os << _value; }
-
-      private:
-	T			_value;
-	std::type_info const *	_typeInfo;
-      };
-
-    public:
-      template<typename T>
-      Attribute(T && value) : _attr(new Model<T>(std::forward<T>(value))) {}
-      Attribute(Attribute const & src) : _attr(src._attr->copy()) {}
-      Attribute(Attribute &&) = default;
-
-      Attribute &	operator=(Attribute &&) = default;
-
-      template<typename T>
-      T &	value(std::string const & attrName) const { return *reinterpret_cast<T *>(_attr->value(attrName, typeid(T))); }
-
-      friend std::ostream &	operator<<(std::ostream & os, Attribute const & a) { return a._attr->dump(os); }
-
-    private:
-      std::unique_ptr<Base>	_attr;
-    };
-
+    /**
+     **
+     **/
     class	Component
     {
+      class	Attribute
+      {
+      public:
+	class	BadType : public std::bad_cast
+	{
+	public:
+	  BadType(std::string const & attrName, std::type_info const * goodTypeInfo, std::type_info const * badTypeInfo) : _what{0}
+	  {
+	    std::string	tmp = attrName
+	      + " expected type was '"
+	      + abi::__cxa_demangle(goodTypeInfo->name(), nullptr, nullptr, nullptr)
+	      + "', got '"
+	      + abi::__cxa_demangle(badTypeInfo->name(), nullptr, nullptr, nullptr)
+	      + "' instead.";
+
+	    std::copy(tmp.begin(), tmp.end(), _what);
+	  }
+
+	  char const *	what(void) const noexcept	{ return _what; }
+
+	private:
+	  char			_what[1024];
+	};
+
+      private:
+	class	Base
+	{
+	public:
+	  virtual ~Base(void) {}
+
+	  virtual Base *	copy(void) const = 0;
+
+	  virtual void *	value(std::string const & attrName, std::type_info const & typeInfo) = 0;
+
+	  virtual std::ostream &	dump(std::ostream & os) const = 0;
+	};
+
+	template<typename T>
+	class	Model : public Base
+	{
+	public:
+	  Model(T && value) : _value(std::forward<T>(value)), _typeInfo(&typeid(T)) {}
+	  ~Model(void) {}
+
+	  Model *	copy(void) const { return new Model(*this); }
+
+	  void *	value(std::string const & attrName, std::type_info const & typeInfo)
+	  {
+	    if (typeInfo != *_typeInfo)
+	      throw BadType(attrName, _typeInfo, &typeInfo);
+	    return reinterpret_cast<void *>(&_value);
+	  }
+
+	  std::ostream &	dump(std::ostream & os) const	{ return os << _value; }
+
+	private:
+	  T			_value;
+	  std::type_info const *	_typeInfo;
+	};
+
+      public:
+	template<typename T>
+	Attribute(T && value) : _attr(new Model<T>(std::forward<T>(value))) {}
+	Attribute(Attribute const & src) : _attr(src._attr->copy()) {}
+	Attribute(Attribute &&) = default;
+
+	Attribute &	operator=(Attribute &&) = default;
+
+	template<typename T>
+	T &	value(std::string const & attrName) const { return *reinterpret_cast<T *>(_attr->value(attrName, typeid(T))); }
+
+	friend std::ostream &	operator<<(std::ostream & os, Attribute const & a) { return a._attr->dump(os); }
+
+      private:
+	std::unique_ptr<Base>	_attr;
+      };
+
     public:
       template<typename... AttrNames, typename... AttrTypes>
       Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(values, 0, names...) {}

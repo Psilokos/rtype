@@ -1,0 +1,273 @@
+\section{entity\+\_\+component\+\_\+system\+:\+:entity\+:\+:Entity Class Reference}
+\label{classentity__component__system_1_1entity_1_1_entity}\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+
+
+Generic class for all entities.  
+
+
+
+
+{\ttfamily \#include $<$Entity.\+hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename... Components\+Names$>$ }\\{\bf Entity} (std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&components, Components\+Names \&\&... names)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename... Components\+Names$>$ }\\{\bf Entity} (std\+::string const \&name, std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&components, Components\+Names \&\&... names)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+{\bf Entity} ({\bf Entity} const \&)=default
+\begin{DoxyCompactList}\small\item\em Default copy constructor. \end{DoxyCompactList}\item 
+{\bf Entity} ({\bf Entity} \&\&)=default
+\begin{DoxyCompactList}\small\item\em Default move constructor. \end{DoxyCompactList}\item 
+{\bf $\sim$\+Entity} (void)
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+bool {\bf has\+Component} (std\+::string const \&name)
+\begin{DoxyCompactList}\small\item\em Check if a component exists. \end{DoxyCompactList}\item 
+{\bf component\+::\+Component} \& {\bf get\+Component} (std\+::string const \&name)
+\begin{DoxyCompactList}\small\item\em Get a component. \end{DoxyCompactList}\item 
+{\bf component\+::\+Component} const  \& {\bf get\+Component} (std\+::string const \&name) const
+\begin{DoxyCompactList}\small\item\em Get a constant component. \end{DoxyCompactList}\item 
+{\bf component\+::\+Component} \& {\bf operator[$\,$]} (std\+::string const \&name)
+\begin{DoxyCompactList}\small\item\em Get a component. \end{DoxyCompactList}\item 
+{\bf component\+::\+Component} const  \& {\bf operator[$\,$]} (std\+::string const \&name) const
+\begin{DoxyCompactList}\small\item\em Get a constant component. \end{DoxyCompactList}\item 
+void {\bf set\+Component} (std\+::string const \&name, {\bf component\+::\+Component} const \&component)
+\begin{DoxyCompactList}\small\item\em Set a component. \end{DoxyCompactList}\item 
+{\bf component\+::\+Component} {\bf del\+Component} (std\+::string const \&name)
+\begin{DoxyCompactList}\small\item\em Removes a component. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& {\bf operator$<$$<$} (std\+::ostream \&os, {\bf Entity} const \&e)
+\begin{DoxyCompactList}\small\item\em Insert an entity into an output stream. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Generic class for all entities. 
+
+\subsection{Constructor \& Destructor Documentation}
+\label{classentity__component__system_1_1entity_1_1_entity_ac2a4f4ef215db042196832c94e5945e1} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!Entity@{Entity}}
+\index{Entity@{Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{Entity()\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily template$<$typename... Components\+Names$>$ \\
+entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&}]{components,  }\item[{Components\+Names \&\&...}]{names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em components} & an initializer list of the components to store \\
+\hline
+\mbox{\tt in}  & {\em names} & the names of the components to store \\
+\hline
+\end{DoxyParams}
+\label{classentity__component__system_1_1entity_1_1_entity_a2eaee6ea1d148e1d37fd35bc1365184e} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!Entity@{Entity}}
+\index{Entity@{Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{Entity()\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily template$<$typename... Components\+Names$>$ \\
+entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&}]{components,  }\item[{Components\+Names \&\&...}]{names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the entity \\
+\hline
+\mbox{\tt in}  & {\em components} & an initializer list of the components to store \\
+\hline
+\mbox{\tt in}  & {\em names} & the names of the components to store \\
+\hline
+\end{DoxyParams}
+\label{classentity__component__system_1_1entity_1_1_entity_a3ebe4637915cb9097e3bd87a1c42d3d7} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!Entity@{Entity}}
+\index{Entity@{Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{Entity()\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{{\bf Entity} const \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [default]}}
+
+
+
+Default copy constructor. 
+
+\label{classentity__component__system_1_1entity_1_1_entity_afb8a353e1480c930a442e95a8682a515} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!Entity@{Entity}}
+\index{Entity@{Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{Entity()\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{{\bf Entity} \&\&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [default]}}
+
+
+
+Default move constructor. 
+
+\label{classentity__component__system_1_1entity_1_1_entity_a9f5a994114ee609e8432394f9cb5432d} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!````~Entity@{$\sim$\+Entity}}
+\index{````~Entity@{$\sim$\+Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{$\sim$\+Entity()}
+{\footnotesize\ttfamily entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::$\sim$\+Entity (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Destructor. 
+
+
+
+\subsection{Member Function Documentation}
+\label{classentity__component__system_1_1entity_1_1_entity_a3c089e1b17a0f5028d7a4ebbf9e80366} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!del\+Component@{del\+Component}}
+\index{del\+Component@{del\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{del\+Component()}
+{\footnotesize\ttfamily {\bf component\+::\+Component} entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::del\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Removes a component. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to remove \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a shallow copy of the removed component 
+\end{DoxyReturn}
+\label{classentity__component__system_1_1entity_1_1_entity_a804378afd22dd328a9a2c4f03ae3260e} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!get\+Component@{get\+Component}}
+\index{get\+Component@{get\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{get\+Component()\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component}\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get a component. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to get \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+an lvalue reference to the requested component if found, raises an ??? exception otherwise 
+\end{DoxyReturn}
+\label{classentity__component__system_1_1entity_1_1_entity_ad636ba1c5b1c59eb3cb5cf410ec04385} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!get\+Component@{get\+Component}}
+\index{get\+Component@{get\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{get\+Component()\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} const\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get a constant component. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to get \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+an lvalue reference to the constant requested component if found, raises an ??? exception otherwise 
+\end{DoxyReturn}
+\label{classentity__component__system_1_1entity_1_1_entity_a6f6e2f41ef9674397d4ce26699039e44} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!has\+Component@{has\+Component}}
+\index{has\+Component@{has\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{has\+Component()}
+{\footnotesize\ttfamily bool entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::has\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Check if a component exists. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to check \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the component exists, false otherwise 
+\end{DoxyReturn}
+\label{classentity__component__system_1_1entity_1_1_entity_a1b78a595fb1bfcab10183de7589088ed} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator[]@{operator[]}}
+\index{operator[]@{operator[]}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{operator[]()\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component}\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get a component. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to get \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+an lvalue reference to the requested component if found, raises an ??? exception otherwise 
+\end{DoxyReturn}
+\label{classentity__component__system_1_1entity_1_1_entity_adccaf4342f8b0df3e61ec089be907e94} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator[]@{operator[]}}
+\index{operator[]@{operator[]}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{operator[]()\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily {\bf component\+::\+Component} const\& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get a constant component. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to get \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+an lvalue reference to the constant requested component if found, raises an ??? exception otherwise 
+\end{DoxyReturn}
+\label{classentity__component__system_1_1entity_1_1_entity_aacbd76a6d42dc5dc70fbd1638a149324} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!set\+Component@{set\+Component}}
+\index{set\+Component@{set\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{set\+Component()}
+{\footnotesize\ttfamily void entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::set\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{{\bf component\+::\+Component} const \&}]{component }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set a component. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em name} & the name of the component to set \\
+\hline
+\mbox{\tt in}  & {\em component} & the component to set \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Friends And Related Function Documentation}
+\label{classentity__component__system_1_1entity_1_1_entity_a94a7f5e4b7b926be09b78d3d4aabeaee} 
+\index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
+\subsubsection{operator$<$$<$}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{os,  }\item[{{\bf Entity} const \&}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Insert an entity into an output stream. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em os} & the output stream in which the given entity will be inserted \\
+\hline
+\mbox{\tt in}  & {\em e} & the entity to insert in the stream \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the given output stream \textquotesingle{}os\textquotesingle{} to allow operator chaining 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+inc/shared/{\bf Entity.\+hpp}\end{DoxyCompactItemize}
