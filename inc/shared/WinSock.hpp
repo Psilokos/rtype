@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Tue Nov 29 14:42:42 2016 Gabriel CADET
-** Last update Fri Dec 02 19:35:01 2016 Gabriel CADET
+** Last update Fri Dec 09 14:08:10 2016 Gabriel CADET
 */
 
 #ifndef WINSOCK_HPP_
@@ -383,8 +383,8 @@ namespace network {
   template<int dom, int type, int proto>
   int     Socket<dom, type, proto>::listen(int backlog)
   {
-    static_assert(proto != IPPROTO_UDP, "Cannot call accept on UDP Socket.");
-    static_assert(type != SOCK_DGRAM, "Cannot call accept on connectionless Sockets." );
+    if (type == SOCK_DGRAM || proto == IPPROTO_UDP)
+      throw ; //insert exception here
     int ret;
 
     ret = ::listen(_sock, backlog);
@@ -396,8 +396,8 @@ namespace network {
   template<int dom, int type, int proto>
   ASocket *Socket<dom, type, proto>::accept(sockaddr * addr, int * addrlen)
   {
-    static_assert(proto != IPPROTO_UDP, "Cannot call accept on UDP Socket.");
-    static_assert(type != SOCK_DGRAM, "Cannot call accept on connectionless Sockets." );
+    if (type == SOCK_DGRAM || proto == IPPROTO_UDP)
+      throw ; //insert exception here
 
     SOCKET nsock = ::WSAAccept(_sock, addr, addrlen, NULL, NULL);
 
@@ -411,8 +411,8 @@ namespace network {
   template<int dom, int type, int proto>
   ASocket * Socket<dom, type, proto>::accept(std::string const & addr, std::string const & service)
   {
-    static_assert(proto != IPPROTO_UDP, "Cannot call accept on UDP Socket.");
-    static_assert(type != SOCK_DGRAM, "Cannot call accept on connectionless Sockets." );
+    if (type == SOCK_DGRAM || proto == IPPROTO_UDP)
+      throw ; //insert exception here
 
     SOCKET    nsock;
     addrinfo  hints;
