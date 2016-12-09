@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Nov 28 15:31:01 2016 Gabriel CADET
-** Last update Fri Dec 02 19:39:35 2016 Gabriel CADET
+** Last update Fri Dec 09 14:16:04 2016 Gabriel CADET
 */
 
 #ifndef ASOCKET_HPP_
@@ -132,7 +132,7 @@ namespace network {
       ** \return If no error occurs, accept returns a pointer on a new ASocket instance, that contains the handler for the socket on wich the actual connection is made.
       */
       virtual ASocket	*accept(sockaddr *addr, int *addrlen) = 0;
-      virtual ASocket *accept(std::string const &addr, std::string const &service) = 0;
+      virtual ASocket	*accept(std::string const &addr, std::string const &service) = 0;
 
       /**
       ** \brief The connect function establishes a connection to a specified socket.
