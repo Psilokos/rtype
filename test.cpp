@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Tue Nov 29 11:48:30 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 10 07:16:15 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 11 00:48:13 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cstring>
@@ -29,7 +29,7 @@ namespace	entity_component_system::component
 
 namespace	entity_component_system::entity
 {
-  typedef Entity<ct::TypesWrapper<ecs::component::Vector2, ecs::component::Vector2>, ::pos, ::size>	Player;
+  typedef Entity<ct::TypesWrapper<ecs::component::Vector2, ecs::component::Vector2>, ::pos, ::size>		Player;
 }
 
 void	test(void)
@@ -46,7 +46,7 @@ void	test(void)
   {
     ecs::database::Component	size(std::forward_as_tuple<std::uint16_t, std::uint16_t>(100, 75), "x", "y");
     ecs::database::Component	pos(std::forward_as_tuple<std::uint16_t, std::uint16_t, std::uint8_t>(size.getAttr<std::uint16_t>("x") / 3, size.getAttr<std::uint16_t>("y") / 2, 10), "x", "y", "TTL");
-    ecs::database::Entity		player("player#23", {pos, size}, "pos", "size");
+    ecs::database::Entity	player("player#23", {pos, size}, "pos", "size");
     unsigned			playerTTL = 48;
 
     std::cout << player << std::endl;
@@ -85,11 +85,22 @@ void	test(void)
 	    ecs::entity::Player(pos, size),
 	    ecs::entity::Player(ecs::component::Vector2(0, 0), size),
 	    ecs::entity::Player(pos, ecs::component::Vector2(0, 0)),
-	    ecs::entity::Player(ecs::component::Vector2(0, 0), ecs::component::Vector2(0, 0))
+	    ecs::entity::Player(ecs::component::Vector2(0, 0), ecs::component::Vector2(0, 0)),
 	  };
+	ecs::entity::Player		mutablePlayer = player;
 
-	for (unsigned i = 0; i < 4; ++i)
+	for (unsigned i = 0; i < sizeof(p) / sizeof(ecs::entity::Player); ++i)
 	  std::cout << "player#" << std::to_string(i) << " => " << p[i] << std::endl;
+	std::cout << "mutablePlayer.pos.x = " << mutablePlayer.getComponent<::pos>().getAttr<::x>() << std::endl;
+	mutablePlayer.setComponent<::pos>(pos);
+	std::cout << "mutablePlayer.pos.x = " << mutablePlayer.getComponent<::pos>().getAttr<::x>() << std::endl;
+	for (unsigned i = 0; i < sizeof(p) / sizeof(ecs::entity::Player); ++i)
+	  std::cout << "player#" << std::to_string(i) << " => " << p[i] << std::endl;
+	mutablePlayer.getComponent<::pos>() = player[::pos];
+	std::cout << "mutablePlayer => " << mutablePlayer << std::endl;
+	player[::size] = size;
+	std::cout << player << std::endl;
+	// player = mutablePlayer; =========> NEXT STEP
       }
     }
   }

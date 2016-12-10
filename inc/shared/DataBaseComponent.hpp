@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 21:11:40 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 11 00:44:09 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -19,10 +19,20 @@
 #include <typeinfo>
 #include <tuple>
 #include <vector>
+#include "CompileTime.hpp"
 #include "IdentifierNotFound.hpp"
 
 namespace	entity_component_system
 {
+  namespace	component
+  {
+    template<typename, char const *...>
+    class	Component;
+
+    template<typename... Types, char const *... names>
+    class	Component<ct::TypesWrapper<Types...>, names...>;
+  }
+
   namespace	database
   {
     //! \brief Generic class for all components
@@ -132,6 +142,15 @@ namespace	entity_component_system
       //! \brief Default destructor
       ~Component(void) {}
 
+      template<typename... Types, char const *... names>
+      Component &
+      operator=(component::Component<ct::TypesWrapper<Types...>, names...> const & c)
+      {
+	_Assign<names...>	assign(c, _namesIdxMap, _attributes);
+
+	return *this;
+      }
+
       //! \brief Default copy assignement operator
       Component &	operator=(Component const &) = default;
       //! \brief Default move assignement operator
@@ -147,7 +166,8 @@ namespace	entity_component_system
       //! If the given type 'T' is not the expected one, an entity_component_system::database::Component::Attribute::BadType exception is raised
       //! \param [in] name the name of the attribute to get
       //! \return an lvalue reference to the requested attribute if found, raises an ecs::IdentifierNotFound exception otherwise
-      template<typename T> T &
+      template<typename T>
+      T &
       getAttr(std::string const & name)
       {
 	if (_namesIdxMap.find(name) == _namesIdxMap.end())
@@ -160,7 +180,8 @@ namespace	entity_component_system
       //! If the given type 'T' is not the expected one, an entity_component_system::database::Component::Attribute::BadType exception is raised
       //! \param [in] name the name of the attribute to get
       //! \return an lvalue reference to the constant requested attribute if found, raises an ecs::IdentifierNotFound exception otherwise
-      template<typename T> T const &
+      template<typename T>
+      T const &
       getAttr(std::string const & name) const
       {
 	if (_namesIdxMap.find(name) == _namesIdxMap.end())
@@ -198,6 +219,28 @@ namespace	entity_component_system
       std::map<std::string, unsigned>		_namesIdxMap;
       std::vector<std::shared_ptr<Attribute>>	_attributes;
 
+      template<char const *... names>
+      struct	_Assign
+      {
+	template<typename... Types>
+	_Assign(component::Component<ct::TypesWrapper<Types...>, names...> const & c, std::map<std::string, unsigned> const & namesIdxMap, std::vector<std::shared_ptr<Attribute>> & attributes)
+	{
+	  this->setAttributes<0, names...>(c, namesIdxMap, attributes);
+	}
+
+	template<unsigned idx, char const *, char const *..., typename... Types>
+	void
+	setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> const &, std::map<std::string, unsigned> const &,
+		      std::vector<std::shared_ptr<Attribute>> &, typename std::enable_if<idx < sizeof...(names), void *>::type = 0);
+
+	template<unsigned idx, typename... Types>
+	void
+	setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> const &, std::map<std::string, unsigned> const &,
+		      std::vector<std::shared_ptr<Attribute>> &, typename std::enable_if<idx == sizeof...(names), void *>::type = 0)
+	{}
+      };
+
+    private:
       template<typename... AttrTypes, typename... Attr>
       std::vector<std::shared_ptr<Attribute>>
       _getAttributes(std::tuple<AttrTypes...> & values, Attr... attr)
@@ -223,3 +266,16 @@ namespace	entity_component_system
 }
 
 namespace	ecs = entity_component_system;
+
+#include "Component.hpp"
+
+template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... Types>
+void
+entity_component_system::database::Component::_Assign<names...>::setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> const & c, std::map<std::string, unsigned> const & namesIdxMap,
+									       std::vector<std::shared_ptr<Attribute>> & attributes, typename std::enable_if<idx < sizeof...(names), void *>::type)
+{
+  if (namesIdxMap.find(name) == namesIdxMap.end())
+    throw IdentifierNotFound(name);
+  attributes[namesIdxMap.at(name)]->value<typename std::tuple_element<idx, std::tuple<Types...>>::type>(name) = c.getAttr<name>();
+  this->setAttributes<idx + 1, _names...>(c, namesIdxMap, attributes);
+}

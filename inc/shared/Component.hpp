@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 10 07:14:51 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 10 21:07:56 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -14,10 +14,14 @@
 #include <string>
 #include <tuple>
 #include "CompileTime.hpp"
-#include "DataBaseComponent.hpp"
 
 namespace	entity_component_system
 {
+  namespace	database
+  {
+    class	Component;
+  }
+
   namespace	component
   {
     //! \brief compile-time Component class (see its specialization below)
@@ -49,7 +53,7 @@ namespace	entity_component_system
       //! \brief Constructor
       //!
       //! initializes attributes by copy with corresponding databaseComponent's attributes values
-      //! \param [in] databaseComponent a component used in database with at least the same attributes as the one's of the component being constructed
+      //! \param [in] databaseComponent a database component with at least the same attributes as the one's of the component being constructed
       Component(database::Component const & databaseComponent) : _values(_initValues(databaseComponent, std::true_type())) {}
       //! \brief Default copy constructor
       Component(Component const &) = default;
@@ -57,6 +61,21 @@ namespace	entity_component_system
       Component(Component &&) = default;
       //! \brief Default destructor
       ~Component(void) = default;
+
+      //! \brief Copy assignement operator
+      //!
+      //! \param [in] databaseComponent a database component with at least the same attributes as the one's of the component being constructed
+      Component &
+      operator=(database::Component const & databaseComponent)
+      {
+	_values = _initValues(databaseComponent, std::true_type());
+	return *this;
+      }
+
+      //! \brief Default copy assignement operator
+      Component &	operator=(Component const &) = default;
+      //! \brief Default move assignement operator
+      Component &	operator=(Component &&) = default;
 
       //! \brief Gets an attribute
       //! \param [in] name (template parameter) the name of the attribute to get (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
@@ -114,20 +133,11 @@ namespace	entity_component_system
     private:
       template<typename... Values>
       std::tuple<Types...>
-      _initValues(database::Component const & databaseComponent, std::true_type, Values&&... values)
-      {
-	return _initValues(databaseComponent,
-			   std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
-			   values...,
-			   databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...))));
-      }
+      _initValues(database::Component const & databaseComponent, std::true_type, Values&&... values) const;
 
       template<typename... Values>
       std::tuple<Types...>
-      _initValues(database::Component const &, std::false_type, Values&&... values)
-      {
-	return std::tuple<Types...>(values...);
-      }
+      _initValues(database::Component const &, std::false_type, Values&&... values) const;
 
       template<char const * name, char const *... _names>
       std::ostream &
@@ -147,4 +157,21 @@ namespace	entity_component_system
   }
 }
 
-namespace	ecs = entity_component_system;
+#include "DataBaseComponent.hpp"
+
+template<typename... Types, char const *... names> template<typename... Values>
+std::tuple<Types...>
+entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component const & databaseComponent, std::true_type, Values&&... values) const
+{
+  return _initValues(databaseComponent,
+		     std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
+		     std::forward<Values>(values)...,
+		     databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...))));
+}
+
+template<typename... Types, char const *... names> template<typename... Values>
+std::tuple<Types...>
+entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component const &, std::false_type, Values&&... values) const
+{
+  return std::forward_as_tuple(std::forward<Values>(values)...);
+}
