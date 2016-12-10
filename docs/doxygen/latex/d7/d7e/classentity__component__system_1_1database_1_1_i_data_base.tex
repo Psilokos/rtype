@@ -13,13 +13,13 @@ virtual {\bf ID}$<$ Entity $>$ {\bf create\+Entity} (Entity\+Type const entity\+
 \item 
 virtual {\bf ID}$<$ Entity $>$ {\bf create\+And\+Assemble\+Entity} (Entity\+Type const entity\+Type, Assembly\+Type const assembly\+Type)=0
 \item 
-virtual {\bf ID}$<$ Component $>$ {\bf create\+Component} (Component\+Type const component\+Type, unsigned const attr\+Nb)=0
+virtual {\bf ID}$<$ {\bf Component} $>$ {\bf create\+Component} (Component\+Type const component\+Type, unsigned const attr\+Nb)=0
 \item 
-virtual {\bf ID}$<$ Component $>$ {\bf create\+And\+Bind\+Component} (Component\+Type const component\+Type, {\bf ID}$<$ Entity $>$ const \&entity\+Id)=0
+virtual {\bf ID}$<$ {\bf Component} $>$ {\bf create\+And\+Bind\+Component} (Component\+Type const component\+Type, {\bf ID}$<$ Entity $>$ const \&entity\+Id)=0
 \item 
 virtual void {\bf bind\+Component\+To\+Assembly} (Assembly\+Type const assembly\+Type, Component\+Type const component\+Type)=0
 \item 
-virtual {\bf ID}$<$ Component $>$ {\bf bind\+Component\+To\+Entity} ({\bf ID}$<$ Entity $>$ const \&entity\+Id, Component\+Type const component\+Type, {\bf ID}$<$ Component $>$ const \&component\+Id)=0
+virtual {\bf ID}$<$ {\bf Component} $>$ {\bf bind\+Component\+To\+Entity} ({\bf ID}$<$ Entity $>$ const \&entity\+Id, Component\+Type const component\+Type, {\bf ID}$<$ {\bf Component} $>$ const \&component\+Id)=0
 \item 
 virtual stde\+::any {\bf get\+Entity} ({\bf ID}$<$ Entity $>$ const \&id, std\+::list$<$ Component\+Type $>$ const \&components) const =0
 \item 
@@ -60,7 +60,7 @@ virtual void {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Ba
 \index{bind\+Component\+To\+Entity@{bind\+Component\+To\+Entity}!entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base@{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}}
 \subsubsection{bind\+Component\+To\+Entity()}
 {\footnotesize\ttfamily template$<$typename Entity\+Type , typename Component\+Type , typename Assembly\+Type $>$ \\
-virtual {\bf ID}$<$Component$>$ {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}$<$ Entity\+Type, Component\+Type, Assembly\+Type $>$\+::bind\+Component\+To\+Entity (\begin{DoxyParamCaption}\item[{{\bf ID}$<$ Entity $>$ const \&}]{entity\+Id,  }\item[{Component\+Type const}]{component\+Type,  }\item[{{\bf ID}$<$ Component $>$ const \&}]{component\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+virtual {\bf ID}$<${\bf Component}$>$ {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}$<$ Entity\+Type, Component\+Type, Assembly\+Type $>$\+::bind\+Component\+To\+Entity (\begin{DoxyParamCaption}\item[{{\bf ID}$<$ Entity $>$ const \&}]{entity\+Id,  }\item[{Component\+Type const}]{component\+Type,  }\item[{{\bf ID}$<$ {\bf Component} $>$ const \&}]{component\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
 \label{classentity__component__system_1_1database_1_1_i_data_base_a41c7ed5f04ac166e142878e32ae5e3e5} 
 \index{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base@{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}!create\+And\+Assemble\+Entity@{create\+And\+Assemble\+Entity}}
@@ -74,14 +74,14 @@ virtual {\bf ID}$<$Entity$>$ {\bf entity\+\_\+component\+\_\+system\+::database\
 \index{create\+And\+Bind\+Component@{create\+And\+Bind\+Component}!entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base@{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}}
 \subsubsection{create\+And\+Bind\+Component()}
 {\footnotesize\ttfamily template$<$typename Entity\+Type , typename Component\+Type , typename Assembly\+Type $>$ \\
-virtual {\bf ID}$<$Component$>$ {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}$<$ Entity\+Type, Component\+Type, Assembly\+Type $>$\+::create\+And\+Bind\+Component (\begin{DoxyParamCaption}\item[{Component\+Type const}]{component\+Type,  }\item[{{\bf ID}$<$ Entity $>$ const \&}]{entity\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+virtual {\bf ID}$<${\bf Component}$>$ {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}$<$ Entity\+Type, Component\+Type, Assembly\+Type $>$\+::create\+And\+Bind\+Component (\begin{DoxyParamCaption}\item[{Component\+Type const}]{component\+Type,  }\item[{{\bf ID}$<$ Entity $>$ const \&}]{entity\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
 \label{classentity__component__system_1_1database_1_1_i_data_base_a7015be247d4bbc4497c6965c7f29af2a} 
 \index{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base@{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}!create\+Component@{create\+Component}}
 \index{create\+Component@{create\+Component}!entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base@{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}}
 \subsubsection{create\+Component()}
 {\footnotesize\ttfamily template$<$typename Entity\+Type , typename Component\+Type , typename Assembly\+Type $>$ \\
-virtual {\bf ID}$<$Component$>$ {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}$<$ Entity\+Type, Component\+Type, Assembly\+Type $>$\+::create\+Component (\begin{DoxyParamCaption}\item[{Component\+Type const}]{component\+Type,  }\item[{unsigned const}]{attr\+Nb }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+virtual {\bf ID}$<${\bf Component}$>$ {\bf entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}$<$ Entity\+Type, Component\+Type, Assembly\+Type $>$\+::create\+Component (\begin{DoxyParamCaption}\item[{Component\+Type const}]{component\+Type,  }\item[{unsigned const}]{attr\+Nb }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
 \label{classentity__component__system_1_1database_1_1_i_data_base_ade6b15fec900be773f3ef01f04dc1bb2} 
 \index{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base@{entity\+\_\+component\+\_\+system\+::database\+::\+I\+Data\+Base}!create\+Entity@{create\+Entity}}

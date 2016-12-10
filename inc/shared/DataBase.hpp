@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Nov 30 16:11:57 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec  7 17:00:04 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -30,6 +30,9 @@ namespace	ecs
       ID<Entity>	createAndAssembleEntity(EntityType const entityType, AssemblyType const assemblyType);
       ID<Component>	createComponent(ComponentType const componentType);
       ID<Component>	createAndBindComponent(ComponentType const componentType, ID<Entity> const & entityId);
+
+    private:
+      std::array<std::vector<>, componentTypeNb + 5>
     };
   }
 }

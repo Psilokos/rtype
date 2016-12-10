@@ -12,9 +12,9 @@ Generic class for all entities.
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\footnotesize template$<$typename... Components\+Names$>$ }\\{\bf Entity} (std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&components, Components\+Names \&\&... names)
+{\footnotesize template$<$typename... Components\+Names$>$ }\\{\bf Entity} (std\+::initializer\+\_\+list$<$ {\bf database\+::\+Component} $>$ \&\&components, Components\+Names \&\&... names)
 \begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
-{\footnotesize template$<$typename... Components\+Names$>$ }\\{\bf Entity} (std\+::string const \&name, std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&components, Components\+Names \&\&... names)
+{\footnotesize template$<$typename... Components\+Names$>$ }\\{\bf Entity} (std\+::string const \&name, std\+::initializer\+\_\+list$<$ {\bf database\+::\+Component} $>$ \&\&components, Components\+Names \&\&... names)
 \begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
 {\bf Entity} ({\bf Entity} const \&)=default
 \begin{DoxyCompactList}\small\item\em Default copy constructor. \end{DoxyCompactList}\item 
@@ -24,17 +24,17 @@ Generic class for all entities.
 \begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
 bool {\bf has\+Component} (std\+::string const \&name) const
 \begin{DoxyCompactList}\small\item\em Check if a component exists. \end{DoxyCompactList}\item 
-{\bf component\+::\+Component} \& {\bf get\+Component} (std\+::string const \&name)
+{\bf database\+::\+Component} \& {\bf get\+Component} (std\+::string const \&name)
 \begin{DoxyCompactList}\small\item\em Get a component. \end{DoxyCompactList}\item 
-{\bf component\+::\+Component} const  \& {\bf get\+Component} (std\+::string const \&name) const
+{\bf database\+::\+Component} const  \& {\bf get\+Component} (std\+::string const \&name) const
 \begin{DoxyCompactList}\small\item\em Get a constant component. \end{DoxyCompactList}\item 
-{\bf component\+::\+Component} \& {\bf operator[$\,$]} (std\+::string const \&name)
+{\bf database\+::\+Component} \& {\bf operator[$\,$]} (std\+::string const \&name)
 \begin{DoxyCompactList}\small\item\em Get a component. \end{DoxyCompactList}\item 
-{\bf component\+::\+Component} const  \& {\bf operator[$\,$]} (std\+::string const \&name) const
+{\bf database\+::\+Component} const  \& {\bf operator[$\,$]} (std\+::string const \&name) const
 \begin{DoxyCompactList}\small\item\em Get a constant component. \end{DoxyCompactList}\item 
-{\bf component\+::\+Component} \& {\bf set\+Component} (std\+::string const \&name, {\bf component\+::\+Component} const \&component)
+{\bf database\+::\+Component} \& {\bf set\+Component} (std\+::string const \&name, {\bf database\+::\+Component} const \&component)
 \begin{DoxyCompactList}\small\item\em Set a component. \end{DoxyCompactList}\item 
-{\bf component\+::\+Component} {\bf del\+Component} (std\+::string const \&name)
+{\bf database\+::\+Component} {\bf del\+Component} (std\+::string const \&name)
 \begin{DoxyCompactList}\small\item\em Removes a component. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Friends}
 \begin{DoxyCompactItemize}
@@ -47,12 +47,12 @@ std\+::ostream \& {\bf operator$<$$<$} (std\+::ostream \&os, {\bf Entity} const 
 Generic class for all entities. 
 
 \subsection{Constructor \& Destructor Documentation}
-\label{classentity__component__system_1_1entity_1_1_entity_ac2a4f4ef215db042196832c94e5945e1} 
+\label{classentity__component__system_1_1entity_1_1_entity_a9f9ece8a4eb4fec3af07768ad38c5b61} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!Entity@{Entity}}
 \index{Entity@{Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{Entity()\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
 {\footnotesize\ttfamily template$<$typename... Components\+Names$>$ \\
-entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&}]{components,  }\item[{Components\+Names \&\&...}]{names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{std\+::initializer\+\_\+list$<$ {\bf database\+::\+Component} $>$ \&\&}]{components,  }\item[{Components\+Names \&\&...}]{names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -65,12 +65,12 @@ Constructor.
 \mbox{\tt in}  & {\em names} & the names of the components to store \\
 \hline
 \end{DoxyParams}
-\label{classentity__component__system_1_1entity_1_1_entity_a2eaee6ea1d148e1d37fd35bc1365184e} 
+\label{classentity__component__system_1_1entity_1_1_entity_a9918f8b950fa02ad7c0989b8d33ce608} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!Entity@{Entity}}
 \index{Entity@{Entity}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{Entity()\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
 {\footnotesize\ttfamily template$<$typename... Components\+Names$>$ \\
-entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{std\+::initializer\+\_\+list$<$ {\bf component\+::\+Component} $>$ \&\&}]{components,  }\item[{Components\+Names \&\&...}]{names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::\+Entity (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{std\+::initializer\+\_\+list$<$ {\bf database\+::\+Component} $>$ \&\&}]{components,  }\item[{Components\+Names \&\&...}]{names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -118,11 +118,11 @@ Destructor.
 
 
 \subsection{Member Function Documentation}
-\label{classentity__component__system_1_1entity_1_1_entity_a3c089e1b17a0f5028d7a4ebbf9e80366} 
+\label{classentity__component__system_1_1entity_1_1_entity_a9a6ad4ef849f3615233da6e6b8baad28} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!del\+Component@{del\+Component}}
 \index{del\+Component@{del\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{del\+Component()}
-{\footnotesize\ttfamily {\bf component\+::\+Component} entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::del\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily {\bf database\+::\+Component} entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::del\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
 
 
 
@@ -136,11 +136,11 @@ Removes a component.
 \begin{DoxyReturn}{Returns}
 a shallow copy of the removed component 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a7154f5da6afa09c0c6988c94d3bfe4a6} 
+\label{classentity__component__system_1_1entity_1_1_entity_a041668e84e845f1e1a19059b080d9dfe} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!get\+Component@{get\+Component}}
 \index{get\+Component@{get\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{get\+Component()\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily {\bf database\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
 
 
 
@@ -154,11 +154,11 @@ Get a component.
 \begin{DoxyReturn}{Returns}
 an lvalue reference to the requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_af1ea7f087b1873b3d88a850c0d5a1d1c} 
+\label{classentity__component__system_1_1entity_1_1_entity_af82574053d544c2aa236d0cda0d87a49} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!get\+Component@{get\+Component}}
 \index{get\+Component@{get\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{get\+Component()\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component} const  \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
+{\footnotesize\ttfamily {\bf database\+::\+Component} const  \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::get\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
 
 
 
@@ -190,11 +190,11 @@ Check if a component exists.
 \begin{DoxyReturn}{Returns}
 true if the component exists, false otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a2888352392f840e1a438d048c5408c26} 
+\label{classentity__component__system_1_1entity_1_1_entity_a263fa4d4733a1fd8d8b46d2f556b6e2f} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator[]@{operator[]}}
 \index{operator[]@{operator[]}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{operator[]()\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily {\bf database\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption})}
 
 
 
@@ -208,11 +208,11 @@ Get a component.
 \begin{DoxyReturn}{Returns}
 an lvalue reference to the requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a57cfa49d47f456408c557b29b28be76f} 
+\label{classentity__component__system_1_1entity_1_1_entity_a3707627ccd7a63b7de554850a1aec042} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!operator[]@{operator[]}}
 \index{operator[]@{operator[]}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{operator[]()\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
-{\footnotesize\ttfamily {\bf component\+::\+Component} const  \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
+{\footnotesize\ttfamily {\bf database\+::\+Component} const  \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::operator[$\,$] (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name }\end{DoxyParamCaption}) const}
 
 
 
@@ -226,11 +226,11 @@ Get a constant component.
 \begin{DoxyReturn}{Returns}
 an lvalue reference to the constant requested component if found, raises an ecs\+::\+Identifier\+Not\+Found exception otherwise 
 \end{DoxyReturn}
-\label{classentity__component__system_1_1entity_1_1_entity_a9709541ddf8c1fef7c1304ca04198052} 
+\label{classentity__component__system_1_1entity_1_1_entity_a9f92049ff6acbb5292cf744e99f61b7c} 
 \index{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}!set\+Component@{set\+Component}}
 \index{set\+Component@{set\+Component}!entity\+\_\+component\+\_\+system\+::entity\+::\+Entity@{entity\+\_\+component\+\_\+system\+::entity\+::\+Entity}}
 \subsubsection{set\+Component()}
-{\footnotesize\ttfamily {\bf component\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::set\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{{\bf component\+::\+Component} const \&}]{component }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily {\bf database\+::\+Component} \& entity\+\_\+component\+\_\+system\+::entity\+::\+Entity\+::set\+Component (\begin{DoxyParamCaption}\item[{std\+::string const \&}]{name,  }\item[{{\bf database\+::\+Component} const \&}]{component }\end{DoxyParamCaption})}
 
 
 

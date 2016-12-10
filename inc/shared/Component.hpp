@@ -4,196 +4,123 @@
 // Made by Victorien LE COUVIOUR--TUFFET
 // Login   <lecouv_v@epitech.eu>
 //
-// Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 14:46:07 2016 Victorien LE COUVIOUR--TUFFET
+// Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 10 01:31:22 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
-#include <cxxabi.h>
-#include <initializer_list>
-#include <iostream>
-#include <map>
-#include <memory>
+#include <functional>
 #include <string>
-#include <typeinfo>
 #include <tuple>
-#include <vector>
+#include "DataBaseComponent.hpp"
 
 namespace	entity_component_system
 {
   namespace	component
   {
-    //! \brief Generic class for all components
-    class	Component
+    //! \brief class used to define the types of the component's attributes
+    template<typename...> struct	Types;
+
+    //! \brief compile-time Component class (see its specialization below)
+    template<typename, char const *...>
+    class	Component;
+
+    //! \brief compile-time Component class
+    //!
+    //! this class is designed to represent a component outside of the database
+    //! \param [in] TypesWrapper (template parameter) the types of the component's attributes, wrapped in a templated class or struct such as entity_component_system::component::Types
+    //! \param [in] Types (template parameter) the types of the component's attributes
+    //! \param [in] names (template parameter) the names of the component's attributes, in the same order as the types are (must be variables with internal linkage, declared as follow: constexpr char var[] = "name";)
+    template<template<typename...> class TypesWrapper, typename... Types, char const *... names>
+    class	Component<TypesWrapper<Types...>, names...>
     {
-      class	Attribute
+      static constexpr bool	constantStringCompare(char const * const lhs, char const * const rhs)	{ return *lhs && *rhs ? *lhs == *rhs && constantStringCompare(lhs + 1, rhs + 1) : !*lhs && !*rhs; }
+
+      template<unsigned idx, char const * s1, char const *... s>
+      static constexpr unsigned
+      _getIdx(std::true_type)
       {
-      public:
-	//! \brief Exception class
-	//! Raised when an attribute's type is not the expected one, when trying to retrieve it
-	class	BadType : public std::bad_cast
-	{
-	public:
-	  //! \brief Constructor
-	  //! \param [in] attrName the name of the requested attribute
-	  //! \param [in] goodTypeInfo a pointer to a type_info, representing the expected type
-	  //! \param [in] goodTypeInfo a pointer to a type_info, representing the given type
-	  BadType(std::string const & attrName, std::type_info const * goodTypeInfo, std::type_info const * badTypeInfo) : _what{0}
-	  {
-	    std::string	tmp = attrName
-	      + " expected type was '"
-	      + abi::__cxa_demangle(goodTypeInfo->name(), nullptr, nullptr, nullptr)
-	      + "', got '"
-	      + abi::__cxa_demangle(badTypeInfo->name(), nullptr, nullptr, nullptr)
-	      + "' instead.";
+	return idx - 1;
+      }
 
-	    std::copy(tmp.begin(), tmp.end(), _what);
-	  }
+      template<unsigned idx, char const *s1, char const *s2, char const *...s>
+      static constexpr unsigned
+      _getIdx(std::false_type)
+      {
+	return _getIdx<idx + 1, s1, s...>(std::integral_constant<bool, constantStringCompare(s1, s2)>());
+      }
 
-	  //! \brief get the error message
-	  //! \return a pointer to the constant error message
-	  char const *	what(void) const noexcept	{ return _what; }
-
-	private:
-	  char			_what[1024];
-	};
-
-      private:
-	class	Base
-	{
-	public:
-	  virtual ~Base(void) {}
-
-	  virtual Base *	copy(void) const = 0;
-
-	  virtual void *	value(std::string const & attrName, std::type_info const & typeInfo) = 0;
-
-	  virtual std::ostream &	dump(std::ostream & os) const = 0;
-	};
-
-	template<typename T>
-	class	Model : public Base
-	{
-	public:
-	  Model(T && value) : _value(std::forward<T>(value)), _typeInfo(&typeid(T)) {}
-	  ~Model(void) {}
-
-	  Model *	copy(void) const { return new Model(*this); }
-
-	  void *	value(std::string const & attrName, std::type_info const & typeInfo)
-	  {
-	    if (typeInfo != *_typeInfo)
-	      throw BadType(attrName, _typeInfo, &typeInfo);
-	    return reinterpret_cast<void *>(&_value);
-	  }
-
-	  std::ostream &	dump(std::ostream & os) const	{ return os << _value; }
-
-	private:
-	  T			_value;
-	  std::type_info const *	_typeInfo;
-	};
-
-      public:
-	template<typename T>
-	Attribute(T && value) : _attr(new Model<T>(std::forward<T>(value))) {}
-	Attribute(Attribute const & src) : _attr(src._attr->copy()) {}
-	Attribute(Attribute &&) = default;
-
-	Attribute &	operator=(Attribute &&) = default;
-
-	template<typename T>
-	T &	value(std::string const & attrName) const { return *reinterpret_cast<T *>(_attr->value(attrName, typeid(T))); }
-
-	friend std::ostream &	operator<<(std::ostream & os, Attribute const & a) { return a._attr->dump(os); }
-
-      private:
-	std::unique_ptr<Base>	_attr;
-      };
+      template<char const * toFind, char const * ... list>
+      static constexpr unsigned
+      getIdx(void)
+      {
+	return _getIdx<0, toFind, list...>(std::false_type());
+      }
 
     public:
-      //! \brief Construstor
-      //! \param [in] values a tuple containing the initial values of the attributes and their types
-      //! \param [in] names the names of the attributes (must be in the same order as the values in the tuple)
-      template<typename... AttrNames, typename... AttrTypes>
-      Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(values, 0, names...) {}
-
-    private:
-      template<typename... AttrNames, typename... AttrTypes>
-      Component(std::tuple<AttrTypes...> & values, unsigned i, AttrNames&&... names) : _namesIdxMap({{names, i++}...}), _attributes(_getAttributes<AttrTypes...>(values)) {}
-
-    public:
+      //! \brief Default constructor
+      Component(void) : _values(Types()...) {}
+      //! \brief Constructor
+      //!
+      //! allows you to initialize attributes by copy
+      //! \param [in] values values to initialize attributes
+      Component(Types const &... values) : _values(values...) {}
+      //! \brief Constructor
+      //!
+      //! allows you to initialize attributes' by copy and/or move depending on the type of the value (lvalue or rvalue) passed as parameter when called
+      //! \param [in] values values to initialize attributes
+      Component(Types&&... values) : _values(std::forward<Types>(values)...) {}
+      //! \brief Constructor
+      //!
+      //! initializes attributes by copy with corresponding databaseComponent's attributes values
+      //! \param [in] databaseComponent a component used in database with at least the same attributes as the one's of the component being constructed
+      Component(database::Component const & databaseComponent) : _values(_initValues(databaseComponent, std::true_type())) {}
       //! \brief Default copy constructor
       Component(Component const &) = default;
       //! \brief Default move constructor
       Component(Component &&) = default;
-      //! \brief Default destructor
+      //! \brief Destructor
       ~Component(void) {}
 
-      //! \brief Default copy assignement operator
-      Component &	operator=(Component const &) = default;
-      //! \brief Default move assignement operator
-      Component &	operator=(Component &&) = default;
-
-      //! \brief Check if a component exists
-      //! \param [in] name the name of the attribute to check
-      //! \return true if the attribute exists, false otherwise
-      bool	hasAttr(std::string const & name) { return _namesIdxMap.find(name) != _namesIdxMap.end(); }
-
-      //! \brief Get an attribute
-      //! \param [in] name the name of the attribute to get
-      //! \return an lvalue reference to the requested attribute if found, raises an ecs::IdentifierNotFound exception otherwise
-      template<typename T> T &		getAttr(std::string const & name)	{ return _attributes[_namesIdxMap.at(name)]->value<T>(name); }
-
-      //! \brief Get an attribute
-      //! \param [in] name the name of the attribute to get
-      //! \return an lvalue reference to the constant requested attribute if found, raises an ecs::IdentifierNotFound exception otherwise
-      template<typename T> T const &	getAttr(std::string const & name) const	{ return _attributes[_namesIdxMap.at(name)]->value<T>(name); }
-
-      //! \brief Set an attribute
-      //! \param [in] name the name of the attribute to set
-      //! \param [in] value the value of the attribute to set
-      template<typename T>
-      void	setAttr(std::string const & name, T && value)
+      //! \brief Gets an attribute
+      //! \param [in] name (template parameter) the name of the attribute to get (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
+      //! \return an lvalue reference to the requested attribute
+      template<char const * name>
+      typename std::tuple_element<getIdx<name, names...>(), std::tuple<Types...>>::type &
+      getAttr(void)
       {
-	if (_namesIdxMap.find(name) == _namesIdxMap.end())
-	  {
-	    _namesIdxMap.emplace(name, _attributes.size());
-	    _attributes.emplace(_attributes.end(), std::shared_ptr<Attribute>(new Attribute(std::forward<T>(value))));
-	  }
-	else
-	  _attributes[_namesIdxMap[name]]->value<T>(name) = value;
+	return std::get<getIdx<name, names...>()>(_values);
       }
 
-      //! \brief Removes an attribute
-      //! \param [in] name the name of the attribute to remove
-      //! \return a shallow copy of the removed attribute
-      template<typename T>
-      T		delAttr(std::string const & name)
+      //! \brief Gets an attribute
+      //! \param [in] name (template parameter) the name of the attribute to get (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
+      //! \return an lvalue reference to the constant requested attribute
+      template<char const * name>
+      typename std::tuple_element<getIdx<name, names...>(), std::tuple<Types...>>::type const &
+      getAttr(void) const
       {
-	T const		attr = this->getAttr<T>(name);
-	unsigned const	idx = _namesIdxMap.at(name);
-
-	_attributes.erase(_attributes.begin() + idx);
-	_namesIdxMap.erase(name);
-	for (auto & pair : _namesIdxMap)
-	  if (pair.second > idx)
-	    --pair.second;
-	return attr;
+	return std::get<getIdx<name, names...>()>(_values);
       }
 
-      //! \brief Removes an attribute
-      //! \param [in] name the name of the attribute to remove
-      void	delAttr(std::string const & name)
+      //! \brief Sets an attribute by copy
+      //! \param [in] name (template parameter) the name of the attribute to set (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
+      //! \param [in] v the new value of the concerned attribute
+      template<char const * name>
+      void
+      setAttr(typename std::tuple_element<getIdx<name, names...>(), std::tuple<Types...>>::type const & v)
       {
-	unsigned const	idx = _namesIdxMap.at(name);
+	std::get<getIdx<name, names...>()>(_values) = v;
+      }
 
-	_attributes.erase(_attributes.begin() + idx);
-	_namesIdxMap.erase(name);
-	for (auto & pair : _namesIdxMap)
-	  if (pair.second > idx)
-	    --pair.second;
+      //! \brief Sets an attribute by copy or move, depending on the type of the value (lvalue or rvalue) passed as parameter when called
+      //! \param [in] name (template parameter) the name of the attribute to set (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
+      //! \param [in] v the new value of the concerned attribute
+      template<char const * name>
+      void
+      setAttr(typename std::tuple_element<getIdx<name, names...>(), std::tuple<Types...>>::type && v)
+      {
+	std::get<getIdx<name, names...>()>(_values) = std::forward<typename std::tuple_element<getIdx<name, names...>(), std::tuple<Types...>>::type>(v);
       }
 
       //! \brief Insert a component into an output stream
@@ -202,34 +129,44 @@ namespace	entity_component_system
       //! \return a reference to the given output stream 'os' to allow operator chaining
       friend std::ostream &	operator<<(std::ostream & os, Component const & c)
       {
-	for (auto & pair : c._namesIdxMap)
-	  os << "\t\t" << pair.first << " => " << *c._attributes[pair.second] << std::endl;
-	return os;
+	os << '{';
+	return c._print<names...>(os) << '}' << std::flush;
       }
 
     private:
-      std::map<std::string, unsigned>		_namesIdxMap;
-      std::vector<std::shared_ptr<Attribute>>	_attributes;
+      std::tuple<Types...>		_values;
 
-      template<typename... AttrTypes, typename... Attr>
-      std::vector<std::shared_ptr<Attribute>>
-      _getAttributes(std::tuple<AttrTypes...> & values, Attr... attr)
+    private:
+      template<typename... Values>
+      std::tuple<Types...>
+      _initValues(database::Component const & databaseComponent, std::true_type, Values&&... values)
       {
-	return _getAttributesImpl<AttrTypes...>(std::integral_constant<bool, sizeof...(Attr) < sizeof...(AttrTypes)>(), values, attr...);
+	return _initValues(databaseComponent,
+			   std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
+			   values...,
+			   databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...))));
       }
 
-      template<typename... AttrTypes, typename... Attr>
-      std::vector<std::shared_ptr<Attribute>>
-      _getAttributesImpl(std::true_type, std::tuple<AttrTypes...> & values, Attr... attr)
+      template<typename... Values>
+      std::tuple<Types...>
+      _initValues(database::Component const &, std::false_type, Values&&... values)
       {
-	return _getAttributes<AttrTypes...>(values, attr..., std::shared_ptr<Attribute>(new Attribute(std::move(std::get<sizeof...(attr)>(values)))));
+	return std::tuple<Types...>(values...);
       }
 
-      template<typename... AttrTypes, typename... Attr>
-      std::vector<std::shared_ptr<Attribute>>
-      _getAttributesImpl(std::false_type, std::tuple<AttrTypes...> &, Attr... attr)
+      template<char const * name, char const *... _names>
+      std::ostream &
+      _print(std::ostream & os, typename std::enable_if<sizeof...(_names), void *>::type = 0) const
       {
-	return std::vector<std::shared_ptr<Attribute>>({attr...});
+	os << name << " => " << std::get<sizeof...(names) - sizeof...(_names) - 1>(_values) << "; ";
+	return _print<_names...>(os);
+      }
+
+      template<char const * name, char const *... _names>
+      std::ostream &
+      _print(std::ostream & os, typename std::enable_if<!sizeof...(_names), void *>::type = 0) const
+      {
+	return os << name << " => " << std::get<sizeof...(names) - 1>(_values);
       }
     };
   }

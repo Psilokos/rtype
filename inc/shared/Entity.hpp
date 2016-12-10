@@ -5,12 +5,12 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 14:40:28 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec  7 20:43:24 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
-#include "Component.hpp"
+#include "DataBaseComponent.hpp"
 #include "IdentifierNotFound.hpp"
 
 namespace	entity_component_system
@@ -25,18 +25,18 @@ namespace	entity_component_system
       //! \param [in] components an initializer list of the components to store
       //! \param [in] names the names of the components to store
       template<typename... ComponentsNames>
-      Entity(std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity("unknownEntity", components, 0, names...) {}
+      Entity(std::initializer_list<database::Component> && components, ComponentsNames&&... names) : Entity("unknownEntity", components, 0, names...) {}
 
       //! \brief Constructor
       //! \param [in] name the name of the entity
       //! \param [in] components an initializer list of the components to store
       //! \param [in] names the names of the components to store
       template<typename... ComponentsNames>
-      Entity(std::string const & name, std::initializer_list<component::Component> && components, ComponentsNames&&... names) : Entity(name, components, 0, names...) {}
+      Entity(std::string const & name, std::initializer_list<database::Component> && components, ComponentsNames&&... names) : Entity(name, components, 0, names...) {}
 
     private:
       template<typename... ComponentsNames>
-      Entity(std::string const & name, std::initializer_list<component::Component> const & components, unsigned i, ComponentsNames&&... names)
+      Entity(std::string const & name, std::initializer_list<database::Component> const & components, unsigned i, ComponentsNames&&... names)
 	: _name(name), _components(components), _namesIdxMap({{names, i++}...}) {}
 
     public:
@@ -55,33 +55,33 @@ namespace	entity_component_system
       //! \brief Get a component
       //! \param [in] name the name of the component to get
       //! \return an lvalue reference to the requested component if found, raises an ecs::IdentifierNotFound exception otherwise
-      component::Component &		getComponent(std::string const & name);
+      database::Component &		getComponent(std::string const & name);
 
       //! \brief Get a constant component
       //! \param [in] name the name of the component to get
       //! \return an lvalue reference to the constant requested component if found, raises an ecs::IdentifierNotFound exception otherwise
-      component::Component const &	getComponent(std::string const & name) const;
+      database::Component const &	getComponent(std::string const & name) const;
 
       //! \brief Get a component
       //! \param [in] name the name of the component to get
       //! \return an lvalue reference to the requested component if found, raises an ecs::IdentifierNotFound exception otherwise
-      component::Component &		operator[](std::string const & name);
+      database::Component &		operator[](std::string const & name);
 
       //! \brief Get a constant component
       //! \param [in] name the name of the component to get
       //! \return an lvalue reference to the constant requested component if found, raises an ecs::IdentifierNotFound exception otherwise
-      component::Component const &	operator[](std::string const & name) const;
+      database::Component const &	operator[](std::string const & name) const;
 
       //! \brief Set a component
       //! \param [in] name the name of the component to set
       //! \param [in] component the component to set
       //! \return a reference to the set component
-      component::Component &		setComponent(std::string const & name, component::Component const & component);
+      database::Component &		setComponent(std::string const & name, database::Component const & component);
 
       //! \brief Removes a component
       //! \param [in] name the name of the component to remove
       //! \return a shallow copy of the removed component
-      component::Component		delComponent(std::string const & name);
+      database::Component		delComponent(std::string const & name);
 
       //! \brief Insert an entity into an output stream
       //! \param [out] os the output stream in which the given entity will be inserted
@@ -91,7 +91,7 @@ namespace	entity_component_system
 
     private:
       std::string const				_name;
-      std::vector<component::Component>		_components;
+      std::vector<database::Component>		_components;
       std::map<std::string, unsigned>		_namesIdxMap;
     };
   }

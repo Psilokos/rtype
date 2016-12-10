@@ -29,4 +29,7 @@
 *.app
 
 # Test files
-test.cpp
+#test.cpp
+
+# doxygen documentation
+docs/doxygen

@@ -5,7 +5,7 @@
 ## Login   <lecouv_v@epitech.eu>
 ##
 ## Started on  Mon Nov 28 15:36:12 2016 Victorien LE COUVIOUR--TUFFET
-## Last update Wed Dec  7 13:33:29 2016 Victorien LE COUVIOUR--TUFFET
+## Last update Fri Dec  9 22:19:06 2016 Victorien LE COUVIOUR--TUFFET
 ##
 
 NAME_SERVER		= rtype-srv
