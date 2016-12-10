@@ -17,5 +17,5 @@ function make-symlinks
 		end
 	end
 	cd $cwd
-	echo Leaving directory $cwd/$argv[1]
+	echo make-symlinks[$argv[2]]: Leaving directory $cwd/$argv[1]
 end

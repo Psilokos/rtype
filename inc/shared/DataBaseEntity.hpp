@@ -1,0 +1,98 @@
+//
+// DataBaseEntity.hpp for R-Type in /home/lecouv_v/rendu/rtype
+//
+// Made by Victorien LE COUVIOUR--TUFFET
+// Login   <lecouv_v@epitech.eu>
+//
+// Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 10 04:44:11 2016 Victorien LE COUVIOUR--TUFFET
+//
+
+#pragma once
+
+#include "DataBaseComponent.hpp"
+#include "IdentifierNotFound.hpp"
+
+namespace	entity_component_system
+{
+  namespace	database
+  {
+    //! \brief Generic class for all entities
+    class	Entity
+    {
+    public:
+      //! \brief Constructor
+      //! \param [in] components an initializer list of the components to store
+      //! \param [in] names the names of the components to store
+      template<typename... ComponentsNames>
+      Entity(std::initializer_list<Component> && components, ComponentsNames&&... names) : Entity("unknownEntity", components, 0, names...) {}
+
+      //! \brief Constructor
+      //! \param [in] name the name of the entity
+      //! \param [in] components an initializer list of the components to store
+      //! \param [in] names the names of the components to store
+      template<typename... ComponentsNames>
+      Entity(std::string const & name, std::initializer_list<Component> && components, ComponentsNames&&... names) : Entity(name, components, 0, names...) {}
+
+    private:
+      template<typename... ComponentsNames>
+      Entity(std::string const & name, std::initializer_list<Component> const & components, unsigned i, ComponentsNames&&... names)
+	: _name(name), _components(components), _namesIdxMap({{names, i++}...}) {}
+
+    public:
+      //! \brief Default copy constructor
+      Entity(Entity const &) = default;
+      //! \brief Default move constructor
+      Entity(Entity &&) = default;
+      //! \brief Destructor
+      ~Entity(void);
+
+      //! \brief Check if a component exists
+      //! \param [in] name the name of the component to check
+      //! \return true if the component exists, false otherwise
+      bool	hasComponent(std::string const & name) const;
+
+      //! \brief Get a component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      Component &		getComponent(std::string const & name);
+
+      //! \brief Get a constant component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the constant requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      Component const &		getComponent(std::string const & name) const;
+
+      //! \brief Get a component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      Component &		operator[](std::string const & name);
+
+      //! \brief Get a constant component
+      //! \param [in] name the name of the component to get
+      //! \return an lvalue reference to the constant requested component if found, raises an ecs::IdentifierNotFound exception otherwise
+      Component const &		operator[](std::string const & name) const;
+
+      //! \brief Set a component
+      //! \param [in] name the name of the component to set
+      //! \param [in] component the component to set
+      //! \return a reference to the set component
+      Component &		setComponent(std::string const & name, Component const & component);
+
+      //! \brief Removes a component
+      //! \param [in] name the name of the component to remove
+      //! \return a shallow copy of the removed component
+      Component		delComponent(std::string const & name);
+
+      //! \brief Insert an entity into an output stream
+      //! \param [out] os the output stream in which the given entity will be inserted
+      //! \param [in] e the entity to insert in the stream
+      //! \return a reference to the given output stream 'os' to allow operator chaining
+      friend std::ostream &	operator<<(std::ostream & os, Entity const & e);
+
+    private:
+      std::string const			_name;
+      std::vector<Component>		_components;
+      std::map<std::string, unsigned>	_namesIdxMap;
+    };
+  }
+}

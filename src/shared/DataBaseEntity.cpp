@@ -5,20 +5,20 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 13:36:34 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 20:51:09 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 10 04:45:00 2016 Victorien LE COUVIOUR--TUFFET
 //
 
-#include "Entity.hpp"
+#include "DataBaseEntity.hpp"
 
 namespace	entity_component_system
 {
-  namespace	entity
+  namespace	database
   {
     Entity::~Entity(void) {}
 
     bool	Entity::hasComponent(std::string const & name) const	{ return _namesIdxMap.find(name) != _namesIdxMap.end(); }
 
-    database::Component &
+    Component &
     Entity::getComponent(std::string const & name)
     {
       if (_namesIdxMap.find(name) == _namesIdxMap.end())
@@ -26,7 +26,7 @@ namespace	entity_component_system
       return _components[_namesIdxMap.at(name)];
     }
 
-    database::Component const &
+    Component const &
     Entity::getComponent(std::string const & name) const
     {
       if (_namesIdxMap.find(name) == _namesIdxMap.end())
@@ -34,11 +34,11 @@ namespace	entity_component_system
       return _components[_namesIdxMap.at(name)];
     }
 
-    database::Component &		Entity::operator[](std::string const & name)		{ return this->getComponent(name); }
-    database::Component const &		Entity::operator[](std::string const & name) const	{ return this->getComponent(name); }
+    Component &		Entity::operator[](std::string const & name)		{ return this->getComponent(name); }
+    Component const &	Entity::operator[](std::string const & name) const	{ return this->getComponent(name); }
 
-    database::Component &
-    Entity::setComponent(std::string const & name, database::Component const & component)
+    Component &
+    Entity::setComponent(std::string const & name, Component const & component)
     {
       if (_namesIdxMap.find(name) == _namesIdxMap.end())
 	{
@@ -50,14 +50,14 @@ namespace	entity_component_system
       return this->getComponent(name);
     }
 
-    database::Component
+    Component
     Entity::delComponent(std::string const & name)
     {
       if (_namesIdxMap.find(name) == _namesIdxMap.end())
 	throw IdentifierNotFound(name);
       {
-	database::Component const	component = this->getComponent(name);
-	unsigned const			idx = _namesIdxMap.at(name);
+	Component const		component = this->getComponent(name);
+	unsigned const		idx = _namesIdxMap.at(name);
 
 	_components.erase(_components.begin() + idx);
 	_namesIdxMap.erase(name);
