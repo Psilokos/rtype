@@ -5,10 +5,10 @@
 ## Login   <rochef_q@epitech.net>
 ## 
 ## Started on  Tue Mar  3 18:11:26 2015 quentin rochefort
-## Last update Sat Dec 10 19:22:48 2016 Quentin Rochefort
+## Last update Sun Dec 11 16:40:25 2016 Quentin Rochefort
 ##
 
-NAME	= test
+NAME	= rtype
 
 CXX	= g++
 
@@ -17,8 +17,10 @@ CXXFLAGS	+= -I./inc/server/
 
 DIR_SRCS	= src/server/
 
-SRCS	= $(DIR_SRCS)main.cpp \
-	  $(DIR_SRCS)Map.cpp
+SRCS	= $(DIR_SRCS)main.cpp	\
+	  $(DIR_SRCS)Map.cpp	\
+	  $(DIR_SRCS)Weapon.cpp	\
+	  $(DIR_SRCS)Block.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 
