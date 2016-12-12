@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Tue Nov 29 13:59:41 2016 Gabriel CADET
-** Last update Fri Dec 02 19:39:39 2016 Gabriel CADET
+** Last update Fri Dec 09 18:00:35 2016 Gabriel CADET
 */
 
 #include "ASocket.hpp"
@@ -29,7 +29,7 @@ namespace network {
     return ret;
   }
 
-  int ASocket::select(std::list<ASocket*>& read, std::list<ASocket*>& write, std::list<ASocket*>& exept, timeval * timeout)
+  int ASocket::select(std::list<ASocket*>&& read, std::list<ASocket*>&& write, std::list<ASocket*>&& exept, timeval * timeout)
   {
     int ret;
     fd_set rd;
@@ -65,10 +65,16 @@ namespace network {
     ++ndfs;
 
     ret = ::select(ndfs, &rd, &wr, &ex, timeout);
+    if (ret == -1) {
+      read.clear();
+      write.clear();
+      exept.clear();
+      return ret;
+    }
 
     read.remove_if([&rd](ASocket *s) { return FD_ISSET(s->_sock, &rd); });
-    read.remove_if([&wr](ASocket *s) { return FD_ISSET(s->_sock, &wr); });
-    read.remove_if([&ex](ASocket *s) { return FD_ISSET(s->_sock, &ex); });
+    write.remove_if([&wr](ASocket *s) { return FD_ISSET(s->_sock, &wr); });
+    exept.remove_if([&ex](ASocket *s) { return FD_ISSET(s->_sock, &ex); });
     return ret;
   }
 
