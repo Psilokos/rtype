@@ -5,15 +5,24 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Wed Dec 07 20:30:07 2016 Gabriel CADET
+** Last update Sun Dec 11 22:18:02 2016 Gabriel CADET
 */
 
 #ifndef CONNECTION_HPP_
 #define CONNECTION_HPP_
 
+#include <map>
+#include <queue>
+#include <tuple>
+#include <string>
+#include <utility>
+
 #include "ISystem.hpp"
+#include "BaseNet.hpp"
 #include "ASocket.hpp"
 #include "Socket.hpp"
+
+#include "MockDb.hpp"
 
 namespace ecs::system {
   /**
@@ -32,7 +41,14 @@ namespace ecs::system {
   ** It's now up to the Room system to accept or deny the connection.\n
   **
   */
-  class Connection : public ISystem {
+  class Connection : public BaseNet {
+    private:
+      struct request {
+        unsigned char	rc;
+        unsigned short	sz;
+        char		data[0];
+      } __attribute__((__packed__));
+
     public:
       /**
       ** \brief Default constructor.
@@ -66,8 +82,20 @@ namespace ecs::system {
       ** Permit inter system communications.
       */
       void	update(ecs::database::IDataBase &);
+
+      /*
+      ** Private member methods
+      */
     private:
-      network::ASocket	*_sock;
+      int	rcvRequest(ecs::database::IDataBase &);
+      int	req001Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
+      int	req101Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
+
+    private:
+      network::ASocket									*_sock;
+      std::queue<std::tuple<std::string, std::string, int, char *>>			_respQueue;
+      std::map<char, int (Connection::*)(ecs::database::IDataBase &, request *, std::string const &, std::string const &)>	_reqHandler;
+      typedef decltype(_reqHandler.begin()) reqIter;
   };
 } // namespace system
 
