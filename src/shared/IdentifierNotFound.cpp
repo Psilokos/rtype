@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 14:12:11 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 14:18:13 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 12 16:00:26 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include "IdentifierNotFound.hpp"
@@ -17,5 +17,5 @@ namespace	entity_component_system
     std::copy(id.begin(), id.end(), _what);
   }
 
-  char const *	IdentifierNotFound::what(void) const noexcept	{ return _what; }
+  char const *	IdentifierNotFound::what(void) const noexcept { return _what; }
 }

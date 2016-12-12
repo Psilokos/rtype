@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 13:36:34 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 10 04:45:00 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 11 21:29:10 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include "DataBaseEntity.hpp"
@@ -71,13 +71,17 @@ namespace	entity_component_system
     std::ostream &
     operator<<(std::ostream & os, Entity const & e)
     {
-      os << e._name << std::endl;
-      for (auto & pair : e._namesIdxMap)
+      auto	it = e._namesIdxMap.begin();
+
+      os << "[with ";
+      while (it != e._namesIdxMap.end())
 	{
-	  os << '\t' << pair.first << std::endl;
-	  os << e._components[pair.second];
+	  os << it->first << ": " << e._components[it->second];
+	  if (++it != e._namesIdxMap.end())
+	    os << ", ";
+	  else
+	    os << ']';
 	}
-      os << "-------------------" << std::flush;
       return os;
     }
   }
