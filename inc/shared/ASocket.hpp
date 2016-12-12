@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Nov 28 15:31:01 2016 Gabriel CADET
-** Last update Fri Dec 09 14:16:04 2016 Gabriel CADET
+** Last update Fri Dec 09 17:53:08 2016 Gabriel CADET
 */
 
 #ifndef ASOCKET_HPP_
@@ -162,7 +162,7 @@ namespace network {
       ** \param [in] timeout the maximum time for select to wait. NULL for blocking op.
       ** \return select return the total number of socket in the updated lists, 0 if a timeout occured, or -1 if an error occured.
       */
-      virtual int select(std::list<ASocket *> &read, std::list<ASocket *> &write, std::list<ASocket *> &exept, timeval *timeout);
+      static int select(std::list<ASocket *> &&read, std::list<ASocket *> &&write, std::list<ASocket *> &&exept, timeval *timeout);
 
       /**
       ** \brief The getaddrinfo function provides protocol-independent translation from an ANSI host name to an address.
