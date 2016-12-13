@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Sun Dec 11 22:18:02 2016 Gabriel CADET
+** Last update Tue Dec 13 12:10:29 2016 Gabriel CADET
 */
 
 #ifndef CONNECTION_HPP_
@@ -42,13 +42,6 @@ namespace ecs::system {
   **
   */
   class Connection : public BaseNet {
-    private:
-      struct request {
-        unsigned char	rc;
-        unsigned short	sz;
-        char		data[0];
-      } __attribute__((__packed__));
-
     public:
       /**
       ** \brief Default constructor.
@@ -89,7 +82,11 @@ namespace ecs::system {
     private:
       int	rcvRequest(ecs::database::IDataBase &);
       int	req001Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
+      int	req003Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
+      int	req004Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
       int	req101Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
+
+      void	forwardRequest(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
 
     private:
       network::ASocket									*_sock;

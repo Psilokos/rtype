@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 17:48:36 2016 Gabriel CADET
-** Last update Sun Dec 11 22:45:55 2016 Gabriel CADET
+** Last update Tue Dec 13 14:28:27 2016 Gabriel CADET
 */
 
 #include <iostream>
@@ -16,16 +16,20 @@ namespace ecs::system {
   Connection::Connection()
     : _sock(new network::UdpSocket())
   {
-    _reqHandler[1] = &Connection::req001Handler;
-    _reqHandler[101] = &Connection::req101Handler;
+    int	ret;
 
+    ret = _sock->bind("0.0.0.0", "4242");
+    _reqHandler[1] = &Connection::req001Handler;
+    _reqHandler[3] = &Connection::req003Handler;
+    _reqHandler[4] = &Connection::req004Handler;
+    _reqHandler[101] = &Connection::req101Handler;
   }
 
   void		Connection::update(ecs::database::IDataBase &db) {
     int		selRet;
     char	*buf;
-    if (!_respQueue.empty()) {
 
+    if (!_respQueue.empty()) {
       if (-1 == (selRet = network::ASocket::select(std::list<network::ASocket *>(), std::list<network::ASocket *>({_sock}), std::list<network::ASocket *>(), NULL)))
         return ;
       else if (selRet)
@@ -44,9 +48,8 @@ namespace ecs::system {
 
     if (-1 == (selRet = network::ASocket::select(std::list<network::ASocket *>({_sock}), std::list<network::ASocket *>(), std::list<network::ASocket *>(), NULL)))
       return ;
-    else if (selRet) {
+    else if (selRet)
       rcvRequest(db);
-    }
     return ;
   }
 
@@ -63,17 +66,16 @@ namespace ecs::system {
       return -1;
 
     req = reinterpret_cast<request *>(rcvDgram);
-
-    if ((it = _reqHandler.find(req->rc)) != _reqHandler.end())
+    if ((it = _reqHandler.find(req->rc)) != _reqHandler.end()) {
       return (this->*(it->second))(db, req, ip, port);
-
+    }
     return 0;
   }
 
-  int		Connection::req001Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
-    int		eid;
-    char	*respRaw;
-    request	*resp;
+  int			Connection::req001Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    unsigned int	eid;
+    char		*respRaw;
+    request		*resp;
 
     if (not db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } }).empty())
       return 0;
@@ -94,9 +96,45 @@ namespace ecs::system {
     resp = reinterpret_cast<request *>(respRaw);
     resp->rc = 2;
     resp->sz = sizeof(unsigned int);
-    *reinterpret_cast<int *>(resp->data) = eid;
+    *reinterpret_cast<unsigned int *>(resp->data) = eid;
     _respQueue.push({ip, port, reqHeadSize + resp->sz, respRaw});
 
+    return 0;
+  }
+
+  int		Connection::req003Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    int		eid;
+    char	*respRaw;
+    request	*resp;
+    std::vector<ecs::database::Entity *>	info;
+
+    if ((info = db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } })).empty())
+      return 0;
+    for (auto ent : info)
+      db.removeEntity(ent->getId());
+    forwardRequest(db, req, ip, port);
+    respRaw = new char[reqHeadSize];
+    resp = reinterpret_cast<request *>(respRaw);
+    resp->rc = 5;
+    resp->sz = 0;
+    _respQueue.push({ ip, port, reqHeadSize + resp->sz, respRaw });
+    return 0;
+  }
+
+  int		Connection::req004Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    int		eid;
+    char	*respRaw;
+    request	*resp;
+    std::vector<ecs::database::Entity *>	info;
+
+    if ((info = db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } })).empty())
+      return 0;
+
+    respRaw = new char[reqHeadSize];
+    resp = reinterpret_cast<request *>(respRaw);
+    resp->rc = 5;
+    resp->sz = 0;
+    _respQueue.push({ ip, port, reqHeadSize + resp->sz, respRaw });
     return 0;
   }
 
@@ -110,14 +148,19 @@ namespace ecs::system {
       return 0;
     //info = getRoomInfo;
     if (info.empty()) {
-      char	noInfo[] = "No Room Information Available";
-      respRaw = new char[reqHeadSize + sizeof(noInfo)];
+      respRaw = new char[reqHeadSize];
       resp = reinterpret_cast<request *>(respRaw);
       resp->rc = 102;
+      resp->sz = 0;
     }
-
-
+    else {
+      ;
+    }
+    _respQueue.push({ ip, port, reqHeadSize + resp->sz, respRaw });
+    return 0;
   }
 
+  void		Connection::forwardRequest(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+  }
 } // namespace system
 
