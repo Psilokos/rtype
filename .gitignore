@@ -30,3 +30,7 @@
 
 # Configuration files
 .syntastic_cpp_config
+
+# Documentation files
+docs/
+tags

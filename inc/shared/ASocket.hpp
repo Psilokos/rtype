@@ -156,10 +156,10 @@ namespace network {
       /**
       ** \brief The select function determines the status of one or more sockets, waiting if necessary, to perform synchronous I/O.
       **
-      ** \params [in, out] read A list of pointer to ASocket to be checked for readability
-      ** \params [in, out] write A list of pointer to ASocket to be checked for writability
-      ** \params [in, out] except A list of pointer to ASocket to be checked for errors
-      ** \params [in] timeout the maximum time for select to wait. NULL for blocking op.
+      ** \param [in, out] read A list of pointer to ASocket to be checked for readability
+      ** \param [in, out] write A list of pointer to ASocket to be checked for writability
+      ** \param [in, out] exept A list of pointer to ASocket to be checked for errors
+      ** \param [in] timeout the maximum time for select to wait. NULL for blocking op.
       ** \return select return the total number of socket in the updated lists, 0 if a timeout occured, or -1 if an error occured.
       */
       static int select(std::list<ASocket *> &&read, std::list<ASocket *> &&write, std::list<ASocket *> &&exept, timeval *timeout);
@@ -178,6 +178,9 @@ namespace network {
       ** \overload
       ** \param [in] node A reference to a string containing either a hostname, or a numeric host address.
       ** \param [in] service A reference to a string containing either a hostname, or a numeric host address.
+      ** \param [in] hints A pointer to an addrinfo structure that provides hints about the type of socket the caller supports.
+      ** \param [out] res A pointer to a linked list of one or more addrinfo structures that contains response information about the host.
+      ** \return Success returns zero. Failure returns a nonzero Sockets error code.
       */
       static int getaddrinfo(std::string const &node, std::string const &service, addrinfo const *hints, addrinfo **res);
 
