@@ -1,0 +1,5 @@
+check if everything as the same behaviour
+check for perfect forwarding
+check if forwarding is used only in template contexts
+chech if every header file compiles alone
+check for nullptr

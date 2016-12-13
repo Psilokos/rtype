@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sun Dec 11 21:42:46 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 12 16:08:06 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 13 15:42:21 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -14,6 +14,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <tuple>
 #include "BadType.hpp"
 #include "Component.hpp"
 #include "IdentifierFound.hpp"
@@ -23,14 +24,35 @@ namespace	entity_component_system
 {
   namespace	entity
   {
+    namespace	database
+    {
+      class	Entity;
+    }
+
     class	RTEntity
     {
       class	Component;
 
     public:
+      RTEntity(void) = default;
+
       template<typename... ComponentsTypes, typename... ComponentsNames>
       RTEntity(std::tuple<ComponentsTypes...> && components, ComponentsNames&&... names)
 	: _components(_initComponents<0>(std::forward<std::tuple<ComponentsTypes...>>(components), std::forward<ComponentsNames>(names)...)) {}
+
+      template<typename... ComponentsTypes, typename... ComponentsNames>
+      RTEntity(database::Entity const & databaseEntity, ct::TypesWrapper<ComponentsTypes...> && componentsTypes, ComponentsNames&&... names)
+	: _components(_initComponents<0>(databaseEntity, std::move(componentsTypes), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...))) {}
+
+      template<typename... ComponentsTypes, typename... ComponentsNames>
+      RTEntity(database::Entity && databaseEntity, ct::TypesWrapper<ComponentsTypes...> && componentsTypes, ComponentsNames&&... names)
+	: _components(_initComponents<0>(std::move(databaseEntity), std::move(componentsTypes), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...))) {}
+
+      template<typename... ComponentsTypes, char const *... names>
+      RTEntity(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity) : _components(_initComponents<0>(ctEntity)) {}
+
+      template<typename... ComponentsTypes, char const *... names>
+      RTEntity(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity) : _components(_initComponents<0>(std::move(ctEntity))) {}
 
       //! \brief Default copy constructor
       RTEntity(RTEntity const &) = default;
@@ -38,6 +60,38 @@ namespace	entity_component_system
       RTEntity(RTEntity &&) = default;
       //! \brief Default destructor
       ~RTEntity(void) = default;
+
+      template<typename... ComponentsTypes, typename... ComponentsNames>
+      RTEntity &
+      assign(database::Entity const & databaseEntity, ct::TypesWrapper<ComponentsTypes...> && componentsTypes, ComponentsNames&&... names)
+      {
+	_components = _initComponents<0>(databaseEntity, std::move(componentsTypes), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
+	return *this;
+      }
+
+      template<typename... ComponentsTypes, typename... ComponentsNames>
+      RTEntity &
+      assign(database::Entity && databaseEntity, ct::TypesWrapper<ComponentsTypes...> && componentsTypes, ComponentsNames&&... names)
+      {
+	_components = _initComponents<0>(std::move(databaseEntity), std::move(componentsTypes), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
+	return *this;
+      }
+
+      template<typename... ComponentsTypes, char const *... names>
+      RTEntity &
+      assign(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity)
+      {
+	_components = _initComponents<0>(ctEntity);
+	return *this;
+      }
+
+      template<typename... ComponentsTypes, char const *... names>
+      RTEntity &
+      assign(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity)
+      {
+	_components = _initComponents<0>(std::move(ctEntity));
+	return *this;
+      }
 
       //! \brief Default copy assignement operator
       RTEntity &	operator=(RTEntity const &) = default;
@@ -126,6 +180,21 @@ namespace	entity_component_system
 	_components.at(hashedKey)->component<T>(name) = std::forward<T>(component);
       }
 
+      friend std::ostream &
+      operator<<(std::ostream & os, RTEntity const & e)
+      {
+	auto	it = e._components.begin();
+
+	os << "[with ";
+	while (it != e._components.end())
+	  {
+	    os << it->first << ": " << *it->second;
+	    if (++it != e._components.end())
+	      os << ", ";
+	  }
+	return os << ']';
+      }
+
     private:
       std::map<std::size_t, std::shared_ptr<Component>>	_components;
 
@@ -145,6 +214,73 @@ namespace	entity_component_system
 	return std::map<std::size_t, std::shared_ptr<Component>>({{std::hash<std::string>{}(std::forward<ComponentsNames>(names)), wrappedComponents}...});
       }
 
+      template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(database::Entity const & databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
+		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type = 0);
+
+      template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, typename... ComponentsNames>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(database::Entity const &, ct::TypesWrapper<ComponentsTypes...> &&,
+		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(ComponentsNames), void *>::type = 0)
+      {
+	return _initComponents(ct::Indexer<sizeof...(ComponentsNames)>(), std::move(names), std::forward<WrappedComponents>(wrappedComponents)...);
+      }
+
+      template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(database::Entity && databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
+		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type = 0);
+
+      template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, typename... ComponentsNames>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(database::Entity &&, ct::TypesWrapper<ComponentsTypes...> &&,
+		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(ComponentsNames), void *>::type = 0)
+      {
+	return _initComponents(ct::Indexer<sizeof...(ComponentsNames)>(), std::move(names), std::forward<WrappedComponents>(wrappedComponents)...);
+      }
+
+      template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names), void *>::type = 0)
+      {
+	return _initComponents<idx + 1, WrappedComponents..., std::shared_ptr<Component>>
+	  (ctEntity, std::forward<WrappedComponents>(wrappedComponents)...,
+	   std::shared_ptr<Component>(new Component (ComponentType(ctEntity.getComponent<std::get<idx>(std::tuple<decltype(names)...>(names...))>()))));
+      }
+
+      template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity,
+		      WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(names), void *>::type = 0)
+      {
+	return _initComponents(ct::Indexer<sizeof...(names)>(), ct::Wrapper<decltype(std::string(names))...>(std::string(names)...), std::forward<WrappedComponents>(wrappedComponents)...);
+      }
+
+      template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names), void *>::type = 0)
+      {
+	return _initComponents<idx + 1, WrappedComponents..., std::shared_ptr<Component>>
+	  (ctEntity, std::forward<WrappedComponents>(wrappedComponents)...,
+	   std::shared_ptr<Component>(new Component (ComponentType(std::move(ctEntity.getComponent<std::get<idx>(std::tuple<decltype(names)...>(names...))>())))));
+      }
+
+      template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity,
+		      WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(names), void *>::type = 0)
+      {
+	return _initComponents(ct::Indexer<sizeof...(names)>(), ct::Wrapper<decltype(std::string(names))...>(std::string(names)...), std::forward<WrappedComponents>(wrappedComponents)...);
+      }
+
+      template<typename... ComponentsNames, typename... WrappedComponents, int... i>
+      std::map<std::size_t, std::shared_ptr<Component>>
+      _initComponents(ct::Index<i...>, ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents)
+      {
+	return std::map<std::size_t, std::shared_ptr<Component>>({{std::hash<std::string>{}(std::get<i>(names.values)), wrappedComponents}...});
+      }
+
     private:
       class	Component
       {
@@ -157,6 +293,8 @@ namespace	entity_component_system
 	template<typename T>
 	T &	component(std::string const & componentName) const	{ return *reinterpret_cast<T *>(_component->component(componentName, typeid(T))); }
 
+	friend std::ostream &	operator<<(std::ostream & os, Component const & c)	{ return c._component->dump(os); }
+
       private:
 	std::shared_ptr<Base>	_component;
 
@@ -166,14 +304,16 @@ namespace	entity_component_system
 	public:
 	  virtual ~Base(void) {}
 
-	  virtual void *	component(std::string const & componentName, std::type_info const & typeInfo) = 0;
+	  virtual void *		component(std::string const & componentName, std::type_info const & typeInfo) = 0;
+
+	  virtual std::ostream &	dump(std::ostream & os) const = 0;
 	};
 
 	template<typename T>
-	class	Model
+	class	Model : public Base
 	{
 	public:
-	  Model(T && component) : _component(std::forward<T>(component)), _typeInfo(typeid(T)) {}
+	  Model(T && component) : _component(std::forward<T>(component)), _typeInfo(&typeid(T)) {}
 
 	  void *	component(std::string const & componentName, std::type_info const & typeInfo)
 	  {
@@ -182,11 +322,39 @@ namespace	entity_component_system
 	    return reinterpret_cast<void *>(&_component);
 	  }
 
+	  std::ostream &	dump(std::ostream & os) const { return os << _component; }
+
 	private:
 	  T				_component;
 	  std::type_info const *	_typeInfo;
 	};
       };
     };
+  }
+}
+
+#include "DataBaseEntity.hpp"
+
+namespace	entity_component_system::entity
+{
+  template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
+  std::map<std::size_t, std::shared_ptr<RTEntity::Component>>
+  RTEntity::_initComponents(database::Entity const & databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
+			    ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type)
+  {
+    return _initComponents<idx + 1, WrappedComponents..., std::shared_ptr<Component>>(databaseEntity, ct::TypesWrapper<ComponentsTypes...>(),
+										      std::move(names), std::forward<WrappedComponents>(wrappedComponents)...,
+										      std::shared_ptr<RTEntity::Component>(new RTEntity::Component(ComponentType(databaseEntity[std::get<idx>(names.values)]))));
+  }
+
+  template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
+  std::map<std::size_t, std::shared_ptr<RTEntity::Component>>
+  RTEntity::_initComponents(database::Entity && databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
+			    ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type)
+  {
+    return _initComponents<idx + 1, WrappedComponents..., std::shared_ptr<Component>>(std::move(databaseEntity), ct::TypesWrapper<ComponentsTypes...>(),
+										      std::move(names), std::forward<WrappedComponents>(wrappedComponents)...,
+										      std::shared_ptr<RTEntity::Component>
+										      (new RTEntity::Component(ComponentType(std::move(databaseEntity[std::get<idx>(names.values)])))));
   }
 }

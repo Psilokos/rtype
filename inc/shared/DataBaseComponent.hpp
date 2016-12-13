@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 12 15:45:54 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 13 00:11:58 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -44,7 +44,7 @@ namespace	entity_component_system
       //! \param [in] values a tuple containing the initial values of the attributes and their types
       //! \param [in] names the names of the attributes (must be in the same order as the values in the tuple)
       template<typename... AttrNames, typename... AttrTypes>
-      Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(values, 0, names...) {}
+      Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(values, 0, names...) { static_assert(sizeof...(AttrNames) == sizeof...(AttrTypes)); }
 
     private:
       template<typename... AttrNames, typename... AttrTypes>

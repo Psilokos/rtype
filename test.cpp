@@ -5,14 +5,11 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Tue Nov 29 11:48:30 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 12 15:21:03 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 13 15:46:56 2016 Victorien LE COUVIOUR--TUFFET
 //
 
-#include <cstring>
-#include <experimental/string_view>
-#include <iostream>
 #include <cstdint>
-
+#include <iostream>
 #include "Entity.hpp"
 
 constexpr char	pos[] = "pos";
@@ -41,7 +38,8 @@ void	test(void)
   {
     std::string			testS0("qweqwe");
     std::string			testS1(testS0);
-    ecs::database::Entity	test({ecs::database::Component(std::forward_as_tuple(testS0), "testS0"), ecs::database::Component(std::tuple<std::string>(testS1), "testS1")}, "moved", "copied");
+    ecs::database::Entity	test({{std::hash<std::string>{}("moved"), ecs::database::Component(std::forward_as_tuple(testS0), "testS0")},
+	  {std::hash<std::string>{}("copied"), ecs::database::Component(std::tuple<std::string>(testS1), "testS1")}});
 
     std::cout << "testS0 => " << testS0 << std::endl;
     std::cout << "testS1 => " << testS1 << std::endl;
@@ -51,13 +49,13 @@ void	test(void)
   {
     ecs::database::Component	size(std::forward_as_tuple<std::uint16_t, std::uint16_t>(100, 75), "x", "y");
     ecs::database::Component	pos(std::forward_as_tuple<std::uint16_t, std::uint16_t, std::uint16_t>(size.getAttr<std::uint16_t>("x") / 3, size.getAttr<std::uint16_t>("y") / 2, 10), "x", "y", "TTL");
-    ecs::database::Entity	player({pos, size}, "pos", "size");
+    ecs::database::Entity	player({{std::hash<std::string>{}("pos"), pos}, {std::hash<std::string>{}("size"), size}});
     unsigned			posTTL = 0;
 
     std::cout << "player#23 => " << player << std::endl;
 
     pos = player.delComponent("pos");
-    player.setComponent("pos", pos);
+    player.addComponent("pos", pos);
 
     std::cout << "player#23 => " << player << std::endl;
 
@@ -111,17 +109,26 @@ void	test(void)
 	std::cout << std::endl;
       }
       {
-	ecs::database::Entity		db_moveTest({ecs::database::Component(std::forward_as_tuple(std::string("qweqwe")), ::moveTest)}, ::moveTest);
-	ecs::entity::MoveTest		ct_moveTest(std::move(db_moveTest));
+	ecs::database::Entity		db_moveTest({{std::hash<std::string>{}(::moveTest), ecs::database::Component(std::forward_as_tuple(std::string("qweqwe")), ::moveTest)}});
+	ecs::entity::MoveTest		ct_moveTest(db_moveTest);
+	ecs::entity::RTEntity		rt_moveTest;
 
 	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl;
+		  << "ct_moveTest => " << ct_moveTest << std::endl
+		  << "rt_moveTest => " << rt_moveTest << std::endl;
 	db_moveTest = std::move(ct_moveTest);
 	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl;
+		  << "ct_moveTest => " << ct_moveTest << std::endl
+		  << "rt_moveTest => " << rt_moveTest << std::endl;
 	ct_moveTest = std::move(db_moveTest);
 	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl;
+		  << "ct_moveTest => " << ct_moveTest << std::endl
+		  << "rt_moveTest => " << rt_moveTest << std::endl;
+	db_moveTest = std::move(ct_moveTest);
+	rt_moveTest.assign(std::move(db_moveTest), ct::TypesWrapper<ecs::component::MoveTest>(), ::moveTest);
+	std::cout << "db_moveTest => " << db_moveTest << std::endl
+		  << "ct_moveTest => " << ct_moveTest << std::endl
+		  << "rt_moveTest => " << rt_moveTest << std::endl;
 	std::cout << std::endl;
       }
     }
