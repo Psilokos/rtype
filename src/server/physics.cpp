@@ -34,13 +34,20 @@ void    Physics::collider(Entity &obj, std::vector<Entity> &entities) {
         othR = other["_pos"].getAttr("posX") + other["_hitbox"].getAttr("sizeX");
         othU = other["_pos"].getAttr("posY");
         othD = other["_pos"].getAttr("posY") + other["_hitbox"].getAttr("sizeY");
+
         if ((objL < othL && objR > othL)
                 || (objL < othR && objR > othR)
                 || (objU < othD && objD > othD)
                 || (objU < othU && objD > othU)) {
-            obj["collisionList"].getAttr("collisionList").append(other["uid"].getAttr("value"));
-            other["collisionList"].getAttr("collisionList").append(obj["uid"].getAttr("value"));
+            obj["collisionList"].getAttr("_list").append(other["_id"].getAttr("id"));
+            other["collisionList"].getAttr("_list").append(obj["_id"].getAttr("id"));
+            // should I append it to a list in the global db ?
         }
+
+        if (objR < LOAD_AREA_SIZE) {
+            // append object to deleted list, wherever it is
+        }
+
     }
 }
 
