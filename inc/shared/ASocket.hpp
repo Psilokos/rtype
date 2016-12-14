@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Nov 28 15:31:01 2016 Gabriel CADET
-** Last update Fri Dec 09 17:53:08 2016 Gabriel CADET
+** Last update Wed Dec 14 09:35:13 2016 Gabriel CADET
 */
 
 #ifndef ASOCKET_HPP_
@@ -48,6 +48,14 @@ namespace network {
         SD_ALL /**< Closing both input and output */
       };
 
+      /**
+      ** \brief The timeval structure, redefined here to be used with select.
+      */
+      struct	timeval {
+        long	tv_sec;
+        long	tv_usec;
+      };
+
     public:
       /**
       ** \brief Basic destructor for ASocket.
@@ -74,7 +82,7 @@ namespace network {
       ** \return If no error occurs, send returns the total number of bytes sent, which can be less than the number requested to be sent in the len parameter.
       */
       virtual ssize_t	send(void *buf, size_t len, int flags = 0) = 0;
-      virtual ssize_t send(std::string const &buf, int flags = 0) = 0;
+      virtual ssize_t	send(std::string const &buf, int flags = 0) = 0;
 
       /**
       ** \brief The recvfrom function receives a datagram and stores the source address.

@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Fri Dec 09 16:26:34 2016 Gabriel CADET
-** Last update Tue Dec 13 12:10:24 2016 Gabriel CADET
+** Last update Wed Dec 14 15:44:33 2016 Gabriel CADET
 */
 
 #ifndef BASENET_HPP_
@@ -21,6 +21,12 @@ namespace ecs::system {
         unsigned short	sz;
         char		data[0];
       } __attribute__((__packed__));
+
+      struct ecsData {
+        unsigned int	eid;
+        unsigned int	cid;
+        char		data[0];
+      };
 
     protected:
       static short const	netBufSize = 512;
