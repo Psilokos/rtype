@@ -25,15 +25,15 @@ void    Physics::collider(Entity &obj, std::vector<Entity> &entities) {
     int objL, objR, objU, objD;
     int othL, othR, othU, othD;
 
-    objL = obj["pos"].getAttr("x") - obj["size"].getAttr("size") / 2;
-    objR = obj["pos"].getAttr("x") + obj["size"].getAttr("size") / 2;
-    objU = obj["pos"].getAttr("y") - obj["size"].getAttr("size") / 2;
-    objD = obj["pos"].getAttr("y") + obj["size"].getAttr("size") / 2;
+    objL = obj["_pos"].getAttr("posX");
+    objR = obj["_pos"].getAttr("posX") + obj["_hitbox"].getAttr("sizeX");
+    objU = obj["_pos"].getAttr("posY");
+    objD = obj["_pos"].getAttr("posY") + obj["_hitbox"].getAttr("sizeY");
     for (Entity other: entities) {
-        othL = other["pos"].getAttr("x") - other["size"].getAttr("size") / 2;
-        othR = other["pos"].getAttr("x") + other["size"].getAttr("size") / 2;
-        othU = other["pos"].getAttr("y") - other["size"].getAttr("size") / 2;
-        othD = other["pos"].getAttr("y") + other["size"].getAttr("size") / 2;
+        othL = other["_pos"].getAttr("posX");
+        othR = other["_pos"].getAttr("posX") + other["_hitbox"].getAttr("sizeX");
+        othU = other["_pos"].getAttr("posY");
+        othD = other["_pos"].getAttr("posY") + other["_hitbox"].getAttr("sizeY");
         if ((objL < othL && objR > othL)
                 || (objL < othR && objR > othR)
                 || (objU < othD && objD > othD)
@@ -48,7 +48,7 @@ void    Physics::collide(std::vector<Entity> &entities) {
     std::list<Entity>::iterator it = entities.begin();
 
     while (it != entities.end()) {
-        if (obj["speed"].getAttr("speed")) {
+        if (obj["_speed"].getAttr("value")) {
             this->collider(*it, entities)
             it = entities.erase(it);
         } else
