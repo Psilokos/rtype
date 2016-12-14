@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sun Dec 11 16:26:21 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 09:53:25 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -119,7 +119,8 @@ namespace	entity_component_system
       void
       setAttr(typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type const & v)
       {
-	std::get<ct::getIdx<name, names...>()>(_values) = v;
+	if (&v != &std::get<ct::getIdx<name, names...>()>(_values))
+	  std::get<ct::getIdx<name, names...>()>(_values) = v;
       }
 
       //! \brief Sets an attribute by copy or move, depending on the type of the value (lvalue or rvalue) passed as parameter when called
@@ -129,7 +130,8 @@ namespace	entity_component_system
       void
       setAttr(typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type && v)
       {
-	std::get<ct::getIdx<name, names...>()>(_values) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type>(v);
+	if (&v != &std::get<ct::getIdx<name, names...>()>(_values))
+	  std::get<ct::getIdx<name, names...>()>(_values) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type>(v);
       }
 
       //! \brief Insert a component into an output stream

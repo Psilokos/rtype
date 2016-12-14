@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 13:36:34 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 13 00:03:19 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 09:51:18 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include "DataBaseEntity.hpp"
@@ -69,7 +69,9 @@ namespace	entity_component_system
 
       if (_components.find(hashedKey) == _components.end())
 	throw IdentifierNotFound(name);
-      return _components.at(hashedKey) = component;
+      if (&component != &_components.at(hashedKey))
+	_components.at(hashedKey) = component;
+      return _components.at(hashedKey);
     }
 
     Component &
@@ -79,7 +81,9 @@ namespace	entity_component_system
 
       if (_components.find(hashedKey) == _components.end())
 	throw IdentifierNotFound(name);
-      return _components.at(hashedKey) = component;
+      if (&component != &_components.at(hashedKey))
+	_components.at(hashedKey) = component;
+      return _components.at(hashedKey);
     }
 
     Component

@@ -3,3 +3,5 @@ check for perfect forwarding
 check if forwarding is used only in template contexts
 chech if every header file compiles alone
 check for nullptr
+RT move on entities	=> delete components
+RT move on components	=> preserve attributes

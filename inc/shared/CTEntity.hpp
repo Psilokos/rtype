@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 04:57:13 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 13 15:35:17 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 14:20:56 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -25,6 +25,8 @@ namespace	entity_component_system
 
     template<typename, char const *...>
     class	CTEntity;
+
+    class	CTEntity<ct::TypesWrapper<>>;
 
     template<typename... ComponentsTypes, char const *... names>
     class	CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>
@@ -90,14 +92,16 @@ namespace	entity_component_system
       void
       setComponent(typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<ComponentsTypes...>>::type const & component)
       {
-	std::get<ct::getIdx<name, names...>()>(_components) = component;
+	if (&component != &std::get<ct::getIdx<name, names...>()>(_components))
+	  std::get<ct::getIdx<name, names...>()>(_components) = component;
       }
 
       template<char const * name>
       void
       setComponent(typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<ComponentsTypes...>>::type && component)
       {
-	std::get<ct::getIdx<name, names...>()>(_components) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<ComponentsTypes...>>::type>(component);
+	if (&component != &std::get<ct::getIdx<name, names...>()>(_components))
+	  std::get<ct::getIdx<name, names...>()>(_components) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<ComponentsTypes...>>::type>(component);
       }
 
       friend std::ostream &	operator<<(std::ostream & os, CTEntity const & e)

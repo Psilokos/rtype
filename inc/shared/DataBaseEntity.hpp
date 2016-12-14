@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 13 15:09:22 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 14:32:59 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -39,6 +39,25 @@ namespace	entity_component_system
       //! \param [in] components an initializer list of the components to store
       //! \param [in] names the names of the components to store
       Entity(std::initializer_list<std::pair<std::size_t const, Component>> && components);
+
+      //! \brief Constructor copying an entity::CTEntity
+      template<typename... ComponentsTypes, char const *... names>
+      Entity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e) { _Assign<names...>(e, _components); }
+
+      //! \brief Constructor moving an entity::CTEntity
+      template<typename... ComponentsTypes, char const *... names>
+      Entity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e) { _Assign<names...>(std::move(e), _components); }
+
+      //! \brief Constructor copying an entity::RTEntity
+      template<typename... ComponentsTypes, typename... ComponentsNames>
+      Entity(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names) { _setComponents(e, std::move(types), std::string(std::forward<ComponentsNames>(names))...); }
+
+      //! \brief Constructor moving an entity::RTEntity
+      template<typename... ComponentsTypes, typename... ComponentsNames>
+      Entity(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names)
+      {
+	_setComponents(std::move(e), std::move(types), std::string(std::forward<ComponentsNames>(names))...);
+      }
 
       //! \brief Default copy constructor
       Entity(Entity const &) = default;
@@ -155,19 +174,19 @@ namespace	entity_component_system
     private:
       template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
       void
-      _setComponents(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type = nullptr);
+      _setComponents(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type * = nullptr);
 
       template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
       void
-      _setComponents(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> &&, ComponentsNames&&... names, typename std::enable_if<idx == sizeof...(ComponentsNames), void *>::type = nullptr) {}
+      _setComponents(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> &&, ComponentsNames&&... names, typename std::enable_if<idx == sizeof...(ComponentsNames)>::type * = nullptr) {}
 
       template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
       void
-      _setComponents(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type = nullptr);
+      _setComponents(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type * = nullptr);
 
       template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
       void
-      _setComponents(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> &&, ComponentsNames&&... names, typename std::enable_if<idx == sizeof...(ComponentsNames), void *>::type = nullptr) {}
+      _setComponents(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> &&, ComponentsNames&&... names, typename std::enable_if<idx == sizeof...(ComponentsNames)>::type * = nullptr) {}
 
     private:
       template<char const *... names>
@@ -175,16 +194,16 @@ namespace	entity_component_system
       {
       private:
 	template<unsigned idx, char const *, char const *..., typename... ComponentsTypes>
-	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, std::map<std::size_t, Component> &, typename std::enable_if<idx < sizeof...(names), void *>::type = 0);
+	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, std::map<std::size_t, Component> &, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr);
 
 	template<unsigned idx, typename... ComponentsTypes>
-	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, std::map<std::size_t, Component> &, typename std::enable_if<idx == sizeof...(names), void *>::type = 0) {}
+	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, std::map<std::size_t, Component> &, typename std::enable_if<idx == sizeof...(names)>::type * = nullptr) {}
 
 	template<unsigned idx, char const *, char const *..., typename... ComponentsTypes>
-	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&, std::map<std::size_t, Component> &, typename std::enable_if<idx < sizeof...(names), void *>::type = 0);
+	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&, std::map<std::size_t, Component> &, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr);
 
 	template<unsigned idx, typename... ComponentsTypes>
-	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&, std::map<std::size_t, Component> &, typename std::enable_if<idx == sizeof...(names), void *>::type = 0) {}
+	void	_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&, std::map<std::size_t, Component> &, typename std::enable_if<idx == sizeof...(names)>::type * = nullptr) {}
 
       public:
 	template<typename... ComponentsTypes>
@@ -212,7 +231,7 @@ namespace	entity_component_system
   {
     template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
     void
-    Entity::_setComponents(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type)
+    Entity::_setComponents(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type *)
     {
       if (_components.find(std::get<idx>(std::tuple<decltype(names)...>(names...))) == _components.end()) // inline c++17 equivalent std::map::insert_or_assign
 	_components.emplace(std::get<idx>(std::tuple<decltype(names)...>(names...)),
@@ -225,7 +244,7 @@ namespace	entity_component_system
 
     template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
     void
-    Entity::_setComponents(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames), void *>::type)
+    Entity::_setComponents(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type *)
     {
       if (_components.find(std::get<idx>(std::tuple<decltype(names)...>(names...))) == _components.end()) // inline c++17 equivalent std::map::insert_or_assign
 	_components.emplace(std::get<idx>(std::tuple<decltype(names)...>(names...)),
@@ -239,7 +258,7 @@ namespace	entity_component_system
     template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... ComponentsTypes>
     void
     Entity::_Assign<names...>::_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e,
-					      std::map<std::size_t, Component> & components, typename std::enable_if<idx < sizeof...(names), void *>::type)
+					      std::map<std::size_t, Component> & components, typename std::enable_if<idx < sizeof...(names)>::type *)
     {
       std::size_t const	hashedKey = std::hash<std::string>{}(name);
 
@@ -252,7 +271,7 @@ namespace	entity_component_system
     template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... ComponentsTypes>
     void
     Entity::_Assign<names...>::_setComponents(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e,
-					      std::map<std::size_t, Component> & components, typename std::enable_if<idx < sizeof...(names), void *>::type)
+					      std::map<std::size_t, Component> & components, typename std::enable_if<idx < sizeof...(names)>::type *)
     {
       std::size_t const	hashedKey = std::hash<std::string>{}(name);
 

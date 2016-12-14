@@ -5,7 +5,7 @@
 ## Login   <lecouv_v@epitech.eu>
 ##
 ## Started on  Mon Nov 28 15:36:12 2016 Victorien LE COUVIOUR--TUFFET
-## Last update Mon Dec 12 23:50:41 2016 Victorien LE COUVIOUR--TUFFET
+## Last update Wed Dec 14 08:48:33 2016 Victorien LE COUVIOUR--TUFFET
 ##
 
 NAME_SERVER		= rtype-srv
@@ -13,9 +13,9 @@ NAME_CLIENT		= rtype-cli.exe
 
 CXXFLAGS		+= -W -Wall -Werror -Wextra
 CXXFLAGS		+= -I $(DIR_INC_SHARED) $(DEBUG)
-LDFLAGS			=
-LDFLAGS_SERVER		= -Wl,-rpath='$$ORIGIN/$(DIR_LIB)'
-LDFLAGS_CLIENT		= -static-libgcc -static-libstdc++
+LDFLAGS			= -lpthread -lgtest -Wl,-rpath='$$ORIGIN/$(DIR_LIB)'
+LDFLAGS_SERVER		=
+LDFLAGS_CLIENT		=
 
 DIR_LIB			= lib/
 

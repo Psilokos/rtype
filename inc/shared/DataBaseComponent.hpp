@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 13 00:11:58 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 13:12:21 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -44,12 +44,12 @@ namespace	entity_component_system
       //! \param [in] values a tuple containing the initial values of the attributes and their types
       //! \param [in] names the names of the attributes (must be in the same order as the values in the tuple)
       template<typename... AttrNames, typename... AttrTypes>
-      Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(values, 0, names...) { static_assert(sizeof...(AttrNames) == sizeof...(AttrTypes)); }
+      Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(values, 0, std::forward<AttrNames>(names)...) { static_assert(sizeof...(AttrNames) == sizeof...(AttrTypes)); }
 
     private:
       template<typename... AttrNames, typename... AttrTypes>
       Component(std::tuple<AttrTypes...> & values, unsigned i, AttrNames&&... names)
-	: _namesIdxMap({{names, i++}...}), _attributes(_getAttributes<AttrTypes...>(values)) {}
+	: _namesIdxMap({{std::forward<AttrNames>(names), i++}...}), _attributes(_getAttributes<AttrTypes...>(values)) {}
 
     public:
       //! \brief Default copy constructor
@@ -185,6 +185,8 @@ namespace	entity_component_system
 
       public:
 	template<typename T>
+	Attribute(T const & value) : _attr(new Model<T>(value)) {}
+	template<typename T>
 	Attribute(T && value) : _attr(new Model<T>(std::forward<T>(value))) {}
 	Attribute(Attribute const & src) : _attr(src._attr->copy()) {}
 	Attribute(Attribute &&) = default;
@@ -219,6 +221,7 @@ namespace	entity_component_system
 	class	Model : public Base
 	{
 	public:
+	  Model(T const & value) : _value(value), _typeInfo(&typeid(T)) {}
 	  Model(T && value) : _value(std::forward<T>(value)), _typeInfo(&typeid(T)) {}
 	  ~Model(void) {}
 

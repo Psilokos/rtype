@@ -5,138 +5,208 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Tue Nov 29 11:48:30 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 13 15:46:56 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 14:26:13 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cstdint>
 #include <iostream>
+#include <gtest/gtest.h>
+#include <sstream>
 #include "Entity.hpp"
-
-constexpr char	pos[] = "pos";
-constexpr char	size[] = "size";
-
-constexpr char	x[] = "x";
-constexpr char	y[] = "y";
-constexpr char	ttl[] = "TTL";
-
-constexpr char	moveTest[] = "moveTest";
+constexpr char	test[] = "test";
 
 namespace	entity_component_system::component
 {
-  typedef Component<ct::TypesWrapper<std::uint16_t, std::uint16_t>, ::x, ::y>	Vector2;
-  typedef Component<ct::TypesWrapper<std::string>, ::moveTest>			MoveTest;
+  template<typename T>
+  using Test = Component<ct::TypesWrapper<T>, ::test>;
 }
 
 namespace	entity_component_system::entity
 {
-  typedef CTEntity<ct::TypesWrapper<ecs::component::Vector2, ecs::component::Vector2>, ::pos, ::size>	Player;
-  typedef CTEntity<ct::TypesWrapper<ecs::component::MoveTest>, ::moveTest>				MoveTest;
+  template<typename T>
+  using Test = CTEntity<ct::TypesWrapper<ecs::component::Test<T>>, ::test>;
 }
 
-void	test(void)
+TEST(CompileTime, DefaultCtors)
 {
-  {
-    std::string			testS0("qweqwe");
-    std::string			testS1(testS0);
-    ecs::database::Entity	test({{std::hash<std::string>{}("moved"), ecs::database::Component(std::forward_as_tuple(testS0), "testS0")},
-	  {std::hash<std::string>{}("copied"), ecs::database::Component(std::tuple<std::string>(testS1), "testS1")}});
+  ecs::entity::Test<std::string>	e_test(ecs::entity::Test<std::string>(std::string("qweqwe")));
+  ecs::entity::Test<std::string>	e_test0;
+  ecs::entity::Test<std::string>	e_test1(e_test);
+  ecs::entity::Test<std::string>	e_test2(std::move(e_test));
 
-    std::cout << "testS0 => " << testS0 << std::endl;
-    std::cout << "testS1 => " << testS1 << std::endl;
-    std::cout << "testEntity => " << test << std::endl;
-    std::cout << std::endl;
-  }
-  {
-    ecs::database::Component	size(std::forward_as_tuple<std::uint16_t, std::uint16_t>(100, 75), "x", "y");
-    ecs::database::Component	pos(std::forward_as_tuple<std::uint16_t, std::uint16_t, std::uint16_t>(size.getAttr<std::uint16_t>("x") / 3, size.getAttr<std::uint16_t>("y") / 2, 10), "x", "y", "TTL");
-    ecs::database::Entity	player({{std::hash<std::string>{}("pos"), pos}, {std::hash<std::string>{}("size"), size}});
-    unsigned			posTTL = 0;
-
-    std::cout << "player#23 => " << player << std::endl;
-
-    pos = player.delComponent("pos");
-    player.addComponent("pos", pos);
-
-    std::cout << "player#23 => " << player << std::endl;
-
-    player["pos"].setAttr<unsigned short>("TTL", std::move(posTTL));
-
-    if (player["pos"].hasAttr("TTL"))
-      std::cout << "player#23 => " << player << std::endl;
-    std::cout << std::endl;
-    {
-      ecs::component::Component<ct::TypesWrapper<std::uint16_t, std::uint16_t, std::uint16_t>, ::x, ::y, ::ttl>	c0(pos);
-      std::string												s = "qweqwe";
-      ecs::component::Component<ct::TypesWrapper<std::string>, ::x>						c1(std::move(s));
-      ecs::component::Component<ct::TypesWrapper<std::uint16_t, std::uint16_t>, ::x, ::ttl>			c2(pos);
-
-      std::cout << "c0: " << c0 << std::endl;
-      c0.setAttr<::x>(0);
-      c0.setAttr<::y>(1);
-      c0.setAttr<::ttl>(0x21);
-      std::cout << "c0: " << c0 << std::endl;
-
-      std::cout << "c1: " << c1 << std::endl;
-      std::cout << std::boolalpha << "is 's' empty => " << s.empty() << std::noboolalpha << std::endl;
-
-      std::cout << "c2: " << c2 << std::endl;
-      std::cout << std::endl;
-      {
-	ecs::component::Vector2 const	pos(23, 42);
-	ecs::component::Vector2		size(32, 24);
-	ecs::entity::Player const	p[] =
-	  {
-	    ecs::entity::Player(pos, size),
-	    ecs::entity::Player(ecs::component::Vector2(0, 0), size),
-	    ecs::entity::Player(pos, ecs::component::Vector2(0, 0)),
-	    ecs::entity::Player(ecs::component::Vector2(0, 0), ecs::component::Vector2(0, 0)),
-	  };
-	ecs::entity::Player		mutablePlayer = player;
-
-	for (unsigned i = 0; i < sizeof(p) / sizeof(ecs::entity::Player); ++i)
-	  std::cout << "player#" << std::to_string(i) << " => " << p[i] << std::endl;
-	std::cout << "mutablePlayer.pos.x = " << mutablePlayer.getComponent<::pos>().getAttr<::x>() << std::endl;
-	mutablePlayer.setComponent<::pos>(pos);
-	std::cout << "mutablePlayer.pos.x = " << mutablePlayer.getComponent<::pos>().getAttr<::x>() << std::endl;
-	for (unsigned i = 0; i < sizeof(p) / sizeof(ecs::entity::Player); ++i)
-	  std::cout << "player#" << std::to_string(i) << " => " << p[i] << std::endl;
-	mutablePlayer.getComponent<::pos>() = player[::pos];
-	std::cout << "mutablePlayer => " << mutablePlayer << std::endl;
-	player[::size] = size;
-	std::cout << "player#23 => " << player << std::endl;
-	player = mutablePlayer;
-	std::cout << "player#23 => " << player << std::endl;
-	std::cout << std::endl;
-      }
-      {
-	ecs::database::Entity		db_moveTest({{std::hash<std::string>{}(::moveTest), ecs::database::Component(std::forward_as_tuple(std::string("qweqwe")), ::moveTest)}});
-	ecs::entity::MoveTest		ct_moveTest(db_moveTest);
-	ecs::entity::RTEntity		rt_moveTest;
-
-	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl
-		  << "rt_moveTest => " << rt_moveTest << std::endl;
-	db_moveTest = std::move(ct_moveTest);
-	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl
-		  << "rt_moveTest => " << rt_moveTest << std::endl;
-	ct_moveTest = std::move(db_moveTest);
-	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl
-		  << "rt_moveTest => " << rt_moveTest << std::endl;
-	db_moveTest = std::move(ct_moveTest);
-	rt_moveTest.assign(std::move(db_moveTest), ct::TypesWrapper<ecs::component::MoveTest>(), ::moveTest);
-	std::cout << "db_moveTest => " << db_moveTest << std::endl
-		  << "ct_moveTest => " << ct_moveTest << std::endl
-		  << "rt_moveTest => " << rt_moveTest << std::endl;
-	std::cout << std::endl;
-      }
-    }
-  }
+  EXPECT_STREQ("", e_test.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("", e_test0.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("qweqwe", e_test1.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("qweqwe", e_test2.getComponent<::test>().getAttr<::test>().c_str());
 }
 
-int	main(void)
+TEST(CompileTime, DefaultAssignementOperators)
 {
-  test();
-  return 0;
+  ecs::entity::Test<std::string>	e_test(std::string("qweqwe"));
+  ecs::entity::Test<std::string>	e_test0;
+  ecs::entity::Test<std::string>	e_test1(e_test);
+  ecs::entity::Test<std::string>	e_test2(std::move(e_test));
+
+  e_test0 = e_test1;
+  e_test = std::move(e_test2);
+  EXPECT_STREQ("qweqwe", e_test.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("qweqwe", e_test0.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("qweqwe", e_test1.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("", e_test2.getComponent<::test>().getAttr<::test>().c_str());
+}
+
+TEST(CompileTime, GetSetComponentAttr)
+{
+  std::string				s = "petit cochon";
+  ecs::entity::Test<std::string>	e_test;
+  ecs::component::Test<std::string>	c_test;
+
+  e_test.setComponent<::test>(std::move(e_test.getComponent<::test>() = decltype(c_test)(std::move(s))));
+  EXPECT_STREQ("", s.c_str());
+  EXPECT_STREQ("petit cochon", e_test.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("", c_test.getAttr<::test>().c_str());
+  c_test.setAttr<::test>("gentil petit");
+  EXPECT_STREQ("gentil petit", c_test.getAttr<::test>().c_str());
+}
+
+TEST(CompileTime, OtherTypesCompatibility)
+{
+  ecs::database::Entity			e_db({{std::hash<std::string>{}("test"), ecs::database::Component(std::forward_as_tuple(std::string("qweqwe")), "test")}});
+  ecs::entity::RTEntity			e_rt(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("cuicui")), "test");
+  ecs::entity::Test<std::string>	e_test0(e_db);
+  ecs::entity::Test<std::string>	e_test1(e_rt);
+  ecs::entity::Test<std::string>	e_test2(std::move(e_db));
+  ecs::entity::Test<std::string>	e_test3(std::move(e_rt));
+
+  EXPECT_STREQ("", e_db["test"].getAttr<std::string>("test").c_str());
+  EXPECT_STREQ("", e_rt.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ("qweqwe", e_test0.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("cuicui", e_test1.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("qweqwe", e_test2.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("cuicui", e_test3.getComponent<::test>().getAttr<::test>().c_str());
+}
+
+TEST(RunTime, DefaultCtors)
+{
+  ecs::entity::RTEntity		e_test(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("meow?")), "test");
+  ecs::entity::RTEntity		e_test0;
+  ecs::entity::RTEntity		e_test1(e_test);
+  ecs::entity::RTEntity		e_test2(std::move(e_test));
+
+  EXPECT_FALSE(e_test.hasComponent("test"));
+  EXPECT_STREQ("meow?", e_test1.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ("meow?", e_test2.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+}
+
+TEST(RunTime, DefaultAssignementOperators)
+{
+  ecs::entity::RTEntity		e_test(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("Ron-ron...! <3")), "test");
+  ecs::entity::RTEntity		e_test0;
+  ecs::entity::RTEntity		e_test1(e_test);
+  ecs::entity::RTEntity		e_test2(std::move(e_test));
+
+  e_test0 = e_test1;
+  e_test = std::move(e_test2);
+  EXPECT_STREQ("Ron-ron...! <3", e_test.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ("Ron-ron...! <3", e_test0.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ("Ron-ron...! <3", e_test1.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_FALSE(e_test2.hasComponent("test"));
+}
+
+TEST(RunTime, GetSetComponentAttr)
+{
+  std::string				s = "lorem ipsum du foie de veau";
+  ecs::entity::RTEntity			e_test;
+  ecs::component::Test<std::string>	c_test;
+
+  e_test.addComponent("test", decltype(c_test)());
+  e_test.setComponent("test", std::move(e_test.getComponent<decltype(c_test)>("test") = decltype(c_test)(std::move(s))));
+  EXPECT_STREQ("", s.c_str());
+  EXPECT_STREQ("lorem ipsum du foie de veau", e_test.getComponent<decltype(c_test)>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ("", c_test.getAttr<::test>().c_str());
+  c_test.setAttr<::test>("gentil petit");
+  EXPECT_STREQ("gentil petit", c_test.getAttr<::test>().c_str());
+}
+
+TEST(RunTime, OtherTypesCompatibility)
+{
+  ecs::database::Entity			e_db({{std::hash<std::string>{}("test"), ecs::database::Component
+									 (std::forward_as_tuple(std::string("bonjour les enfants, aujourd'hui nous allons nous epanuir dans un champs fleuri")), "test")}});
+  ecs::entity::Test<std::string>	e_ct(std::string(", sous un ciel rose fluo, empreint d'un feu d'artifice naturel... :)"));
+  ecs::entity::RTEntity			e_test0(e_db, ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
+  ecs::entity::RTEntity			e_test1(e_ct);
+  ecs::entity::RTEntity			e_test2(std::move(e_db), ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
+  ecs::entity::RTEntity			e_test3(std::move(e_ct));
+
+  EXPECT_STREQ("", e_db["test"].getAttr<std::string>("test").c_str());
+  EXPECT_STREQ("", e_ct.getComponent<::test>().getAttr<::test>().c_str());
+  EXPECT_STREQ("bonjour les enfants, aujourd'hui nous allons nous epanuir dans un champs fleuri", e_test0.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ(", sous un ciel rose fluo, empreint d'un feu d'artifice naturel... :)", e_test1.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ("bonjour les enfants, aujourd'hui nous allons nous epanuir dans un champs fleuri", e_test2.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  EXPECT_STREQ(", sous un ciel rose fluo, empreint d'un feu d'artifice naturel... :)", e_test3.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+}
+
+TEST(DatabaseData, DefaultCtors)
+{
+  ecs::database::Entity		e_test({{std::hash<std::string>{}("test"), ecs::database::Component(std::forward_as_tuple(std::string("je viens d'une mechante DB!")), "test")}});
+  ecs::database::Entity		e_test0;
+  ecs::database::Entity		e_test1(e_test);
+  ecs::database::Entity		e_test2(std::move(e_test));
+
+  EXPECT_FALSE(e_test.hasComponent("test"));
+  EXPECT_STREQ("je viens d'une mechante DB!", e_test1["test"].getAttr<std::string>("test").c_str());
+  EXPECT_STREQ("je viens d'une mechante DB!", e_test2["test"].getAttr<std::string>("test").c_str());
+}
+
+TEST(DatabaseData, DefaultAssignementOperators)
+{
+  ecs::database::Entity		e_test({{std::hash<std::string>{}("test"), ecs::database::Component(std::forward_as_tuple(std::string("BOUH, mechante DB, BOUH!")), "test")}});
+  ecs::database::Entity		e_test0;
+  ecs::database::Entity		e_test1(e_test);
+  ecs::database::Entity		e_test2(std::move(e_test));
+
+  e_test0 = e_test1;
+  e_test = std::move(e_test2);
+  EXPECT_STREQ("BOUH, mechante DB, BOUH!", e_test["test"].getAttr<std::string>("test").c_str());
+  EXPECT_STREQ("BOUH, mechante DB, BOUH!", e_test0["test"].getAttr<std::string>("test").c_str());
+  EXPECT_STREQ("BOUH, mechante DB, BOUH!", e_test1["test"].getAttr<std::string>("test").c_str());
+  EXPECT_FALSE(e_test2.hasComponent("test"));
+}
+
+TEST(DatabaseData, GetSetComponentAttr)
+{
+  std::string			s = "si ca se trouve c'est bon... :)";
+  ecs::database::Entity		e_test;
+  ecs::database::Component	c_test(std::tuple<std::string>(), "test");
+
+  e_test.addComponent("test", c_test);
+  e_test.setComponent("test", std::move(e_test["test"] = ecs::database::Component(std::forward_as_tuple(s), "test")));
+  EXPECT_STREQ("", s.c_str());
+  EXPECT_STREQ("si ca se trouve c'est bon... :)", e_test["test"].getAttr<std::string>("test").c_str());
+  EXPECT_STREQ("", c_test.getAttr<std::string>("test").c_str());
+  c_test.setAttr<std::string>("test", "MAIS OUAIS DE OUF!");
+  EXPECT_STREQ("MAIS OUAIS DE OUF!", c_test.getAttr<std::string>("test").c_str());
+}
+
+TEST(DatabaseData, OtherTypesCompatibility)
+{
+  ecs::entity::Test<std::string>	e_ct(std::string("il etait une fois un extraterreste..."));
+  ecs::entity::RTEntity			e_rt(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("...intraterreste......")), "test");
+  ecs::database::Entity			e_test0(e_ct);
+  ecs::database::Entity			e_test1(e_rt, ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
+  ecs::database::Entity			e_test2(std::move(e_ct), ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
+  ecs::database::Entity			e_test3(std::move(e_rt), ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
+
+  // EXPECT_STREQ("", e_ct.getComponent<>.getAttr<std::string>("test").c_str());
+  // EXPECT_STREQ("", e_rt.getComponent<ecs::component::Test<std::string>>("test").getAttr<::test>().c_str());
+  // EXPECT_STREQ("il etait une fois un extraterreste...", e_test0["test"].getAttr<std::string>("test").c_str());
+  // EXPECT_STREQ("...intraterreste......", e_test1["test"].getAttr<std::string>("test").c_str());
+  // EXPECT_STREQ("il etait une fois un extraterreste...", e_test2["test"].getAttr<std::string>("test").c_str());
+  // EXPECT_STREQ("...intraterreste......", e_test3["test"].getAttr<std::string>("test").c_str());
+}
+
+int	main(int argc, char *argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
