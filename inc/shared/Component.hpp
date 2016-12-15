@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec 14 09:53:25 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 15 22:27:58 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -24,52 +24,52 @@ namespace	entity_component_system
 
   namespace	component
   {
-    //! \brief compile-time Component class (see its specialization below)
+    //! \brief Compile time component class (see its specialization below)
     template<typename, char const *...>
     class	Component;
 
-    //! \brief compile-time Component class
+    //! \brief Compile time component class
     //!
     //! this class is designed to represent a component outside of the database
-    //! \param [in] TypesWrapper (template parameter) the types of the component's attributes, wrapped in a templated class or struct such as entity_component_system::component::Types
-    //! \param [in] Types (template parameter) the types of the component's attributes
-    //! \param [in] names (template parameter) the names of the component's attributes, in the same order as the types are (must be variables with internal linkage, declared as follow: constexpr char var[] = "name";)
+    //! \tparam Types the types of the component's attributes
+    //! \tparam names the names of the component's attributes, in the same order as the types are. Must be declared as follow (in the global scope): \code constexpr char attrName[] = "attrName"; \endcode
     template<typename... Types, char const *... names>
     class	Component<ct::TypesWrapper<Types...>, names...>
     {
     public:
       //! \brief Default constructor
       Component(void) = default;
-      //! \brief Constructor
-      //!
-      //! allows you to initialize attributes by copy
+
+      //! \brief Constructor initializing the attributes by copy
       //! \param [in] values values to initialize attributes
       Component(Types const &... values) : _values(values...) {}
-      //! \brief Constructor
-      //!
-      //! allows you to initialize attributes' by copy and/or move depending on the type of the value (lvalue or rvalue) passed as parameter when called
+
+      //! \brief Constructor initializing the attributes by move
       //! \param [in] values values to initialize attributes
       Component(Types&&... values) : _values(std::forward<Types>(values)...) {}
-      //! \brief Constructor
-      //!
-      //! initializes attributes by copying databaseComponent's ones
-      //! \param [in] databaseComponent a database component with at least the same attributes as the one's of the component being constructed
+
+      //! \brief Constructor initializing the attribute by copy from a database::Component
+      //! \param [in] databaseComponent the source component
+      //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
       Component(database::Component const & databaseComponent) : _values(_initValues(databaseComponent, std::true_type())) {}
-      //! \brief Constructor
-      //!
-      //! initializes attributes by moving databaseComponent's ones
-      //! \param [in] databaseComponent a database component with at least the same attributes as the one's of the component being constructed
-      Component(database::Component && databaseComponent) : _values(_initValues(std::forward<database::Component>(databaseComponent), std::true_type())) {}
+
+      //! \brief Constructor initializing the attribute by move from a database::Component
+      //! \param [in] databaseComponent the source component
+      //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
+      Component(database::Component && databaseComponent) : _values(_initValues(std::move(databaseComponent), std::true_type())) {}
+
       //! \brief Default copy constructor
       Component(Component const &) = default;
+
       //! \brief Default move constructor
       Component(Component &&) = default;
+
       //! \brief Default destructor
       ~Component(void) = default;
 
-      //! \brief Copy assignement operator
-      //!
-      //! \param [in] databaseComponent a database component with at least the same attributes as the one's of the component being constructed
+      //! \brief Assignement operator, setting the attributes by copy from a database::Component
+      //! \param [in] databaseComponent the source component
+      //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
       Component &
       operator=(database::Component const & databaseComponent)
       {
@@ -77,23 +77,24 @@ namespace	entity_component_system
 	return *this;
       }
 
-      //! \brief Copy assignement operator
-      //!
-      //! \param [in] databaseComponent a database component with at least the same attributes as the one's of the component being constructed
+      //! \brief Assignement operator, setting the attributes by move from a database::Component
+      //! \param [in] databaseComponent the source component
+      //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
       Component &
       operator=(database::Component && databaseComponent)
       {
-	_values = _initValues(std::forward<database::Component>(databaseComponent), std::true_type());
+	_values = _initValues(std::move(databaseComponent), std::true_type());
 	return *this;
       }
 
       //! \brief Default copy assignement operator
       Component &	operator=(Component const &) = default;
+
       //! \brief Default move assignement operator
       Component &	operator=(Component &&) = default;
 
       //! \brief Gets an attribute
-      //! \param [in] name (template parameter) the name of the attribute to get (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
+      //! \tparam name the name of the requested attribute, must be declared as follow (in the global scope): \code constexpr char attrName[] = "attrName"; \endcode
       //! \return an lvalue reference to the requested attribute
       template<char const * name>
       typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type &
@@ -103,7 +104,7 @@ namespace	entity_component_system
       }
 
       //! \brief Gets an attribute
-      //! \param [in] name (template parameter) the name of the attribute to get (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
+      //! \tparam name the name of the requested attribute, must be declared as follow (in the global scope): \code constexpr char attrName[] = "attrName"; \endcode
       //! \return an lvalue reference to the constant requested attribute
       template<char const * name>
       typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type const &
@@ -113,8 +114,8 @@ namespace	entity_component_system
       }
 
       //! \brief Sets an attribute by copy
-      //! \param [in] name (template parameter) the name of the attribute to set (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
-      //! \param [in] v the new value of the concerned attribute
+      //! \tparam name the name of the requested attribute, must be declared as follow (in the global scope): \code constexpr char attrName[] = "attrName"; \endcode
+      //! \param [in] v the new value
       template<char const * name>
       void
       setAttr(typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type const & v)
@@ -123,9 +124,9 @@ namespace	entity_component_system
 	  std::get<ct::getIdx<name, names...>()>(_values) = v;
       }
 
-      //! \brief Sets an attribute by copy or move, depending on the type of the value (lvalue or rvalue) passed as parameter when called
-      //! \param [in] name (template parameter) the name of the attribute to set (must be a variable with internal linkage, declared as follow: constexpr char var[] = "name";)
-      //! \param [in] v the new value of the concerned attribute
+      //! \brief Sets an attribute by move
+      //! \tparam name the name of the requested attribute, must be declared as follow (in the global scope): \code constexpr char attrName[] = "attrName"; \endcode
+      //! \param [in] v the new value
       template<char const * name>
       void
       setAttr(typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type && v)
@@ -134,9 +135,9 @@ namespace	entity_component_system
 	  std::get<ct::getIdx<name, names...>()>(_values) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type>(v);
       }
 
-      //! \brief Insert a component into an output stream
-      //! \param [out] os the output stream in which the given component will be inserted
-      //! \param [in] c the component to insert in the stream
+      //! \brief Insert a Component into an output stream
+      //! \param [out] os the output stream in which the given Component will be inserted
+      //! \param [in] c the Component to insert in the stream
       //! \return a reference to the given output stream 'os' to allow operator chaining
       friend std::ostream &	operator<<(std::ostream & os, Component const & c)
       {
@@ -166,7 +167,7 @@ namespace	entity_component_system
 
       template<char const * name, char const *... _names>
       std::ostream &
-      _print(std::ostream & os, typename std::enable_if<sizeof...(_names), void *>::type = 0) const
+      _print(std::ostream & os, typename std::enable_if<sizeof...(_names)>::type * = nullptr) const
       {
 	os // << abi::__cxa_demangle(typeid(typename std::tuple_element<sizeof...(names) - sizeof...(_names) - 1, std::tuple<Types...>>::type).name(), nullptr, nullptr, nullptr) << ' '
 	   << name << " = " << std::get<sizeof...(names) - sizeof...(_names) - 1>(_values) << "; ";
@@ -175,7 +176,7 @@ namespace	entity_component_system
 
       template<char const * name, char const *... _names>
       std::ostream &
-      _print(std::ostream & os, typename std::enable_if<!sizeof...(_names), void *>::type = 0) const
+      _print(std::ostream & os, typename std::enable_if<!sizeof...(_names)>::type * = nullptr) const
       {
 	return os // << abi::__cxa_demangle(typeid(typename std::tuple_element<sizeof...(names) - sizeof...(_names) - 1, std::tuple<Types...>>::type).name(), nullptr, nullptr, nullptr) << ' '
 		  << name << " = " << std::get<sizeof...(names) - 1>(_values);
@@ -207,7 +208,7 @@ template<typename... Types, char const *... names> template<typename... Values>
 std::tuple<Types...>
 entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component && databaseComponent, std::true_type, Values&&... values) const
 {
-  return _initValues(databaseComponent,
+  return _initValues(std::move(databaseComponent),
 		     std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
 		     std::forward<Values>(values)...,
 		     std::move(databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...)))));

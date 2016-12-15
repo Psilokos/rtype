@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Dec 12 15:13:58 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 12 15:58:38 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 15 22:57:18 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -26,7 +26,7 @@ namespace	entity_component_system
     //! \brief Constructor
     //! \param [in] attrName the name of the requested attribute
     //! \param [in] goodTypeInfo a pointer to a type_info, representing the expected type
-    //! \param [in] goodTypeInfo a pointer to a type_info, representing the given type
+    //! \param [in] badTypeInfo a pointer to a type_info, representing the given type
     BadType(std::string const & attrName, std::type_info const * goodTypeInfo, std::type_info const * badTypeInfo) : _what{0}
     {
       std::string	tmp = attrName

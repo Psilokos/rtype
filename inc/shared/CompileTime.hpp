@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 05:47:59 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 13 12:45:53 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 14 20:47:18 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -17,19 +17,20 @@ namespace	compile_time
 
   template<typename... Types> struct	Wrapper
   {
-    Wrapper(Types&&... values) : values(values...) {}
+    Wrapper(Types const &... values) : values(values...) {}
+    Wrapper(Types&&... values) : values(std::forward<Types>(values)...) {}
 
     std::tuple<Types...>	values;
   };
 
-  template<int... idx>
+  template<unsigned... idx>
   struct	Index
   {
-    template<int n>
+    template<unsigned n>
     using Append = Index<idx..., n>;
   };
 
-  template<int n>
+  template<unsigned n>
   struct	GenIndex
   {
     typedef typename GenIndex<n - 1>::type::template Append<n - 1>	type;
@@ -41,29 +42,21 @@ namespace	compile_time
     typedef Index<>	type;
   };
 
-  template<int n>
+  template<unsigned n>
   using Indexer = typename GenIndex<n>::type;
 
   template<char const * s1, char const * s2>
   constexpr bool
-  strcmp(typename std::enable_if<s1 == s2, void *>::type = 0)
+  strcmp(typename std::enable_if<s1 == s2>::type * = nullptr)
   {
     return true;
   }
 
   template<char const * s1, char const * s2>
-  constexpr bool
-  strcmp(typename std::enable_if<s1 != s2 && (*s1 && *s2 ? *s1 == *s2 && strcmp<s1 + 1, s2 + 1>() : !*s1 && !*s2), void *>::type = 0)
-  {
-    return true;
-  }
+  constexpr bool	strcmp(typename std::enable_if<s1 != s2 && (*s1 && *s2 ? *s1 == *s2 && strcmp<s1 + 1, s2 + 1>() : !*s1 && !*s2)>::type * = nullptr) { return true; }
 
   template<char const * s1, char const * s2>
-  constexpr bool
-  strcmp(typename std::enable_if<s1 != s2 && *s1 ^ *s2, void *>::type = 0)
-  {
-    return false;
-  }
+  constexpr bool	strcmp(typename std::enable_if<s1 != s2 && *s1 ^ *s2>::type * = nullptr) { return false; }
 
   template<unsigned idx, char const * s1, char const *... s>
   constexpr unsigned

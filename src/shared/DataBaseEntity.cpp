@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 13:36:34 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec 14 09:51:18 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 15 22:55:44 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include "DataBaseEntity.hpp"
@@ -62,7 +62,7 @@ namespace	entity_component_system
     Component &		Entity::operator[](std::string const & name)		{ return this->getComponent(name); }
     Component const &	Entity::operator[](std::string const & name) const	{ return this->getComponent(name); }
 
-    Component &
+    void
     Entity::setComponent(std::string const & name, Component const & component)
     {
       std::size_t const	hashedKey = std::hash<std::string>{}(name);
@@ -71,10 +71,9 @@ namespace	entity_component_system
 	throw IdentifierNotFound(name);
       if (&component != &_components.at(hashedKey))
 	_components.at(hashedKey) = component;
-      return _components.at(hashedKey);
     }
 
-    Component &
+    void
     Entity::setComponent(std::string const & name, Component && component)
     {
       std::size_t const	hashedKey = std::hash<std::string>{}(name);
@@ -83,7 +82,6 @@ namespace	entity_component_system
 	throw IdentifierNotFound(name);
       if (&component != &_components.at(hashedKey))
 	_components.at(hashedKey) = component;
-      return _components.at(hashedKey);
     }
 
     Component

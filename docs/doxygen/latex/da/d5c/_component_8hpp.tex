@@ -1,22 +1,23 @@
 \section{inc/shared/\+Component.hpp File Reference}
 \label{_component_8hpp}\index{inc/shared/\+Component.\+hpp@{inc/shared/\+Component.\+hpp}}
-{\ttfamily \#include $<$functional$>$}\newline
+{\ttfamily \#include $<$ostream$>$}\newline
 {\ttfamily \#include $<$string$>$}\newline
 {\ttfamily \#include $<$tuple$>$}\newline
+{\ttfamily \#include \char`\"{}Compile\+Time.\+hpp\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}Data\+Base\+Component.\+hpp\char`\"{}}\newline
 \subsection*{Classes}
 \begin{DoxyCompactItemize}
 \item 
-struct {\bf entity\+\_\+component\+\_\+system\+::component\+::\+Types$<$... $>$}
-\begin{DoxyCompactList}\small\item\em class used to define the types of the component\textquotesingle{}s attributes \end{DoxyCompactList}\item 
 class {\bf entity\+\_\+component\+\_\+system\+::component\+::\+Component$<$ typename,... $>$}
-\begin{DoxyCompactList}\small\item\em compile-\/time \doxyref{Component}{p.}{df/d06/classentity__component__system_1_1component_1_1_component} class (see its specialization below) \end{DoxyCompactList}\item 
-class {\bf entity\+\_\+component\+\_\+system\+::component\+::\+Component$<$ Types\+Wrapper$<$ Types... $>$, names... $>$}
-\begin{DoxyCompactList}\small\item\em compile-\/time \doxyref{Component}{p.}{df/d06/classentity__component__system_1_1component_1_1_component} class \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Compile time component class (see its specialization below) \end{DoxyCompactList}\item 
+class {\bf entity\+\_\+component\+\_\+system\+::component\+::\+Component$<$ ct\+::\+Types\+Wrapper$<$ Types... $>$, names... $>$}
+\begin{DoxyCompactList}\small\item\em Compile time component class. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Namespaces}
 \begin{DoxyCompactItemize}
 \item 
  {\bf entity\+\_\+component\+\_\+system}
+\item 
+ {\bf entity\+\_\+component\+\_\+system\+::database}
 \item 
  {\bf entity\+\_\+component\+\_\+system\+::component}
 \end{DoxyCompactItemize}
