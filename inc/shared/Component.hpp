@@ -5,16 +5,20 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 00:58:55 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 02:43:15 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
+#include <cstring>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <tuple>
 #include "CompileTime.hpp"
 #include "ID.hpp"
+
+typedef unsigned char	byte;
 
 namespace	entity_component_system
 {
@@ -140,6 +144,34 @@ namespace	entity_component_system
 	  std::get<ct::getIdx<name, names...>()>(_values) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<Types...>>::type>(v);
       }
 
+      //! \brief Serialize a component
+      //! \param [in] headerSize a size in bytes to reserve for further use
+      //! \param [out] bufSize the size of the returned buffer
+      //! \return the serialized Component, with the first 'headerSize' bytes uninitialized
+      void *
+      serialize(unsigned const headerSize, unsigned & bufSize)
+      {
+	byte *	buf;
+
+	bufSize = headerSize + ct::add<unsigned, sizeof(Types)...>();
+	buf = new byte[bufSize];
+	_serialize<0>(buf + headerSize);
+	return buf;
+      }
+
+      //! \brief Deserialize a component
+      //! \param [in] buf the serialized component
+      //! \param [in] size the size of 'buf'
+      //! \return a shared_ptr to the deserialized component
+      static std::shared_ptr<Component<ct::TypesWrapper<Types...>, names...>>
+      deserialize(void * buf, unsigned const size)
+      {
+	std::shared_ptr<Component<ct::TypesWrapper<Types...>, names...>>	c(new Component<ct::TypesWrapper<Types...>, names...>());
+
+	Component<ct::TypesWrapper<Types...>, names...>::_deserialize<0>(*c, static_cast<byte *>(buf), static_cast<byte *>(buf) + size);
+	return c;
+      }
+
       //! \brief Insert a Component into an output stream
       //! \param [out] os the output stream in which the given Component will be inserted
       //! \param [in] c the Component to insert in the stream
@@ -170,6 +202,34 @@ namespace	entity_component_system
       template<typename... Values>
       std::tuple<Types...>
       _initValues(database::Component &&, std::false_type, Values&&... values) const;
+
+      template<unsigned idx>
+      byte *
+      _serialize(byte * buf, typename std::enable_if<idx < sizeof...(Types)>::type * = nullptr)
+      {
+	constexpr unsigned	size = sizeof(typename std::tuple_element<idx, decltype(_values)>::type);
+
+	// *reinterpret_cast<typename std::tuple_element<idx, decltype(_values)>::type *>(buf) = std::get<idx>(_values);
+	// buffer overflow if value is an object with assignement operator and pointer (std::string is one of them)
+
+	std::memcpy(buf, &std::get<idx>(_values), size);
+	return _serialize<idx + 1>(buf + size) - size;
+      }
+
+      template<unsigned idx>
+      byte *	_serialize(byte * buf, typename std::enable_if<idx == sizeof...(Types)>::type * = nullptr) { return buf; }
+
+      template<unsigned idx>
+      static void
+      _deserialize(Component<ct::TypesWrapper<Types...>, names...> & c, byte const * buf, void const * endAddr, typename std::enable_if<idx < sizeof...(Types)>::type * = nullptr)
+      {
+	std::get<idx>(c._values) = *reinterpret_cast<typename std::tuple_element<idx, decltype(c._values)>::type const *>(buf);
+	if (buf + sizeof(typename std::tuple_element<idx, decltype(c._values)>::type) < endAddr)
+	  Component<ct::TypesWrapper<Types...>, names...>::_deserialize<idx + 1>(c, buf + sizeof(typename std::tuple_element<idx, decltype(c._values)>::type), endAddr);
+      }
+
+      template<unsigned idx>
+      static void	_deserialize(Component<ct::TypesWrapper<Types...>, names...> &, byte const *, void const *, typename std::enable_if<idx == sizeof...(Types)>::type * = nullptr) {}
 
       template<char const * name, char const *... _names>
       std::ostream &

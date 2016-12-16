@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Tue Nov 29 11:48:30 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 01:09:36 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 02:36:10 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cstdint>
@@ -39,6 +39,20 @@ TEST(CompileTime, DefaultCtors)
   EXPECT_STREQ("", e_test0.getComponent<::test>().getAttr<::test>().c_str());
   EXPECT_STREQ("qweqwe", e_test1.getComponent<::test>().getAttr<::test>().c_str());
   EXPECT_STREQ("qweqwe", e_test2.getComponent<::test>().getAttr<::test>().c_str());
+  unsigned lol;
+  e_test.getComponent<::test>().serialize(3, lol);
+}
+
+TEST(CompileTime, SerializationDeserialization)
+{
+  ecs::component::Test<unsigned>			c_test;
+  byte *						buf;
+  unsigned						size;
+
+  c_test.setAttr<::test>(0xDeadB0BE);
+  buf = (byte *)c_test.serialize(0, size);
+  EXPECT_EQ(0xDeadB0BE, ecs::component::Test<unsigned>::deserialize(buf, size)->getAttr<::test>());
+  delete[] buf;
 }
 
 TEST(CompileTime, DefaultAssignementOperators)

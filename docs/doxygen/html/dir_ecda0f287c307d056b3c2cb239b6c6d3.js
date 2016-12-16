@@ -4,10 +4,7 @@ var dir_ecda0f287c307d056b3c2cb239b6c6d3 =
       [ "BadType", "db/d54/classentity__component__system_1_1_bad_type.html", "db/d54/classentity__component__system_1_1_bad_type" ]
     ] ],
     [ "CompileTime.hpp", "dc/d76/_compile_time_8hpp.html", "dc/d76/_compile_time_8hpp" ],
-    [ "Component.hpp", "da/d5c/_component_8hpp.html", [
-      [ "Component", "df/d06/classentity__component__system_1_1component_1_1_component.html", null ],
-      [ "Component< ct::TypesWrapper< Types... >, names... >", "d7/d44/classentity__component__system_1_1component_1_1_component_3_01ct_1_1_types_wrapper_3_01_types_8_8_8_01_4_00_01names_8_8_8_01_4.html", "d7/d44/classentity__component__system_1_1component_1_1_component_3_01ct_1_1_types_wrapper_3_01_types_8_8_8_01_4_00_01names_8_8_8_01_4" ]
-    ] ],
+    [ "Component.hpp", "da/d5c/_component_8hpp.html", "da/d5c/_component_8hpp" ],
     [ "CTEntity.hpp", "d3/d95/_c_t_entity_8hpp.html", [
       [ "CTEntity", "df/de9/classentity__component__system_1_1entity_1_1_c_t_entity.html", null ],
       [ "CTEntity< ct::TypesWrapper< ComponentsTypes... >, names... >", "d7/daf/classentity__component__system_1_1entity_1_1_c_t_entity_3_01ct_1_1_types_wrapper_3_01_components8f5c7542014cfed89f2b5d89238d319b.html", "d7/daf/classentity__component__system_1_1entity_1_1_c_t_entity_3_01ct_1_1_types_wrapper_3_01_components8f5c7542014cfed89f2b5d89238d319b" ]
