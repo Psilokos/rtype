@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 15 22:27:58 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 00:58:55 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -14,6 +14,7 @@
 #include <string>
 #include <tuple>
 #include "CompileTime.hpp"
+#include "ID.hpp"
 
 namespace	entity_component_system
 {
@@ -40,23 +41,29 @@ namespace	entity_component_system
       //! \brief Default constructor
       Component(void) = default;
 
+      //! \brief Constructor initializing the id
+      //! \param [in] id the ID of the component in database
+      Component(ID<ecs::Component> const & id) : _id(id) {}
+
       //! \brief Constructor initializing the attributes by copy
+      //! \param [in] id the ID of the component in database
       //! \param [in] values values to initialize attributes
-      Component(Types const &... values) : _values(values...) {}
+      Component(ID<ecs::Component> const & id, Types const &... values) : _id(id), _values(values...) {}
 
       //! \brief Constructor initializing the attributes by move
+      //! \param [in] id the ID of the component in database
       //! \param [in] values values to initialize attributes
-      Component(Types&&... values) : _values(std::forward<Types>(values)...) {}
+      Component(ID<ecs::Component> const & id, Types&&... values) : _id(id), _values(std::forward<Types>(values)...) {}
 
       //! \brief Constructor initializing the attribute by copy from a database::Component
       //! \param [in] databaseComponent the source component
       //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
-      Component(database::Component const & databaseComponent) : _values(_initValues(databaseComponent, std::true_type())) {}
+      Component(database::Component const & databaseComponent);
 
       //! \brief Constructor initializing the attribute by move from a database::Component
       //! \param [in] databaseComponent the source component
       //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
-      Component(database::Component && databaseComponent) : _values(_initValues(std::move(databaseComponent), std::true_type())) {}
+      Component(database::Component && databaseComponent);
 
       //! \brief Default copy constructor
       Component(Component const &) = default;
@@ -70,28 +77,26 @@ namespace	entity_component_system
       //! \brief Assignement operator, setting the attributes by copy from a database::Component
       //! \param [in] databaseComponent the source component
       //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
-      Component &
-      operator=(database::Component const & databaseComponent)
-      {
-	_values = _initValues(databaseComponent, std::true_type());
-	return *this;
-      }
+      Component &	operator=(database::Component const & databaseComponent);
 
       //! \brief Assignement operator, setting the attributes by move from a database::Component
       //! \param [in] databaseComponent the source component
       //! \throw IdentifierNotFound if an attribute is not found in the databaseComponent
-      Component &
-      operator=(database::Component && databaseComponent)
-      {
-	_values = _initValues(std::move(databaseComponent), std::true_type());
-	return *this;
-      }
+      Component &	operator=(database::Component && databaseComponent);
 
       //! \brief Default copy assignement operator
       Component &	operator=(Component const &) = default;
 
       //! \brief Default move assignement operator
       Component &	operator=(Component &&) = default;
+
+      //! \brief Gets the component ID
+      //! \return a copy of the component's ID
+      ID<ecs::Component>	getID(void) const { return _id; }
+
+      //! \brief Sets the component ID
+      //! \param [in] id the new ID
+      void	setID(ID<ecs::Component> const & id) { _id = id; }
 
       //! \brief Gets an attribute
       //! \tparam name the name of the requested attribute, must be declared as follow (in the global scope): \code constexpr char attrName[] = "attrName"; \endcode
@@ -146,7 +151,8 @@ namespace	entity_component_system
       }
 
     private:
-      std::tuple<Types...>		_values;
+      ID<ecs::Component>	_id;
+      std::tuple<Types...>	_values;
 
     private:
       template<typename... Values>
@@ -187,36 +193,66 @@ namespace	entity_component_system
 
 #include "DataBaseComponent.hpp"
 
-template<typename... Types, char const *... names> template<typename... Values>
-std::tuple<Types...>
-entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component const & databaseComponent, std::true_type, Values&&... values) const
+namespace	entity_component_system
 {
-  return _initValues(databaseComponent,
-		     std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
-		     std::forward<Values>(values)...,
-		     databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...))));
-}
+  namespace	component
+  {
+    template<typename... Types, char const *... names>
+    Component<ct::TypesWrapper<Types...>, names...>::Component(database::Component const & databaseComponent) : _id(databaseComponent.getID()), _values(_initValues(databaseComponent, std::true_type())) {}
 
-template<typename... Types, char const *... names> template<typename... Values>
-std::tuple<Types...>
-entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component const &, std::false_type, Values&&... values) const
-{
-  return std::forward_as_tuple(std::forward<Values>(values)...);
-}
+    template<typename... Types, char const *... names>
+    Component<ct::TypesWrapper<Types...>, names...>::Component(database::Component && databaseComponent) : _id(databaseComponent.getID()), _values(_initValues(std::move(databaseComponent), std::true_type())) {}
 
-template<typename... Types, char const *... names> template<typename... Values>
-std::tuple<Types...>
-entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component && databaseComponent, std::true_type, Values&&... values) const
-{
-  return _initValues(std::move(databaseComponent),
-		     std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
-		     std::forward<Values>(values)...,
-		     std::move(databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...)))));
-}
+    template<typename... Types, char const *... names>
+    Component<ct::TypesWrapper<Types...>, names...> &
+    Component<ct::TypesWrapper<Types...>, names...>::operator=(database::Component const & databaseComponent)
+    {
+      _id = databaseComponent.getID();
+      _values = _initValues(databaseComponent, std::true_type());
+      return *this;
+    }
 
-template<typename... Types, char const *... names> template<typename... Values>
-std::tuple<Types...>
-entity_component_system::component::Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component &&, std::false_type, Values&&... values) const
-{
-  return std::forward_as_tuple(std::forward<Values>(values)...);
+    template<typename... Types, char const *... names>
+    Component<ct::TypesWrapper<Types...>, names...> &
+    Component<ct::TypesWrapper<Types...>, names...>::operator=(database::Component && databaseComponent)
+    {
+      _id = databaseComponent.getID();
+      _values = _initValues(std::move(databaseComponent), std::true_type());
+      return *this;
+    }
+
+    template<typename... Types, char const *... names> template<typename... Values>
+    std::tuple<Types...>
+    Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component const & databaseComponent, std::true_type, Values&&... values) const
+    {
+      return _initValues(databaseComponent,
+			 std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
+			 std::forward<Values>(values)...,
+			 databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...))));
+    }
+
+    template<typename... Types, char const *... names> template<typename... Values>
+    std::tuple<Types...>
+    Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component const &, std::false_type, Values&&... values) const
+    {
+      return std::forward_as_tuple(std::forward<Values>(values)...);
+    }
+
+    template<typename... Types, char const *... names> template<typename... Values>
+    std::tuple<Types...>
+    Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component && databaseComponent, std::true_type, Values&&... values) const
+    {
+      return _initValues(std::move(databaseComponent),
+			 std::integral_constant<bool, sizeof...(Values) + 1 < sizeof...(Types)>(),
+			 std::forward<Values>(values)...,
+			 std::move(databaseComponent.getAttr<typename std::tuple_element<sizeof...(Values), std::tuple<Types...>>::type>(std::get<sizeof...(Values)>(std::tuple<decltype(names)...>(names...)))));
+    }
+
+    template<typename... Types, char const *... names> template<typename... Values>
+    std::tuple<Types...>
+    Component<ct::TypesWrapper<Types...>, names...>::_initValues(database::Component &&, std::false_type, Values&&... values) const
+    {
+      return std::forward_as_tuple(std::forward<Values>(values)...);
+    }
+  }
 }

@@ -5,12 +5,13 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Fri Dec  2 14:09:55 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 15 22:56:49 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 00:34:59 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include "DataBaseComponent.hpp"
+#include "ID.hpp"
 #include "IdentifierNotFound.hpp"
 
 namespace	entity_component_system
@@ -35,9 +36,14 @@ namespace	entity_component_system
       //! \brief Default constructor
       Entity(void) = default;
 
+      //! \brief Constructor initializing the id
+      //! \param [in] id the ID of the entity in database
+      Entity(ID<ecs::Entity> const & id);
+
       //! \brief Constructor initializing components from an initializer list
+      //! \param [in] id the ID of the entity in database
       //! \param [in] components an initializer list of pair containing the hash of the component name and the Component. The hash is obtained as follow: \code std::hash<std::string>{}("name"); \endcode
-      Entity(std::initializer_list<std::pair<std::size_t const, Component>> && components);
+      Entity(ID<ecs::Entity> const & id, std::initializer_list<std::pair<std::size_t const, Component>> && components);
 
       //! \brief Constructor initializing components by copy from an entity::CTEntity
       //! \param [in] e the source entity
@@ -77,24 +83,12 @@ namespace	entity_component_system
       //! \brief Assignement operator, setting the components by copy from a CTEntity
       //! \param [in] e the source entity
       template<typename... ComponentsTypes, char const *... names>
-      Entity &
-      operator=(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e)
-      {
-	_Assign<names...>	assign(e, _components);
-
-	return *this;
-      }
+      Entity &	operator=(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e);
 
       //! \brief Assignement operator, setting the components by copy from a CTEntity
       //! \param [in] e the source entity
       template<typename... ComponentsTypes, char const *... names>
-      Entity &
-      operator=(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e)
-      {
-	_Assign<names...>	assign(std::move(e), _components);
-
-	return *this;
-      }
+      Entity &	operator=(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e);
 
       //! \brief Sets the components by copy from an entity::RTEntity
       //!
@@ -104,12 +98,7 @@ namespace	entity_component_system
       //! \param [in] names the names of the components, must be given in same order as the ComponentsTypes (can either be std::string or cstring)
       //! \throw IdentifierNotFound if a component's name is not found in rtEntity
       template<typename... ComponentsTypes, typename... ComponentsNames>
-      Entity &
-      assign(entity::RTEntity const & rtEntity, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names)
-      {
-	_setComponents<0>(rtEntity, std::move(types), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
-	return *this;
-      }
+      Entity &	assign(entity::RTEntity const & rtEntity, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names);
 
       //! \brief Sets the components by move from an entity::RTEntity
       //!
@@ -119,18 +108,21 @@ namespace	entity_component_system
       //! \param [in] names the names of the components, must be given in same order as the ComponentsTypes (can either be std::string or cstring)
       //! \throw IdentifierNotFound if a component's name is not found in rtEntity
       template<typename... ComponentsTypes, typename... ComponentsNames>
-      Entity &
-      assign(entity::RTEntity && rtEntity, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names)
-      {
-	_setComponents<0>(std::move(rtEntity), std::move(types), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
-	return *this;
-      }
+      Entity &	assign(entity::RTEntity && rtEntity, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names);
 
       //! \brief Default assignement by copy operator
       Entity &	operator=(Entity const &) = default;
 
       //! \brief Default assignement by move operator
       Entity &	operator=(Entity &&) = default;
+
+      //! \brief Gets the entity ID
+      //! \return a copy of the entity's ID
+      ID<ecs::Entity>	getID(void) const;
+
+      //! \brief Sets the entity ID
+      //! \param [in] id the new ID
+      void	setID(ID<ecs::Entity> const & id);
 
       //! \brief Checks if a component exists
       //! \param [in] name the name of the component to check
@@ -198,6 +190,7 @@ namespace	entity_component_system
       friend std::ostream &	operator<<(std::ostream & os, Entity const & e);
 
     private:
+      ID<ecs::Entity>			_id;
       std::map<std::size_t, Component>	_components;
 
     private:
@@ -258,18 +251,56 @@ namespace	entity_component_system
   namespace	database
   {
     template<typename... ComponentsTypes, char const *... names>
-    Entity::Entity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e) : _components({{std::hash<std::string>{}(names), e.template getComponent<names>()}...}) {}
+    Entity::Entity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e) : _id(e.getID()), _components({{std::hash<std::string>{}(names), e.template getComponent<names>()}...}) {}
 
     template<typename... ComponentsTypes, char const *... names>
-    Entity::Entity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e) : _components({{std::hash<std::string>{}(names), std::move(e.template getComponent<names>())}...}) {}
+    Entity::Entity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e) : _id(e.getID()), _components({{std::hash<std::string>{}(names), std::move(e.template getComponent<names>())}...}) {}
 
     template<typename... ComponentsTypes, typename... ComponentsNames>
     Entity::Entity(entity::RTEntity const & e, ct::TypesWrapper<ComponentsTypes...> &&, ComponentsNames&&... names)
-      : _components({{std::hash<std::string>{}(names), e.getComponent<ComponentsTypes>(std::forward<ComponentsNames>(names))}...}) {}
+      : _id(e.getID()), _components({{std::hash<std::string>{}(names), e.getComponent<ComponentsTypes>(std::forward<ComponentsNames>(names))}...}) {}
 
     template<typename... ComponentsTypes, typename... ComponentsNames>
     Entity::Entity(entity::RTEntity && e, ct::TypesWrapper<ComponentsTypes...> &&, ComponentsNames&&... names)
-      : _components({{std::hash<std::string>{}(names), std::move(e.getComponent<ComponentsTypes>(std::forward<ComponentsNames>(names)))}...}) {}
+      : _id(e.getID()), _components({{std::hash<std::string>{}(names), std::move(e.getComponent<ComponentsTypes>(std::forward<ComponentsNames>(names)))}...}) {}
+
+    template<typename... ComponentsTypes, char const *... names>
+    Entity &
+    Entity::operator=(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & e)
+    {
+      _Assign<names...>	assign(e, _components);
+
+      _id = e.getID();
+      return *this;
+    }
+
+    template<typename... ComponentsTypes, char const *... names>
+    Entity &
+    Entity::operator=(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && e)
+    {
+      _Assign<names...>	assign(std::move(e), _components);
+
+      _id = e.getID();
+      return *this;
+    }
+
+    template<typename... ComponentsTypes, typename... ComponentsNames>
+    Entity &
+    Entity::assign(entity::RTEntity const & rtEntity, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names)
+    {
+      _id = rtEntity.getID();
+      _setComponents<0>(rtEntity, std::move(types), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
+      return *this;
+    }
+
+    template<typename... ComponentsTypes, typename... ComponentsNames>
+    Entity &
+    Entity::assign(entity::RTEntity && rtEntity, ct::TypesWrapper<ComponentsTypes...> && types, ComponentsNames&&... names)
+    {
+      _id = rtEntity.getID();
+      _setComponents<0>(std::move(rtEntity), std::move(types), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
+      return *this;
+    }
 
     template<unsigned idx, typename... ComponentsTypes, typename... ComponentsNames>
     void

@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['database',['DataBase',['../d6/ddd/classecs_1_1database_1_1_data_base.html',1,'ecs::database']]],
-  ['database',['DataBase',['../d6/ddd/classecs_1_1database_1_1_data_base.html#a871d8e2646bdd28a7798922028eac188',1,'ecs::database::DataBase::DataBase(void)'],['../d6/ddd/classecs_1_1database_1_1_data_base.html#a579413631c10476c036097b5eadb9721',1,'ecs::database::DataBase::DataBase(DataBase const &amp;)=delete']]],
+  ['database',['DataBase',['../d7/d62/classentity__component__system_1_1database_1_1_data_base.html',1,'entity_component_system::database']]],
+  ['database',['DataBase',['../d7/d62/classentity__component__system_1_1database_1_1_data_base.html#a572a1d565223ae2332d292408d976dfe',1,'entity_component_system::database::DataBase::DataBase(void)'],['../d7/d62/classentity__component__system_1_1database_1_1_data_base.html#afcf85a5485ed56ce7261c93940effd44',1,'entity_component_system::database::DataBase::DataBase(DataBase const &amp;)=delete']]],
   ['database_2ehpp',['DataBase.hpp',['../df/df2/_data_base_8hpp.html',1,'']]],
   ['databasecomponent_2ehpp',['DataBaseComponent.hpp',['../d6/d2d/_data_base_component_8hpp.html',1,'']]],
   ['databaseentity_2ecpp',['DataBaseEntity.cpp',['../db/dff/client_2_data_base_entity_8cpp.html',1,'']]],

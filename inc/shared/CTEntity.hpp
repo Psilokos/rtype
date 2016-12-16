@@ -5,12 +5,13 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 04:57:13 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 15 22:33:15 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 00:31:15 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include "Component.hpp"
+#include "ID.hpp"
 
 namespace	entity_component_system
 {
@@ -45,35 +46,39 @@ namespace	entity_component_system
       //! initializes the attributes of all the components with their default values
       CTEntity(void) = default;
 
+      //! \brief Constructor initializing the id
+      //! \param [in] id the ID of the entity in database
+      CTEntity(ID<Entity> const & id) : _id(id) {}
+
       //! \brief Constructor initializing the components by copy
-      //!
+      //! \param [in] id the ID of the entity in database
       //! \param [in] components the components to copy
-      CTEntity(ComponentsTypes const &... components) : _components(components...) {}
+      CTEntity(ID<Entity> const & id, ComponentsTypes const &... components) : _id(id), _components(components...) {}
 
       //! \brief Constructor initializing the components by move
-      //!
+      //! \param [in] id the ID of the entity in database
       //! \param [in] components the components to move
-      CTEntity(ComponentsTypes&&... components) : _components(std::forward<ComponentsTypes>(components)...) {}
+      CTEntity(ID<Entity> const & id, ComponentsTypes&&... components) : _id(id), _components(std::forward<ComponentsTypes>(components)...) {}
 
       //! \brief Constructor initializing the components by copy from a database::Entity
       //! \param [in] databaseEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'databaseEntity'
-      CTEntity(database::Entity const & databaseEntity) : _components(_initComponents(databaseEntity, std::true_type())) {}
+      CTEntity(database::Entity const & databaseEntity);
 
       //! \brief Constructor initializing the components by move from a database::Entity
       //! \param [in] databaseEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'databaseEntity'
-      CTEntity(database::Entity && databaseEntity) : _components(_initComponents(std::move(databaseEntity), std::true_type())) {}
+      CTEntity(database::Entity && databaseEntity);
 
       //! \brief Constructor initializing the components by copy from an entity::RTEntity
       //! \param [in] rtEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'rtEntity'
-      CTEntity(RTEntity const & rtEntity) : _components(_initComponents(rtEntity, std::true_type())) {}
+      CTEntity(RTEntity const & rtEntity);
 
       //! \brief Constructor initializing the components by move from an entity::RTEntity
       //! \param [in] rtEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'rtEntity'
-      CTEntity(RTEntity && rtEntity) : _components(_initComponents(std::move(rtEntity), std::true_type())) {}
+      CTEntity(RTEntity && rtEntity);
 
       //! \brief Default copy constructor
       CTEntity(CTEntity const &) = default;
@@ -88,47 +93,39 @@ namespace	entity_component_system
       //! \param [in] databaseEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'databaseEntity'
       CTEntity &
-      operator=(database::Entity const & databaseEntity)
-      {
-	_components = _initComponents(databaseEntity, std::true_type());
-	return *this;
-      }
+      operator=(database::Entity const & databaseEntity);
 
       //! \brief Assignement operator, setting the components by move from a database::Entity
       //! \param [in] databaseEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'databaseEntity'
       CTEntity &
-      operator=(database::Entity && databaseEntity)
-      {
-	_components = _initComponents(std::move(databaseEntity), std::true_type());
-	return *this;
-      }
+      operator=(database::Entity && databaseEntity);
 
       //! \brief Assignement operator, setting the components by copy from an entity::RTEntity
       //! \param [in] rtEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'rtEntity'
       CTEntity &
-      operator=(RTEntity const & rtEntity)
-      {
-	_components = _initComponents(rtEntity, std::true_type());
-	return *this;
-      }
+      operator=(RTEntity const & rtEntity);
 
       //! \brief Assignement operator, setting the components by move from an entity::RTEntity
       //! \param [in] rtEntity the source entity
       //! \throw IdentifierNotFound if a component is not found in 'rtEntity'
       CTEntity &
-      operator=(RTEntity && rtEntity)
-      {
-	_components = _initComponents(std::move(rtEntity), std::true_type());
-	return *this;
-      }
+      operator=(RTEntity && rtEntity);
 
       //! \brief Default copy assignement operator
       CTEntity &	operator=(CTEntity const &) = default;
 
       //! \brief Default move assignement operator
       CTEntity &	operator=(CTEntity &&) = default;
+
+      //! \brief Gets the entity ID
+      //! \return a copy of the entity's ID
+      ID<Entity>	getID(void) const { return _id; }
+
+      //! \brief Sets the entity ID
+      //! \param [in] id the new ID
+      void	setID(ID<Entity> const & id) { _id = id; }
 
       //! \brief Gets a component
       //! \tparam name the name of the requested component, must be declared as follow (in the global scope): \code constexpr char componentName[] = "componentName"; \endcode
@@ -183,6 +180,7 @@ namespace	entity_component_system
       }
 
     private:
+      ID<Entity>			_id;
       std::tuple<ComponentsTypes...>	_components;
 
     private:
@@ -252,6 +250,54 @@ namespace	entity_component_system
 
 namespace	entity_component_system::entity
 {
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::CTEntity(database::Entity const & databaseEntity) : _id(databaseEntity.getID()), _components(_initComponents(databaseEntity, std::true_type())) {}
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::CTEntity(database::Entity && databaseEntity) : _id(databaseEntity.getID()), _components(_initComponents(std::move(databaseEntity), std::true_type())) {}
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::CTEntity(RTEntity const & rtEntity) : _id(rtEntity.getID()), _components(_initComponents(rtEntity, std::true_type())) {}
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::CTEntity(RTEntity && rtEntity) : _id(rtEntity.getID()), _components(_initComponents(std::move(rtEntity), std::true_type())) {}
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::operator=(database::Entity const & databaseEntity)
+  {
+    _id = databaseEntity.getID();
+    _components = _initComponents(databaseEntity, std::true_type());
+    return *this;
+  }
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::operator=(database::Entity && databaseEntity)
+  {
+    _id = databaseEntity.getID();
+    _components = _initComponents(std::move(databaseEntity), std::true_type());
+    return *this;
+  }
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::operator=(RTEntity const & rtEntity)
+  {
+    _id = rtEntity.getID();
+    _components = _initComponents(rtEntity, std::true_type());
+    return *this;
+  }
+
+  template<typename... ComponentsTypes, char const *... names>
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &
+  CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::operator=(RTEntity && rtEntity)
+  {
+    _id = rtEntity.getID();
+    _components = _initComponents(std::move(rtEntity), std::true_type());
+    return *this;
+  }
+
   template<typename... ComponentsTypes, char const *... names> template<typename... Components>
   std::tuple<ComponentsTypes...>
   CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>::_initComponents(ecs::database::Entity const & databaseEntity, std::true_type, Components&&... components)

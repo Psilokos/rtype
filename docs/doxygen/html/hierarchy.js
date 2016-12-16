@@ -15,10 +15,14 @@ var hierarchy =
     ] ],
     [ "compile_time::GenIndex< n >", "d3/df7/structcompile__time_1_1_gen_index.html", null ],
     [ "compile_time::GenIndex< 0 >", "d9/d2a/structcompile__time_1_1_gen_index_3_010_01_4.html", null ],
-    [ "entity_component_system::database::ID< T >", "de/dc3/classentity__component__system_1_1database_1_1_i_d.html", null ],
-    [ "entity_component_system::database::IDataBase< EntityType, ComponentType, AssemblyType >", "d7/d7e/classentity__component__system_1_1database_1_1_i_data_base.html", null ],
-    [ "IDataBase", null, [
-      [ "ecs::database::DataBase< componentTypeNb >", "d6/ddd/classecs_1_1database_1_1_data_base.html", null ]
+    [ "entity_component_system::ID< typename >", "da/dcb/classentity__component__system_1_1_i_d.html", null ],
+    [ "entity_component_system::ID< Component >", "d7/d84/classentity__component__system_1_1_i_d_3_01_component_01_4.html", null ],
+    [ "entity_component_system::ID< ecs::entity_component_system::component::Component >", "da/dcb/classentity__component__system_1_1_i_d.html", null ],
+    [ "entity_component_system::ID< ecs::entity_component_system::database::Component >", "da/dcb/classentity__component__system_1_1_i_d.html", null ],
+    [ "entity_component_system::ID< ecs::entity_component_system::database::Entity >", "da/dcb/classentity__component__system_1_1_i_d.html", null ],
+    [ "entity_component_system::ID< Entity >", "df/d43/classentity__component__system_1_1_i_d_3_01_entity_01_4.html", null ],
+    [ "entity_component_system::database::IDataBase< EntityType, ComponentType, AssemblyType >", "d7/d7e/classentity__component__system_1_1database_1_1_i_data_base.html", [
+      [ "entity_component_system::database::DataBase< componentTypeNb >", "d7/d62/classentity__component__system_1_1database_1_1_data_base.html", null ]
     ] ],
     [ "compile_time::Index< idx >", "d7/dc1/structcompile__time_1_1_index.html", null ],
     [ "entity_component_system::entity::RTEntity", "da/da7/classentity__component__system_1_1entity_1_1_r_t_entity.html", null ],

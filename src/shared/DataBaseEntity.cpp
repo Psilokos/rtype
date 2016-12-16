@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 13:36:34 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 15 22:55:44 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 00:34:40 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include "DataBaseEntity.hpp"
@@ -15,9 +15,15 @@ namespace	entity_component_system
 {
   namespace	database
   {
-    Entity::Entity(std::initializer_list<std::pair<std::size_t const, Component>> && components) : _components(components) {}
+    Entity::Entity(ID<ecs::Entity> const & id) : _id(id) {}
 
-    bool	Entity::hasComponent(std::string const & name) const	{ return _components.find(std::hash<std::string>{}(name)) != _components.end(); }
+    Entity::Entity(ID<ecs::Entity> const & id, std::initializer_list<std::pair<std::size_t const, Component>> && components) : _id(id), _components(components) {}
+
+    ID<ecs::Entity>	Entity::getID(void) const { return _id; }
+
+    void	Entity::setID(ID<ecs::Entity> const & id) { _id = id; }
+
+    bool	Entity::hasComponent(std::string const & name) const { return _components.find(std::hash<std::string>{}(name)) != _components.end(); }
 
     void
     Entity::addComponent(std::string const & name, Component const & component)

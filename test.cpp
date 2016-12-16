@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Tue Nov 29 11:48:30 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec 14 20:43:34 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 01:09:36 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cstdint>
@@ -30,7 +30,7 @@ namespace	entity_component_system::entity
 
 TEST(CompileTime, DefaultCtors)
 {
-  ecs::entity::Test<std::string>	e_test(ecs::entity::Test<std::string>(std::string("qweqwe")));
+  ecs::entity::Test<std::string>	e_test(0, ecs::component::Test<std::string>(0, "qweqwe"));
   ecs::entity::Test<std::string>	e_test0;
   ecs::entity::Test<std::string>	e_test1(e_test);
   ecs::entity::Test<std::string>	e_test2(std::move(e_test));
@@ -43,7 +43,7 @@ TEST(CompileTime, DefaultCtors)
 
 TEST(CompileTime, DefaultAssignementOperators)
 {
-  ecs::entity::Test<std::string>	e_test(std::string("qweqwe"));
+  ecs::entity::Test<std::string>	e_test(42, ecs::component::Test<std::string>(42, "qweqwe"));
   ecs::entity::Test<std::string>	e_test0;
   ecs::entity::Test<std::string>	e_test1(e_test);
   ecs::entity::Test<std::string>	e_test2(std::move(e_test));
@@ -62,7 +62,7 @@ TEST(CompileTime, GetSetComponentAttr)
   ecs::entity::Test<std::string>	e_test;
   ecs::component::Test<std::string>	c_test;
 
-  e_test.setComponent<::test>(std::move(e_test.getComponent<::test>() = decltype(c_test)(std::move(s))));
+  e_test.setComponent<::test>(std::move(e_test.getComponent<::test>() = decltype(c_test)(0xDeadBabe, std::move(s))));
   EXPECT_STREQ("", s.c_str());
   EXPECT_STREQ("petit cochon", e_test.getComponent<::test>().getAttr<::test>().c_str());
   EXPECT_STREQ("", c_test.getAttr<::test>().c_str());
@@ -72,8 +72,8 @@ TEST(CompileTime, GetSetComponentAttr)
 
 TEST(CompileTime, OtherTypesCompatibility)
 {
-  ecs::database::Entity			e_db({{std::hash<std::string>{}("test"), ecs::database::Component(std::forward_as_tuple(std::string("qweqwe")), "test")}});
-  ecs::entity::RTEntity			e_rt(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("cuicui")), "test");
+  ecs::database::Entity			e_db(0, {{std::hash<std::string>{}("test"), ecs::database::Component(0xDeadBeef, std::forward_as_tuple(std::string("qweqwe")), "test")}});
+  ecs::entity::RTEntity			e_rt(0, std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>(0xB00B, "cuicui")), "test");
   ecs::entity::Test<std::string>	e_test0(e_db);
   ecs::entity::Test<std::string>	e_test1(e_rt);
   ecs::entity::Test<std::string>	e_test2(std::move(e_db));
@@ -89,7 +89,7 @@ TEST(CompileTime, OtherTypesCompatibility)
 
 TEST(RunTime, DefaultCtors)
 {
-  ecs::entity::RTEntity		e_test(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("meow?")), "test");
+  ecs::entity::RTEntity		e_test(42, std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>(0xDead, "meow?")), "test");
   ecs::entity::RTEntity		e_test0;
   ecs::entity::RTEntity		e_test1(e_test);
   ecs::entity::RTEntity		e_test2(std::move(e_test));
@@ -101,7 +101,7 @@ TEST(RunTime, DefaultCtors)
 
 TEST(RunTime, DefaultAssignementOperators)
 {
-  ecs::entity::RTEntity		e_test(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("Ron-ron...! <3")), "test");
+  ecs::entity::RTEntity		e_test(21, std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>(0xB00B5, "Ron-ron...! <3")), "test");
   ecs::entity::RTEntity		e_test0;
   ecs::entity::RTEntity		e_test1(e_test);
   ecs::entity::RTEntity		e_test2(std::move(e_test));
@@ -121,7 +121,7 @@ TEST(RunTime, GetSetComponentAttr)
   ecs::component::Test<std::string>	c_test;
 
   e_test.addComponent("test", decltype(c_test)());
-  e_test.setComponent("test", std::move(e_test.getComponent<decltype(c_test)>("test") = decltype(c_test)(std::move(s))));
+  e_test.setComponent("test", std::move(e_test.getComponent<decltype(c_test)>("test") = decltype(c_test)(23, std::move(s))));
   EXPECT_STREQ("", s.c_str());
   EXPECT_STREQ("lorem ipsum du foie de veau", e_test.getComponent<decltype(c_test)>("test").getAttr<::test>().c_str());
   EXPECT_STREQ("", c_test.getAttr<::test>().c_str());
@@ -131,9 +131,9 @@ TEST(RunTime, GetSetComponentAttr)
 
 TEST(RunTime, OtherTypesCompatibility)
 {
-  ecs::database::Entity			e_db({{std::hash<std::string>{}("test"), ecs::database::Component
-									 (std::forward_as_tuple(std::string("bonjour les enfants, aujourd'hui nous allons nous epanuir dans un champs fleuri")), "test")}});
-  ecs::entity::Test<std::string>	e_ct(std::string(", sous un ciel rose fluo, empreint d'un feu d'artifice naturel... :)"));
+  ecs::database::Entity			e_db(42, {{std::hash<std::string>{}("test"), ecs::database::Component
+									     (30, std::forward_as_tuple(std::string("bonjour les enfants, aujourd'hui nous allons nous epanuir dans un champs fleuri")), "test")}});
+  ecs::entity::Test<std::string>	e_ct(21, ecs::component::Test<std::string>(21, ", sous un ciel rose fluo, empreint d'un feu d'artifice naturel... :)"));
   ecs::entity::RTEntity			e_test0(e_db, ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
   ecs::entity::RTEntity			e_test1(e_ct);
   ecs::entity::RTEntity			e_test2(std::move(e_db), ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
@@ -149,7 +149,7 @@ TEST(RunTime, OtherTypesCompatibility)
 
 TEST(DatabaseData, DefaultCtors)
 {
-  ecs::database::Entity		e_test({{std::hash<std::string>{}("test"), ecs::database::Component(std::forward_as_tuple(std::string("je viens d'une mechante DB!")), "test")}});
+  ecs::database::Entity		e_test(21, {{std::hash<std::string>{}("test"), ecs::database::Component(1, std::forward_as_tuple(std::string("je viens d'une mechante DB!")), "test")}});
   ecs::database::Entity		e_test0;
   ecs::database::Entity		e_test1(e_test);
   ecs::database::Entity		e_test2(std::move(e_test));
@@ -161,7 +161,7 @@ TEST(DatabaseData, DefaultCtors)
 
 TEST(DatabaseData, DefaultAssignementOperators)
 {
-  ecs::database::Entity		e_test({{std::hash<std::string>{}("test"), ecs::database::Component(std::forward_as_tuple(std::string("BOUH, mechante DB, BOUH!")), "test")}});
+  ecs::database::Entity		e_test(84, {{std::hash<std::string>{}("test"), ecs::database::Component(2, std::forward_as_tuple(std::string("BOUH, mechante DB, BOUH!")), "test")}});
   ecs::database::Entity		e_test0;
   ecs::database::Entity		e_test1(e_test);
   ecs::database::Entity		e_test2(std::move(e_test));
@@ -178,10 +178,10 @@ TEST(DatabaseData, GetSetComponentAttr)
 {
   std::string			s = "si ca se trouve c'est bon... :)";
   ecs::database::Entity		e_test;
-  ecs::database::Component	c_test(std::tuple<std::string>(), "test");
+  ecs::database::Component	c_test(4, std::tuple<std::string>(), "test");
 
   e_test.addComponent("test", c_test);
-  e_test.setComponent("test", std::move(e_test["test"] = ecs::database::Component(std::forward_as_tuple(std::move(s)), "test")));
+  e_test.setComponent("test", std::move(e_test["test"] = ecs::database::Component(3, std::forward_as_tuple(std::move(s)), "test")));
   EXPECT_STREQ("", s.c_str());
   EXPECT_STREQ("si ca se trouve c'est bon... :)", e_test["test"].getAttr<std::string>("test").c_str());
   EXPECT_STREQ("", c_test.getAttr<std::string>("test").c_str());
@@ -191,8 +191,8 @@ TEST(DatabaseData, GetSetComponentAttr)
 
 TEST(DatabaseData, OtherTypesCompatibility)
 {
-  ecs::entity::Test<std::string>	e_ct(std::string("il etait une fois un extraterreste..."));
-  ecs::entity::RTEntity			e_rt(std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>("...intraterreste......")), "test");
+  ecs::entity::Test<std::string>	e_ct(84, ecs::component::Test<std::string>(84, "il etait une fois un extraterreste..."));
+  ecs::entity::RTEntity			e_rt(84, std::tuple<ecs::component::Test<std::string>>(ecs::component::Test<std::string>(5, "...intraterreste......")), "test");
   ecs::database::Entity			e_test0(e_ct);
   ecs::database::Entity			e_test1(e_rt, ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");
   ecs::database::Entity			e_test2(std::move(e_ct), ct::TypesWrapper<ecs::component::Test<std::string>>(), "test");

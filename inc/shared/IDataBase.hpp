@@ -5,25 +5,21 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Nov 30 16:19:08 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 01:14:23 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include <experimental/any>
 #include <vector>
+#include "ID.hpp"
 
 namespace	stde = std::experimental;
 
 namespace	entity_component_system
 {
-  struct	Entity;
-  struct	Component;
-
   namespace	database
   {
-    template<typename T> class	ID;
-
     template<typename EntityType, typename ComponentType, typename AssemblyType>
     class		IDataBase
     {
@@ -46,43 +42,6 @@ namespace	entity_component_system
       virtual void		setEntity(ID<Entity> const & id, stde::any const & entity) = 0;
       virtual void		setEntities(std::vector<std::pair<ID<Entity>, stde::any>> const & entities) = 0;
       virtual void		setComponent(ID<Entity> const & entityId, ComponentType const componentType, stde::any const & component) = 0;
-    };
-
-    template<typename T>
-    class	ID
-    {
-    public:
-      ID(unsigned const id) : _id(id) {}
-      ID(ID<T> const & src) : _id(src._id) {}
-      ID(ID<T> && src) : _id(src._id) { src._id ^= src._id; }
-      ~ID(void) {}
-
-      bool	operator<(ID<T> const & rhs) const	{ return _id < rhs._id; }
-      bool	operator>(ID<T> const & rhs) const	{ return _id > rhs._id; }
-      bool	operator<=(ID<T> const & rhs) const	{ return _id <= rhs._id; }
-      bool	operator>=(ID<T> const & rhs) const	{ return _id >= rhs._id; }
-      bool	operator!=(ID<T> const & rhs) const	{ return _id != rhs._id; }
-      bool	operator==(ID<T> const & rhs) const	{ return _id == rhs._id; }
-
-      ID<T> &	operator=(ID<T> const & src)
-      {
-	if (&src != this)
-	  _id = src._id;
-	return *this;
-      }
-
-      ID<T> &	operator=(ID<T> && src)
-      {
-	if (&src != this)
-	  {
-	    _id = src._id;
-	    src._id ^= src._id;
-	  }
-	return *this;
-      }
-
-    private:
-      unsigned	_id;
     };
   }
 }

@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 15 22:30:38 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 01:11:35 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -19,6 +19,7 @@
 #include <vector>
 #include "BadType.hpp"
 #include "CompileTime.hpp"
+#include "ID.hpp"
 #include "IdentifierNotFound.hpp"
 
 namespace	entity_component_system
@@ -44,24 +45,26 @@ namespace	entity_component_system
       //! \param [in] values a tuple containing the initial values of the attributes
       //! \param [in] names the names of the attributes, must be given in same order as the values in the tuple (can either be std::string or cstring)
       template<typename... AttrNames, typename... AttrTypes>
-      Component(std::tuple<AttrTypes...> && values, AttrNames&&... names) : Component(ct::Indexer<sizeof...(names)>(), std::move(values), std::string(std::forward<AttrNames>(names))...) {}
+      Component(ID<ecs::Component> const & id, std::tuple<AttrTypes...> && values, AttrNames&&... names)
+	: Component(id, ct::Indexer<sizeof...(names)>(), std::move(values), std::string(std::forward<AttrNames>(names))...) {}
 
     private:
       template<unsigned... i, typename... AttrNames, typename... AttrTypes>
-      Component(ct::Index<i...> &&, std::tuple<AttrTypes...> && values, AttrNames&&... names)
-	: _attributes({{std::hash<std::string>{}(std::forward<AttrNames>(names)),
-						 std::shared_ptr<Attribute>(new Attribute(std::forward<typename std::tuple_element<i, std::tuple<AttrTypes...>>::type>(std::get<i>(values))))}...}) {}
+      Component(ID<ecs::Component> const & id, ct::Index<i...> &&, std::tuple<AttrTypes...> && values, AttrNames&&... names)
+	: _id(id),
+	  _attributes({{std::hash<std::string>{}(std::forward<AttrNames>(names)),
+						  std::shared_ptr<Attribute>(new Attribute(std::forward<typename std::tuple_element<i, std::tuple<AttrTypes...>>::type>(std::get<i>(values))))}...}) {}
 
     public:
       //! \brief Constructor initializing the attributes by copy from a component::Component
       //! \param [in] c the source component
       template<typename... Types, char const *... names>
-      Component(component::Component<ct::TypesWrapper<Types...>, names...> const & c) : _attributes({{std::hash<std::string>{}(names), std::shared_ptr<Attribute>(new Attribute(c.getAttr<names>()))}...}) {}
+      Component(component::Component<ct::TypesWrapper<Types...>, names...> const & c);
 
       //! \brief Constructor initializing the attributes by move from a component::Component
       //! \param [in] c the source component
       template<typename... Types, char const *... names>
-      Component(component::Component<ct::TypesWrapper<Types...>, names...> && c) : _attributes({{std::hash<std::string>{}(names), std::shared_ptr<Attribute>(new Attribute(std::move(c.getAttr<names>())))}...}) {}
+      Component(component::Component<ct::TypesWrapper<Types...>, names...> && c);
 
       //! \brief Default copy constructor
       Component(Component const &) = default;
@@ -74,30 +77,26 @@ namespace	entity_component_system
       //! \param [in] c the source component
       //! \throw IdentifierNotFound if an attribute is not found in 'c'
       template<typename... Types, char const *... names>
-      Component &
-      operator=(component::Component<ct::TypesWrapper<Types...>, names...> const & c)
-      {
-	_Assign<names...>	assign(c, _attributes);
-
-	return *this;
-      }
+      Component &	operator=(component::Component<ct::TypesWrapper<Types...>, names...> const & c);
 
       //! \brief Assignement operator, setting the attributes by move from a component::Component
       //! \param [in] c the source component
       //! \throw IdentifierNotFound if an attribute is not found in 'c'
       template<typename... Types, char const *... names>
-      Component &
-      operator=(component::Component<ct::TypesWrapper<Types...>, names...> && c)
-      {
-	_Assign<names...>	assign(std::move(c), _attributes);
-
-	return *this;
-      }
+      Component &	operator=(component::Component<ct::TypesWrapper<Types...>, names...> && c);
 
       //! \brief Default copy assignement operator
       Component &	operator=(Component const &) = default;
       //! \brief Default move assignement operator
       Component &	operator=(Component &&) = default;
+
+      //! \brief Gets the component ID
+      //! \return a copy of the component's ID
+      ID<ecs::Component>	getID(void) const { return _id; }
+
+      //! \brief Sets the component ID
+      //! \param [in] id the new ID
+      void	setID(ID<ecs::Component> const & id) { _id = id; }
 
       //! \brief Checks if an attribute exists
       //! \param [in] name the name of the attribute to check
@@ -195,6 +194,7 @@ namespace	entity_component_system
       }
 
     private:
+      ID<ecs::Component>					_id;
       std::map<std::size_t, std::shared_ptr<Attribute>>		_attributes;
 
     private:
@@ -298,30 +298,65 @@ namespace	entity_component_system
 
 #include "Component.hpp"
 
-template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... Types>
-void
-entity_component_system::database::Component::_Assign<names...>::_setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> const & c,
-										std::map<std::size_t, std::shared_ptr<Attribute>> & attributes, typename std::enable_if<idx < sizeof...(names)>::type *)
+namespace	entity_component_system
 {
-  std::size_t const	hashedKey = std::hash<std::string>{}(name);
+  namespace	database
+  {
+    template<typename... Types, char const *... names>
+    Component::Component(component::Component<ct::TypesWrapper<Types...>, names...> const & c)
+      : _id(c.getID()), _attributes({{std::hash<std::string>{}(names), std::shared_ptr<Attribute>(new Attribute(c.getAttr<names>()))}...}) {}
 
-  if (attributes.find(hashedKey) == attributes.end())
-    throw IdentifierNotFound(name);
-  attributes.at(hashedKey)->value<typename std::tuple_element<idx, std::tuple<Types...>>::type>(name) = c.getAttr<name>();
-  _setAttributes<idx + 1, _names...>(c, attributes);
+    template<typename... Types, char const *... names>
+    Component::Component(component::Component<ct::TypesWrapper<Types...>, names...> && c)
+      : _id(c.getID()), _attributes({{std::hash<std::string>{}(names), std::shared_ptr<Attribute>(new Attribute(std::move(c.getAttr<names>())))}...}) {}
+
+    template<typename... Types, char const *... names>
+    Component &
+    Component::operator=(component::Component<ct::TypesWrapper<Types...>, names...> const & c)
+    {
+      _Assign<names...>	assign(c, _attributes);
+
+      _id = c.getID();
+      return *this;
+    }
+
+    //! \brief Assignement operator, setting the attributes by move from a component::Component
+    //! \param [in] c the source component
+    //! \throw IdentifierNotFound if an attribute is not found in 'c'
+    template<typename... Types, char const *... names>
+    Component &
+    Component::operator=(component::Component<ct::TypesWrapper<Types...>, names...> && c)
+    {
+      _Assign<names...>	assign(std::move(c), _attributes);
+
+      _id = c.getID();
+      return *this;
+    }
+
+    template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... Types>
+    void
+    Component::_Assign<names...>::_setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> const & c,
+						 std::map<std::size_t, std::shared_ptr<Attribute>> & attributes, typename std::enable_if<idx < sizeof...(names)>::type *)
+    {
+      std::size_t const	hashedKey = std::hash<std::string>{}(name);
+
+      if (attributes.find(hashedKey) == attributes.end())
+	throw IdentifierNotFound(name);
+      attributes.at(hashedKey)->value<typename std::tuple_element<idx, std::tuple<Types...>>::type>(name) = c.getAttr<name>();
+      _setAttributes<idx + 1, _names...>(c, attributes);
+    }
+
+    template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... Types>
+    void
+    Component::_Assign<names...>::_setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> && c,
+						 std::map<std::size_t, std::shared_ptr<Attribute>> & attributes, typename std::enable_if<idx < sizeof...(names)>::type *)
+    {
+      std::size_t const	hashedKey = std::hash<std::string>{}(name);
+
+      if (attributes.find(hashedKey) == attributes.end())
+	throw IdentifierNotFound(name);
+      attributes.at(hashedKey)->value<typename std::tuple_element<idx, std::tuple<Types...>>::type>(name) = std::move(c.getAttr<name>());
+      _setAttributes<idx + 1, _names...>(std::move(c), attributes);
+    }
+  }
 }
-
-template<char const *... names> template<unsigned idx, char const * name, char const *... _names, typename... Types>
-void
-entity_component_system::database::Component::_Assign<names...>::_setAttributes(component::Component<ct::TypesWrapper<Types...>, names...> && c,
-										std::map<std::size_t, std::shared_ptr<Attribute>> & attributes, typename std::enable_if<idx < sizeof...(names)>::type *)
-{
-  std::size_t const	hashedKey = std::hash<std::string>{}(name);
-
-  if (attributes.find(hashedKey) == attributes.end())
-    throw IdentifierNotFound(name);
-  attributes.at(hashedKey)->value<typename std::tuple_element<idx, std::tuple<Types...>>::type>(name) = std::move(c.getAttr<name>());
-  _setAttributes<idx + 1, _names...>(std::move(c), attributes);
-}
-
-namespace	ecs = entity_component_system;

@@ -5,14 +5,14 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec  7 17:00:04 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 16 01:13:40 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include "IDataBase.hpp"
 
-namespace	ecs
+namespace	entity_component_system
 {
   namespace	database
   {
