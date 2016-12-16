@@ -21,6 +21,7 @@ public:
     int InputRightArrowKey();
     int InputUpArrowKey();
     int InputDownArrowKey();
+    int InputSpaceKey();
     int InputEscKey();
 
    private:

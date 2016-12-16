@@ -15,6 +15,7 @@ void    Input::update(void)
     InputRightArrowKey();
     InputUpArrowKey();
     InputDownArrowKey();
+    InputSpaceKey();
     InputEscKey();
 }
 
@@ -48,6 +49,15 @@ return 1;
 int    Input::InputDownKeyArrowKey()
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+    std::cout << "Key Down is Pressed" << std::endl;
+    return 0;
+    }
+return 1;
+}
+
+int    Input::InputSpaceKey()
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
     std::cout << "Key Down is Pressed" << std::endl;
     return 0;
     }
