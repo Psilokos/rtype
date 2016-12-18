@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Wed Dec 14 15:18:49 2016 Gabriel CADET
+** Last update Sun Dec 18 19:24:51 2016 Gabriel CADET
 */
 
 #ifndef CLICONNECTION_HPP_
@@ -48,7 +48,7 @@ namespace ecs::system {
       **
       ** Internaly, it create a new UdpSocket.
       */
-      Connection();
+      Connection(network::ASocket *sock);
 
       /**
       ** \brief Copy constructor. Deleted, because Connection System must not be copyied.
@@ -59,7 +59,7 @@ namespace ecs::system {
       **
       ** Delete internal socket.
       */
-      ~Connection() { delete _sock; }
+      ~Connection() {}
 
       /**
       ** \brief Assignation operator. Deleted (see copy constructor).

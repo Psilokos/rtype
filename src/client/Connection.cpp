@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 17:48:36 2016 Gabriel CADET
-** Last update Wed Dec 14 16:30:41 2016 Gabriel CADET
+** Last update Sun Dec 18 19:24:26 2016 Gabriel CADET
 */
 
 #include <iostream>
@@ -13,8 +13,8 @@
 #include "CliConnection.hpp"
 
 namespace ecs::system {
-  Connection::Connection()
-    : _sock(new network::UdpSocket()), _cliId(-1), _eid(-1), _getRoomInfo(true)
+  Connection::Connection(network::UdpSocket *sock)
+    : _sock(sock), _cliId(-1), _eid(-1), _getRoomInfo(true)
   {
     int	ret;
 
