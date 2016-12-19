@@ -21,7 +21,7 @@ void    Physics::move(std::vector<Entity> &entities) {
     }
 }
 
-void    Physics::collider(Entity &obj, std::vector<Entity> &entities) {
+void    Physics::collider(Entity &obj, std::list<Entity>::iterator it, std::vector<Entity> &entities) {
     int objL, objR, objU, objD;
     int othL, othR, othU, othD;
 
@@ -29,7 +29,7 @@ void    Physics::collider(Entity &obj, std::vector<Entity> &entities) {
     objR = obj["_pos"].getAttr("posX") + obj["_hitbox"].getAttr("sizeX");
     objU = obj["_pos"].getAttr("posY");
     objD = obj["_pos"].getAttr("posY") + obj["_hitbox"].getAttr("sizeY");
-    for (Entity other: entities) {
+    for (it; it != entities.end(); ++it) {
         othL = other["_pos"].getAttr("posX");
         othR = other["_pos"].getAttr("posX") + other["_hitbox"].getAttr("sizeX");
         othU = other["_pos"].getAttr("posY");
@@ -43,7 +43,6 @@ void    Physics::collider(Entity &obj, std::vector<Entity> &entities) {
             other["_collision"].getAttr("list").append(obj["_id"].getAttr("id"));
         }
     }
-    // LOAD_AREA_SIZE =
     if (objR < 0) {
         obj["unload"].getAttr("value") = true;
     }
@@ -53,11 +52,8 @@ void    Physics::collide(std::vector<Entity> &entities) {
     std::list<Entity>::iterator it = entities.begin();
 
     while (it != entities.end()) {
-        if (obj["_speed"].getAttr("value")) {
-            this->collider(*it, entities)
-            it = entities.erase(it);
-        } else
-            ++it;
+        this->collider(*it, it, entities)
+        ++it;
     }
 }
 
@@ -72,4 +68,6 @@ void    Physics::update(void) {
 
     this->move(entities);
     this->collide(entities);
+
+    this->_db.setEntities(entities);
 }

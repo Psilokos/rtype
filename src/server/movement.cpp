@@ -14,7 +14,7 @@
 /** \brief Constructor of the Movement class.
  *         It simply builds a map binding each of the movement types to a method of this class.
  */
-Movement::Movement() {i
+Movement::Movement() {
     this->_mvtType[NONE] = &Movement::mvtNone;
     this->_mvtType[SCROLL] = &Movement::mvtScroll;
     this->_mvtType[STRAIGHT] = &Movement::mvtStraight;
