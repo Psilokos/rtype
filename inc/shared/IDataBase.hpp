@@ -5,43 +5,51 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 01:14:23 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 19 02:40:11 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
-#include <experimental/any>
+#include <list>
 #include <vector>
+#include "Any.hpp"
+#include "ComponentTypeID.hpp"
+#include "IAssembly.hpp"
 #include "ID.hpp"
-
-namespace	stde = std::experimental;
 
 namespace	entity_component_system
 {
   namespace	database
   {
-    template<typename EntityType, typename ComponentType, typename AssemblyType>
     class		IDataBase
     {
     public:
       virtual ~IDataBase(void) {}
 
-      virtual ID<Entity>	createEntity(EntityType const entityType) = 0;
-      virtual ID<Entity>	createAndAssembleEntity(EntityType const entityType, AssemblyType const assemblyType) = 0;
-      virtual ID<Component>	createComponent(ComponentType const componentType, unsigned const attrNb) = 0;
-      virtual ID<Component>	createAndBindComponent(ComponentType const componentType, ID<Entity> const & entityId) = 0;
+      virtual ID<ecs::Entity>	createEntity(void) = 0;
+      virtual ID<ecs::Entity>	createEntity(std::string const & name) = 0;
+      virtual void		createEntityFromAssembly(IAssembly & assembly) = 0;
 
-      virtual void		bindComponentToAssembly(AssemblyType const assemblyType, ComponentType const componentType) = 0;
-      virtual ID<Component>	bindComponentToEntity(ID<Entity> const & entityId, ComponentType const componentType, ID<Component> const & componentId) = 0;
+      virtual std::string	getEntityName(ID<ecs::Entity> const & id) const = 0;
+      virtual void		setEntityName(ID<ecs::Entity> const & id, std::string const & name) = 0;
 
-      virtual stde::any		getEntity(ID<Entity> const & id, std::list<ComponentType> const & components) const = 0;
-      virtual stde::any		getComponentInEntity(ID<Entity> const & id, ComponentType const componentType) const = 0;
-      virtual stde::any		getAllEntities(EntityType const entityType) const = 0;
-      virtual stde::any		getEntityWithComponentEqualTo(ComponentType const componentType, stde::any const & value) const = 0;
+      virtual ID<ecs::Component>	createComponent(ComponentTypeID const componentTypeID) = 0;
+      virtual ID<ecs::Component>	createAndBindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, std::string const & componentName) = 0;
 
-      virtual void		setEntity(ID<Entity> const & id, stde::any const & entity) = 0;
-      virtual void		setEntities(std::vector<std::pair<ID<Entity>, stde::any>> const & entities) = 0;
-      virtual void		setComponent(ID<Entity> const & entityId, ComponentType const componentType, stde::any const & component) = 0;
+      virtual ID<ecs::Component>	bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, ID<ecs::Component> const & componentId, std::string const & componentName) = 0;
+
+      virtual Any				getEntity(ID<ecs::Entity> const & id) const = 0;
+      virtual Any				getComponent(ID<ecs::Component> const & id) const = 0;
+      virtual Any				getComponentFromEntity(ID<ecs::Entity> const & entityId, ID<ecs::Component> const & componentId) const = 0;
+      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponent(std::string const & componentName) const = 0;
+      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponent(ComponentTypeID const componentTypeID) const = 0;
+      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponent(std::string const & componentName, ComponentTypeID const componentTypeID) const = 0;
+      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponentEqualTo(ComponentTypeID const componentTypeID, Component const & value) const = 0;
+      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponentEqualTo(std::string const & componentName, ComponentTypeID const componentTypeID, Component const & value) const = 0;
+
+      // virtual void		setEntity(ID<ecs::Entity> const & id, entity::RTEntity const & entity) = 0;
+      // virtual void		setEntities(std::vector<std::pair<ID<Entity>, stde::any>> const & entities) = 0;
+      // virtual void		setComponent(ID<ecs::Entity> const & entityI, Component const & component) = 0;
     };
   }
 }

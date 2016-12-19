@@ -5,10 +5,12 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Thu Dec 15 23:10:02 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 00:58:22 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 17 16:58:29 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
+
+#include <ostream>
 
 namespace	entity_component_system
 {
@@ -39,6 +41,8 @@ namespace	entity_component_system
     bool	operator!=(ID<Entity> const & rhs) const	{ return _id != rhs._id; }
     bool	operator==(ID<Entity> const & rhs) const	{ return _id == rhs._id; }
 
+    friend std::ostream &	operator<<(std::ostream & os, ID<Entity> const & id) { return os << id._id << std::flush; }
+
   private:
     unsigned	_id;
   };
@@ -63,6 +67,8 @@ namespace	entity_component_system
     bool	operator>=(ID<Component> const & rhs) const	{ return _id >= rhs._id; }
     bool	operator!=(ID<Component> const & rhs) const	{ return _id != rhs._id; }
     bool	operator==(ID<Component> const & rhs) const	{ return _id == rhs._id; }
+
+    friend std::ostream &	operator<<(std::ostream & os, ID<Component> const & id) { return os << id._id << std::flush; }
 
   private:
     unsigned	_id;

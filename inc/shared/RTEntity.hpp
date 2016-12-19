@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sun Dec 11 21:42:46 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 00:33:16 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 18 23:21:42 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -49,14 +49,14 @@ namespace	entity_component_system
 
       //! \brief Constructor initializing the id
       //! \param [in] id the ID of the entity in database
-      RTEntity(ID<Entity> const & id) : _id(id) {}
+      RTEntity(ID<ecs::Entity> const & id) : _id(id) {}
 
       //! \brief Constructor initializing components by copying or moving the ones given as parameter
       //! \param [in] id the ID of the entity in database
       //! \param [in] components a tuple of component::Component template class
       //! \param [in] names the names of the components, must be given in same order as the components in the tuple (can either be std::string or cstring)
       template<typename... ComponentsTypes, typename... ComponentsNames>
-      RTEntity(ID<Entity> const & id, std::tuple<ComponentsTypes...> && components, ComponentsNames&&... names)
+      RTEntity(ID<ecs::Entity> const & id, std::tuple<ComponentsTypes...> && components, ComponentsNames&&... names)
 	: _id(id), _components(_initComponents<0>(std::move(components), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...))) {}
 
       //! \brief Constructor initializing the components by copy from a database::Entity
@@ -148,16 +148,16 @@ namespace	entity_component_system
 
       //! \brief Gets the entity ID
       //! \return a copy of the entity's ID
-      ID<Entity>	getID(void) const { return _id; }
+      ID<ecs::Entity>	getID(void) const { return _id; }
 
       //! \brief Sets the entity ID
       //! \param [in] id the new ID
-      void	setID(ID<Entity> const & id) { _id = id; }
+      void	setID(ID<ecs::Entity> const & id) { _id = id; }
 
       //! \brief Checks if a component exists
       //! \param [in] name the name of the component to check
       //! \return true if the component exists, false otherwise
-      bool	hasComponent(std::string const & name) { return _components.find(std::hash<std::string>{}(name)) != _components.end(); }
+      bool	hasComponent(std::string const & name) { return _components.find(name) != _components.end(); }
 
       //! \brief Adds a component by copy
       //! \param [in] name the name of the component to add
@@ -167,11 +167,9 @@ namespace	entity_component_system
       void
       addComponent(std::string const & name, T const & component)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
-
-	if (_components.find(hashedKey) != _components.end())
+	if (_components.find(name) != _components.end())
 	  throw IdentifierFound(name);
-	_components.emplace(hashedKey, new Component(component));
+	_components.emplace(name, new Component(component));
       }
 
       //! \brief Adds a component by move
@@ -182,11 +180,9 @@ namespace	entity_component_system
       void
       addComponent(std::string const & name, T && component)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
-
-	if (_components.find(hashedKey) != _components.end())
+	if (_components.find(name) != _components.end())
 	  throw IdentifierFound(name);
-	_components.emplace(hashedKey, new Component(std::forward<T>(component)));
+	_components.emplace(name, new Component(std::forward<T>(component)));
       }
 
       //! \brief Removes a component
@@ -199,14 +195,14 @@ namespace	entity_component_system
       T
       delComponent(std::string const & name)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
+	auto	it = _components.find(name);
 
-	if (_components.find(hashedKey) == _components.end())
+	if (it == _components.end())
 	  throw IdentifierNotFound(name);
 	{
-	  Component const		component = _components.at(hashedKey)->component<T>(name);
+	  Component const		component = it->second->component<T>(name);
 
-	  _components.erase(hashedKey);
+	  _components.erase(it);
 	  return component;
 	}
       }
@@ -217,11 +213,11 @@ namespace	entity_component_system
       void
       delComponent(std::string const & name)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
+	auto	it = _components.find(name);
 
-	if (_components.find(hashedKey) == _components.end())
+	if (it == _components.end())
 	  throw IdentifierNotFound(name);
-	_components.erase(hashedKey);
+	_components.erase(it);
       }
 
       //! \brief Gets a component
@@ -234,11 +230,11 @@ namespace	entity_component_system
       T &
       getComponent(std::string const & name)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
+	auto	it = _components.find(name);
 
-	if (_components.find(hashedKey) == _components.end())
+	if (it == _components.end())
 	  throw IdentifierNotFound(name);
-	return _components.at(hashedKey)->component<T>(name);
+	return it->second->component<T>(name);
       }
 
       //! \brief Gets a component
@@ -251,11 +247,11 @@ namespace	entity_component_system
       T const &
       getComponent(std::string const & name) const
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
+	auto	it = _components.find(name);
 
-	if (_components.find(hashedKey) == _components.end())
+	if (it == _components.end())
 	  throw IdentifierNotFound(name);
-	return _components.at(hashedKey)->component<T>(name);
+	return it->second->component<T>(name);
       }
 
       //! \brief Sets a component by copy
@@ -266,12 +262,12 @@ namespace	entity_component_system
       void
       setComponent(std::string const & name, T const & component)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
+	auto	it = _components.find(name);
 
-	if (_components.find(hashedKey) == _components.end())
+	if (it == _components.end())
 	  throw IdentifierNotFound(name);
-	if (&component != &_components.at(hashedKey)->component<T>(name))
-	  _components.at(hashedKey)->component<T>(name) = component;
+	if (&component != &it->second->component<T>(name))
+	  it->second->component<T>(name) = component;
       }
 
       //! \brief Sets a component by move
@@ -282,12 +278,12 @@ namespace	entity_component_system
       void
       setComponent(std::string const & name, T && component)
       {
-	std::size_t const	hashedKey = std::hash<std::string>{}(name);
+	auto	it = _components.find(name);
 
-	if (_components.find(hashedKey) == _components.end())
+	if (it == _components.end())
 	  throw IdentifierNotFound(name);
-	if (&component != &_components.at(hashedKey)->component<T>(name))
-	  _components.at(hashedKey)->component<T>(name) = std::forward<T>(component);
+	if (&component != &it->second->component<T>(name))
+	  it->second->component<T>(name) = std::forward<T>(component);
       }
 
       //! \brief Inserts a RTEntity into an output stream
@@ -310,12 +306,12 @@ namespace	entity_component_system
       }
 
     private:
-      ID<Entity>					_id;
-      std::map<std::size_t, std::shared_ptr<Component>>	_components;
+      ID<ecs::Entity>					_id;
+      std::map<std::string, std::shared_ptr<Component>>	_components;
 
     private:
       template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, typename... ComponentsNames>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(std::tuple<ComponentsTypes...> && components, ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents,
 		      typename std::enable_if<idx < sizeof...(ComponentsTypes)>::type * = nullptr)
       {
@@ -325,7 +321,7 @@ namespace	entity_component_system
       }
 
       template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, typename... ComponentsNames>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(std::tuple<ComponentsTypes...> &&, ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents,
 		      typename std::enable_if<idx == sizeof...(ComponentsTypes)>::type * = nullptr)
       {
@@ -333,12 +329,12 @@ namespace	entity_component_system
       }
 
       template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(database::Entity const & databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
 		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type * = nullptr);
 
       template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, typename... ComponentsNames>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(database::Entity const &, ct::TypesWrapper<ComponentsTypes...> &&,
 		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(ComponentsNames)>::type * = nullptr)
       {
@@ -346,12 +342,12 @@ namespace	entity_component_system
       }
 
       template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(database::Entity && databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
 		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type * = nullptr);
 
       template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, typename... ComponentsNames>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(database::Entity &&, ct::TypesWrapper<ComponentsTypes...> &&,
 		      ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(ComponentsNames)>::type * = nullptr)
       {
@@ -359,22 +355,22 @@ namespace	entity_component_system
       }
 
       template<unsigned idx, char const * name, char const *... _names, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr);
 
       template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(names)>::type * = nullptr)
       {
 	return _initComponents(ct::Indexer<sizeof...(names)>(), ct::Wrapper<decltype(std::string(names))...>(std::string(names)...), std::forward<WrappedComponents>(wrappedComponents)...);
       }
 
       template<unsigned idx, char const * name, char const *... _names, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr);
 
       template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&,
 		      WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(names)>::type * = nullptr)
       {
@@ -382,10 +378,10 @@ namespace	entity_component_system
       }
 
       template<typename... ComponentsNames, typename... WrappedComponents, unsigned... i>
-      std::map<std::size_t, std::shared_ptr<Component>>
+      std::map<std::string, std::shared_ptr<Component>>
       _initComponents(ct::Index<i...>, ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents)
       {
-	return std::map<std::size_t, std::shared_ptr<Component>>({{std::hash<std::string>{}(std::get<i>(names.values)), std::forward<WrappedComponents>(wrappedComponents)}...});
+	return std::map<std::string, std::shared_ptr<Component>>({{std::get<i>(names.values), std::forward<WrappedComponents>(wrappedComponents)}...});
       }
 
     private:
@@ -501,7 +497,7 @@ namespace	entity_component_system::entity
   }
 
   template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
-  std::map<std::size_t, std::shared_ptr<RTEntity::Component>>
+  std::map<std::string, std::shared_ptr<RTEntity::Component>>
   RTEntity::_initComponents(entity_component_system::database::Entity const & databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
 			    ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type *)
   {
@@ -511,7 +507,7 @@ namespace	entity_component_system::entity
   }
 
   template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>
-  std::map<std::size_t, std::shared_ptr<RTEntity::Component>>
+  std::map<std::string, std::shared_ptr<RTEntity::Component>>
   RTEntity::_initComponents(entity_component_system::database::Entity && databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
 			    ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type *)
   {
@@ -522,7 +518,7 @@ namespace	entity_component_system::entity
   }
 
   template<unsigned idx, char const * name, char const *... _names, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
-  std::map<std::size_t, std::shared_ptr<RTEntity::Component>>
+  std::map<std::string, std::shared_ptr<RTEntity::Component>>
   RTEntity::_initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names)>::type *)
   {
     return _initComponents<idx + 1, _names..., WrappedComponents..., std::shared_ptr<Component>>
@@ -530,7 +526,7 @@ namespace	entity_component_system::entity
   }
 
   template<unsigned idx, char const * name, char const *... _names, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
-  std::map<std::size_t, std::shared_ptr<RTEntity::Component>>
+  std::map<std::string, std::shared_ptr<RTEntity::Component>>
   RTEntity::_initComponents(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names)>::type *)
   {
     return _initComponents<idx + 1, _names..., WrappedComponents..., std::shared_ptr<Component>>

@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 02:43:15 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 18 23:52:24 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -172,13 +172,21 @@ namespace	entity_component_system
 	return c;
       }
 
+      bool
+      operator==(Component const & oth)
+      {
+	if (&oth == this)
+	  return true;
+	return _compare<names...>(oth);
+      }
+
       //! \brief Insert a Component into an output stream
       //! \param [out] os the output stream in which the given Component will be inserted
       //! \param [in] c the Component to insert in the stream
       //! \return a reference to the given output stream 'os' to allow operator chaining
       friend std::ostream &	operator<<(std::ostream & os, Component const & c)
       {
-	os << '{';
+	os << '(' << c._id << ") {";
 	return c._print<names...>(os) << '}' << std::flush;
       }
 
@@ -230,6 +238,22 @@ namespace	entity_component_system
 
       template<unsigned idx>
       static void	_deserialize(Component<ct::TypesWrapper<Types...>, names...> &, byte const *, void const *, typename std::enable_if<idx == sizeof...(Types)>::type * = nullptr) {}
+
+      template<char const * name, char const *... _names>
+      bool
+      _compare(Component const & oth)
+      {
+	if (this->getAttr<name>() == oth.getAttr<name>())
+	  return _compare<_names...>(oth);
+	return false;
+      }
+
+      template<char const *... _names>
+      bool
+      _compare(Component const &, typename std::enable_if<!sizeof...(_names)>::type * = nullptr)
+      {
+	return true;
+      }
 
       template<char const * name, char const *... _names>
       std::ostream &

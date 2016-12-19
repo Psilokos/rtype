@@ -5,10 +5,14 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 05:47:59 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 01:31:38 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 17 16:56:27 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
+
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace	compile_time
 {

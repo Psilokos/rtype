@@ -5,13 +5,23 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 04:57:13 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 16 00:31:15 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 18 01:18:16 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
 
 #include "Component.hpp"
+#include "IAssembly.hpp"
 #include "ID.hpp"
+#include "IDispatcherPart.hpp"
+
+template<typename Assembly>
+void	visitImpl(Assembly & self, entity_component_system::database::IAssemblyDispatcher & dispatcher)
+{
+  IDispatcherPart<Assembly> &	dsp = dispatcher;
+
+  dsp.dispatch(self);
+}
 
 namespace	entity_component_system
 {
@@ -38,7 +48,7 @@ namespace	entity_component_system
     //! \tparam names the names of the components, must be given in the same order as the ComponentsTypes, and declared as follow (in the global scope):
     //! \code constexpr char componentName[] = "componentName"; \endcode
     template<typename... ComponentsTypes, char const *... names>
-    class	CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>
+    class	CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> : public database::IAssembly
     {
     public:
       //! \brief Default constructor
@@ -48,17 +58,17 @@ namespace	entity_component_system
 
       //! \brief Constructor initializing the id
       //! \param [in] id the ID of the entity in database
-      CTEntity(ID<Entity> const & id) : _id(id) {}
+      CTEntity(ID<ecs::Entity> const & id) : _id(id) {}
 
       //! \brief Constructor initializing the components by copy
       //! \param [in] id the ID of the entity in database
       //! \param [in] components the components to copy
-      CTEntity(ID<Entity> const & id, ComponentsTypes const &... components) : _id(id), _components(components...) {}
+      CTEntity(ID<ecs::Entity> const & id, ComponentsTypes const &... components) : _id(id), _components(components...) {}
 
       //! \brief Constructor initializing the components by move
       //! \param [in] id the ID of the entity in database
       //! \param [in] components the components to move
-      CTEntity(ID<Entity> const & id, ComponentsTypes&&... components) : _id(id), _components(std::forward<ComponentsTypes>(components)...) {}
+      CTEntity(ID<ecs::Entity> const & id, ComponentsTypes&&... components) : _id(id), _components(std::forward<ComponentsTypes>(components)...) {}
 
       //! \brief Constructor initializing the components by copy from a database::Entity
       //! \param [in] databaseEntity the source entity
@@ -121,11 +131,11 @@ namespace	entity_component_system
 
       //! \brief Gets the entity ID
       //! \return a copy of the entity's ID
-      ID<Entity>	getID(void) const { return _id; }
+      ID<ecs::Entity>	getID(void) const { return _id; }
 
       //! \brief Sets the entity ID
       //! \param [in] id the new ID
-      void	setID(ID<Entity> const & id) { _id = id; }
+      void	setID(ID<ecs::Entity> const & id) { _id = id; }
 
       //! \brief Gets a component
       //! \tparam name the name of the requested component, must be declared as follow (in the global scope): \code constexpr char componentName[] = "componentName"; \endcode
@@ -169,18 +179,20 @@ namespace	entity_component_system
 	  std::get<ct::getIdx<name, names...>()>(_components) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<ComponentsTypes...>>::type>(component);
       }
 
+      virtual void	visit(database::IAssemblyDispatcher & dsp) { ::visitImpl(*this, dsp); }
+
       //! \brief Inserts a CTEntity into an output stream
       //! \param [out] os the output stream in which the given CTEntity will be inserted
       //! \param [in] e the CTEntity to insert in the stream
       //! \return a reference to the given output stream 'os' to allow operator chaining
       friend std::ostream &	operator<<(std::ostream & os, CTEntity const & e)
       {
-	os << "[with ";
+	os << '(' << e._id << ") [with ";
 	return e._print<names...>(os) << ']' << std::flush;
       }
 
     private:
-      ID<Entity>			_id;
+      ID<ecs::Entity>			_id;
       std::tuple<ComponentsTypes...>	_components;
 
     private:
