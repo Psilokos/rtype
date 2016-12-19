@@ -44,7 +44,7 @@ void    Physics::collider(Entity &obj, std::list<Entity>::iterator it, std::vect
         }
     }
     if (objR < 0) {
-        obj["unload"].getAttr("value") = true;
+        obj["_unload"].getAttr("value") = true;
     }
 }
 
