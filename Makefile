@@ -5,7 +5,7 @@
 ## Login   <lecouv_v@epitech.eu>
 ##
 ## Started on  Mon Nov 28 15:36:12 2016 Victorien LE COUVIOUR--TUFFET
-## Last update Sun Dec 18 02:21:46 2016 Victorien LE COUVIOUR--TUFFET
+## Last update Thu Dec 22 22:04:57 2016 Victorien LE COUVIOUR--TUFFET
 ##
 
 NAME_SERVER		= rtype-srv
@@ -36,7 +36,8 @@ SRCS_CLIENT		=
 
 SRCS_SHARED_SERVER	= $(DIR_SRC_SHARED_SERVER)DataBaseEntity.cpp		\
 			  $(DIR_SRC_SHARED_SERVER)IdentifierFound.cpp		\
-			  $(DIR_SRC_SHARED_SERVER)IdentifierNotFound.cpp
+			  $(DIR_SRC_SHARED_SERVER)IdentifierNotFound.cpp	\
+			  $(DIR_SRC_SHARED_SERVER)RTEntity.cpp
 
 SRCS_SHARED_CLIENT	=
 

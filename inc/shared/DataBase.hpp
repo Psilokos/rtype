@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 19 02:40:07 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 22 20:22:02 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -27,9 +27,11 @@ namespace	entity_component_system
     class		DataBase : public IDataBase
     {
     public:
-      DataBase(void) : _componentBuilders(_InitComponentBuilders<ComponentTypes>::template init<0>()),
-		       _componentRetrievers(_InitComponentRetrievers<ComponentTypes>::template init<0>()),
-		       _componentComparators(_InitComponentComparators<ComponentTypes>::template init<0>()) {}
+      DataBase(void) : _componentBuilders(_InitComponentUtils<ComponentTypes>::template initBuilders<0>()),
+		       _componentRetrievers(_InitComponentUtils<ComponentTypes>::template initRetrievers<0>()),
+		       _componentComparators(_InitComponentUtils<ComponentTypes>::template initComparators<0>()),
+		       _componentSetters(_InitComponentUtils<ComponentTypes>::template initSetters<0>()),
+		       _entitiesNb(0), _componentsNb(0) {}
 
       DataBase(DataBase const &) = delete;
       DataBase(DataBase &&) = delete;
@@ -94,11 +96,9 @@ namespace	entity_component_system
 	for (auto & pair : _entities)
 	  if (pair.first == entityId)
 	    {
-	      typedef typename decltype(_entityComponentMap)::mapped_type	MappedType;
-
 	      auto	it = _entityComponentMap.find(pair.first);
 
-	      it->second.push_back(typename MappedType::value_type(componentTypeID, _componentsNb, componentName));
+	      it->second.push_back(typename decltype(_entityComponentMap)::mapped_type::value_type(componentTypeID, _componentsNb, componentName));
 	      _components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
 	      return _componentsNb++;
 	    }
@@ -116,7 +116,7 @@ namespace	entity_component_system
 	      auto	it = _entityComponentMap.find(pair.first);
 
 	      it->second.push_back(typename MappedType::value_type(componentTypeID, componentId, componentName));
-	      return _componentsNb++;
+	      return componentId;
 	    }
 	return 0; // THROW
       }
@@ -203,6 +203,66 @@ namespace	entity_component_system
 						   });
       }
 
+      virtual void
+      setEntity(entity::RTEntity const & entity)
+      {
+	auto	entityIt = _entityComponentMap.find(entity.getID());
+
+	if (entityIt != _entityComponentMap.end())
+	  {
+	    typename decltype(_entityComponentMap)::mapped_type		components(entityIt->second);
+
+	    for (auto & componentPair : entity)
+	      {
+		bool	found = false;
+
+		for (auto componentsIt = components.begin(); componentsIt != components.end(); ++componentsIt)
+		  {
+		    if (DataBase::_componentName(*componentsIt) == componentPair.first)
+		      {
+			found = true;
+
+			for (auto & componentPairDB : _components[static_cast<unsigned>(DataBase::_componentType(*componentsIt))])
+			  if (componentPairDB.first == DataBase::_componentID(*componentsIt))
+			    _componentSetters[static_cast<unsigned>(DataBase::_componentType(*componentsIt))](componentPairDB.second, componentPair);
+		      }
+		    if (found)
+		      {
+			components.erase(componentsIt);
+			break;
+		      }
+		  }
+		if (!found)
+		  {
+		    // create component
+		  }
+	      }
+	  }
+      }
+
+      virtual void
+      setEntities(std::vector<entity::RTEntity> const & entities)
+      {
+	for (auto & e : entities)
+	  this->setEntity(e);
+      }
+
+      virtual void
+      setComponent(ID<ecs::Entity> const & entityId, Component const & component)
+      {
+	auto	entityIt = _entityComponentMap.find(entityId);
+
+	if (entityIt != _entityComponentMap.end())
+	  for (auto & tup : entityIt->second)
+	    if (DataBase::_componentID(tup) == component.getID())
+	      for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
+		if (pair.first == component.getID())
+		  {
+		    pair.second = component;
+		    return;
+		  }
+      }
+
       friend std::ostream &
       operator<<(std::ostream & os, DataBase<ComponentTypes> const & db)
       {
@@ -242,9 +302,10 @@ namespace	entity_component_system
       }
 
     private:
-      std::vector<std::function<Component(unsigned const)>>										_componentBuilders;
-      std::vector<std::function<void(entity::RTEntity &, Component const &, std::string const &)>>					_componentRetrievers;
-      std::vector<std::function<bool(Component const &, Component const &)>>								_componentComparators;
+      std::vector<std::function<Component(unsigned const)>>							_componentBuilders;
+      std::vector<std::function<void(entity::RTEntity &, Component const &, std::string const &)>>		_componentRetrievers;
+      std::vector<std::function<bool(Component const &, Component const &)>>					_componentComparators;
+      std::vector<std::function<void(Component &, entity::RTEntity::ConstIterator::value_type const &)>>	_componentSetters;
 
       std::vector<std::pair<ID<ecs::Entity>, std::string>>										_entities;
       std::map<ID<ecs::Entity>, std::vector<std::tuple<ComponentTypeID, ID<ecs::Component>, std::string>>>				_entityComponentMap;
@@ -253,83 +314,6 @@ namespace	entity_component_system
       unsigned																_componentsNb;
 
     private:
-      template<typename>
-      struct	_InitComponentBuilders;
-
-      template<ComponentTypeID... componentTypesIDs, typename... Components>
-      struct	_InitComponentBuilders<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>
-      {
-	template<unsigned idx, typename... ComponentBuilders>
-	static std::vector<std::function<database::Component(unsigned const)>>
-	init(ComponentBuilders&&... componentBuilders, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
-	{
-	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
-
-	  return _InitComponentBuilders<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
-	    init<idx + 1, ComponentBuilders..., std::function<database::Component(unsigned const)>>(std::forward<ComponentBuilders>(componentBuilders)...,
-												    [](unsigned const componentsNb){return typename CTPair::Type(componentsNb);});
-	}
-
-	template<unsigned idx, typename... ComponentBuilders>
-	static std::vector<std::function<database::Component(unsigned const)>>
-	init(ComponentBuilders&&... componentBuilders, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
-	{
-	  return { std::forward<ComponentBuilders>(componentBuilders)... };
-	}
-      };
-
-      template<typename>
-      struct	_InitComponentRetrievers;
-
-      template<ComponentTypeID... componentTypesIDs, typename... Components>
-      struct	_InitComponentRetrievers<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>
-      {
-	template<unsigned idx, typename... ComponentRetrievers>
-	static std::vector<std::function<void(entity::RTEntity &, Component const &, std::string const &)>>
-	init(ComponentRetrievers&&... componentRetrievers, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
-	{
-	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
-
-	  return _InitComponentRetrievers<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
-	    init<idx + 1, ComponentRetrievers..., std::function<void(entity::RTEntity &, Component const &, std::string const &)>>
-	    (std::forward<ComponentRetrievers>(componentRetrievers)...,
-	     [](entity::RTEntity & e, Component const & c, std::string const & name){e.addComponent(name, typename CTPair::Type(c));});
-	}
-
-	template<unsigned idx, typename... ComponentRetrievers>
-	static std::vector<std::function<void(entity::RTEntity &, Component const &, std::string const &)>>
-	init(ComponentRetrievers&&... componentRetrievers, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
-	{
-	  return { std::forward<ComponentRetrievers>(componentRetrievers)... };
-	}
-      };
-
-      template<typename>
-      struct	_InitComponentComparators;
-
-      template<ComponentTypeID... componentTypesIDs, typename... Components>
-      struct	_InitComponentComparators<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>
-      {
-	template<unsigned idx, typename... ComponentComparators>
-	static std::vector<std::function<bool(Component const &, Component const &)>>
-	init(ComponentComparators&&... componentComparators, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
-	{
-	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
-
-	  return _InitComponentComparators<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
-	    init<idx + 1, ComponentComparators..., std::function<bool(Component const &, Component const &)>>
-	    (std::forward<ComponentComparators>(componentComparators)...,
-	     [](Component const & lhs, Component const & rhs){return typename CTPair::Type(lhs) == typename CTPair::Type(rhs);});
-	}
-
-	template<unsigned idx, typename... ComponentComparators>
-	static std::vector<std::function<bool(Component const &, Component const &)>>
-	init(ComponentComparators&&... componentComparators, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
-	{
-	  return { std::forward<ComponentComparators>(componentComparators)... };
-	}
-      };
-
       template<unsigned idx, char const * _name, char const *... _names, typename... ComponentsTypes, char const *... names>
       void
       _buildEntity(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> & as, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr)
@@ -407,6 +391,95 @@ namespace	entity_component_system
 	  }
 	return entities;
       }
+
+      static ComponentTypeID		_componentType(typename decltype(_entityComponentMap)::mapped_type::value_type const & tup)	{ return std::get<0>(tup); }
+      static ID<ecs::Component> const &	_componentID(typename decltype(_entityComponentMap)::mapped_type::value_type const & tup)	{ return std::get<1>(tup); }
+      static std::string const &	_componentName(typename decltype(_entityComponentMap)::mapped_type::value_type const & tup)	{ return std::get<2>(tup); }
+
+    private:
+      template<typename>
+      struct	_InitComponentUtils;
+
+      template<ComponentTypeID... componentTypesIDs, typename... Components>
+      struct	_InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>
+      {
+	template<unsigned idx, typename... ComponentBuilders>
+	static decltype(_componentBuilders)
+	initBuilders(ComponentBuilders&&... componentBuilders, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
+	{
+	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
+
+	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
+	    initBuilders<idx + 1, ComponentBuilders..., typename decltype(_componentBuilders)::value_type>(std::forward<ComponentBuilders>(componentBuilders)...,
+													    [](unsigned const componentsNb){return typename CTPair::Type(componentsNb);});
+	}
+
+	template<unsigned idx, typename... ComponentBuilders>
+	static decltype(_componentBuilders)
+	initBuilders(ComponentBuilders&&... componentBuilders, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
+	{
+	  return { std::forward<ComponentBuilders>(componentBuilders)... };
+	}
+
+	template<unsigned idx, typename... ComponentRetrievers>
+	static decltype(_componentRetrievers)
+	initRetrievers(ComponentRetrievers&&... componentRetrievers, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
+	{
+	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
+
+	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
+	    initRetrievers<idx + 1, ComponentRetrievers..., typename decltype(_componentRetrievers)::value_type>
+	    (std::forward<ComponentRetrievers>(componentRetrievers)...,
+	     [](entity::RTEntity & e, Component const & c, std::string const & name){e.addComponent(name, typename CTPair::Type(c));});
+	}
+
+	template<unsigned idx, typename... ComponentRetrievers>
+	static decltype(_componentRetrievers)
+	initRetrievers(ComponentRetrievers&&... componentRetrievers, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
+	{
+	  return { std::forward<ComponentRetrievers>(componentRetrievers)... };
+	}
+
+	template<unsigned idx, typename... ComponentComparators>
+	static decltype(_componentComparators)
+	initComparators(ComponentComparators&&... componentComparators, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
+	{
+	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
+
+	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
+	    initComparators<idx + 1, ComponentComparators..., typename decltype(_componentComparators)::value_type>
+	    (std::forward<ComponentComparators>(componentComparators)...,
+	     [](Component const & lhs, Component const & rhs){return typename CTPair::Type(lhs) == typename CTPair::Type(rhs);});
+	}
+
+	template<unsigned idx, typename... ComponentComparators>
+	static decltype(_componentComparators)
+	initComparators(ComponentComparators&&... componentComparators, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
+	{
+	  return { std::forward<ComponentComparators>(componentComparators)... };
+	}
+
+	template<unsigned idx, typename... ComponentSetters>
+	static decltype(_componentSetters)
+	initSetters(ComponentSetters&&... componentSetters, typename std::enable_if<idx < sizeof...(Components)>::type * = nullptr)
+	{
+	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
+
+	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
+	    initSetters<idx + 1, ComponentSetters..., typename decltype(_componentSetters)::value_type>
+	    (std::forward<ComponentSetters>(componentSetters)..., [](database::Component & destComponent, entity::RTEntity::ConstIterator::value_type const & componentPair)
+	     {
+	       destComponent = componentPair.second->component<typename CTPair::Type>(componentPair.first);
+	     });
+	}
+
+	template<unsigned idx, typename... ComponentComparators>
+	static decltype(_componentSetters)
+	initSetters(ComponentComparators&&... componentComparators, typename std::enable_if<idx == sizeof...(Components)>::type * = nullptr)
+	{
+	  return { std::forward<ComponentComparators>(componentComparators)... };
+	}
+      };
     };
   }
 }

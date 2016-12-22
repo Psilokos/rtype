@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 04:57:13 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sun Dec 18 01:18:16 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 21 22:13:36 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -13,10 +13,10 @@
 #include "Component.hpp"
 #include "IAssembly.hpp"
 #include "ID.hpp"
-#include "IDispatcherPart.hpp"
+#include "WrongAssemblyType.hpp"
 
 template<typename Assembly>
-void	visitImpl(Assembly & self, entity_component_system::database::IAssemblyDispatcher & dispatcher)
+void	visitImpl(Assembly & self, ecs::database::IAssemblyDispatcher & dispatcher)
 {
   IDispatcherPart<Assembly> &	dsp = dispatcher;
 
@@ -27,12 +27,24 @@ namespace	entity_component_system
 {
   namespace	database
   {
+    class	IAssembly;
     class	Entity;
   }
 
   namespace	entity
   {
     class	RTEntity;
+
+    template<typename, typename = void> class	_CTEntity;
+
+    template<typename CTEntity>
+    class	_CTEntity<CTEntity, typename std::enable_if<ecs::database::Assemblies::IsWrapped<CTEntity>::value>::type> : public database::IAssembly
+    {
+      virtual void	visit(database::IAssemblyDispatcher & dsp) { ::visitImpl(static_cast<CTEntity &>(*this), dsp); }
+    };
+
+    template<typename CTEntity>
+    class	_CTEntity<CTEntity, typename std::enable_if<!ecs::database::Assemblies::IsWrapped<CTEntity>::value>::type> {};
 
     //! \brief Compile time entity class (see its specialization below)
     template<typename, char const *...>
@@ -48,7 +60,7 @@ namespace	entity_component_system
     //! \tparam names the names of the components, must be given in the same order as the ComponentsTypes, and declared as follow (in the global scope):
     //! \code constexpr char componentName[] = "componentName"; \endcode
     template<typename... ComponentsTypes, char const *... names>
-    class	CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> : public database::IAssembly
+    class	CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> : public _CTEntity<CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...>>
     {
     public:
       //! \brief Default constructor
@@ -178,8 +190,6 @@ namespace	entity_component_system
 	if (&component != &std::get<ct::getIdx<name, names...>()>(_components))
 	  std::get<ct::getIdx<name, names...>()>(_components) = std::forward<typename std::tuple_element<ct::getIdx<name, names...>(), std::tuple<ComponentsTypes...>>::type>(component);
       }
-
-      virtual void	visit(database::IAssemblyDispatcher & dsp) { ::visitImpl(*this, dsp); }
 
       //! \brief Inserts a CTEntity into an output stream
       //! \param [out] os the output stream in which the given CTEntity will be inserted

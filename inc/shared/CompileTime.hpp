@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 05:47:59 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 17 16:56:27 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 22 21:47:19 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -17,7 +17,36 @@
 namespace	compile_time
 {
   //! \brief wrap a set of types
-  template<typename...> struct	TypesWrapper {};
+  template<typename... Types>
+  struct	TypesWrapper
+  {
+    template<typename ToFind>
+    struct	IsWrapped
+    {
+      template<typename, typename = void>
+      struct	_IsWrapped;
+
+      template<typename Head, typename... Rest>
+      struct	_IsWrapped<TypesWrapper<Head, Rest...>, typename std::enable_if<!std::is_same<ToFind, Head>::value>::type>
+      {
+	static constexpr bool	value = _IsWrapped<TypesWrapper<Rest...>>::value;
+      };
+
+      template<typename Head, typename... Rest>
+      struct	_IsWrapped<TypesWrapper<Head, Rest...>, typename std::enable_if<std::is_same<ToFind, Head>::value>::type>
+      {
+	static constexpr bool	value = true;
+      };
+
+      template<typename... Empty>
+      struct	_IsWrapped<TypesWrapper<Empty...>, typename std::enable_if<!sizeof...(Empty)>::type>
+      {
+	static constexpr bool	value = false;
+      };
+
+      static constexpr bool	value = _IsWrapped<TypesWrapper<Types...>>::value;
+    };
+  };
 
   template<typename... Types> struct	Wrapper
   {
@@ -55,14 +84,15 @@ namespace	compile_time
   template<typename T, T value, T... values>
   constexpr T	add(typename std::enable_if<sizeof...(values)>::type * = nullptr) { return value + add<values...>(); }
 
-  template<char const * s1, char const * s2>
-  constexpr bool	strcmp(typename std::enable_if<s1 == s2>::type * = nullptr) { return true; }
-
-  template<char const * s1, char const * s2>
-  constexpr bool	strcmp(typename std::enable_if<s1 != s2 && (*s1 && *s2 ? *s1 == *s2 && strcmp<s1 + 1, s2 + 1>() : !*s1 && !*s2)>::type * = nullptr) { return true; }
-
-  template<char const * s1, char const * s2>
-  constexpr bool	strcmp(typename std::enable_if<s1 != s2 && *s1 ^ *s2>::type * = nullptr) { return false; }
+  constexpr bool
+  strcmp(char const * const s1, char const * const s2)
+  {
+    return
+      s1 == s2 ? true :
+      *s1 != *s2 ? false :
+      *s1 && *s2 ? strcmp(s1 + 1, s2 + 1) :
+      !*s1 && !*s2 ? true : false;
+  }
 
   template<unsigned idx, char const * s1, char const *... s>
   constexpr unsigned
@@ -75,7 +105,7 @@ namespace	compile_time
   constexpr unsigned
   _getIdx(std::false_type)
   {
-    return _getIdx<idx + 1, s1, s...>(std::integral_constant<bool, strcmp<s1, s2>()>());
+    return _getIdx<idx + 1, s1, s...>(std::integral_constant<bool, strcmp(s1, s2)>());
   }
 
   template<char const * toFind, char const *... list>

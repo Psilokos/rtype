@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 19 02:40:11 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 22 19:04:39 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -47,9 +47,9 @@ namespace	entity_component_system
       virtual std::list<entity::RTEntity>	getAllEntitiesWithComponentEqualTo(ComponentTypeID const componentTypeID, Component const & value) const = 0;
       virtual std::list<entity::RTEntity>	getAllEntitiesWithComponentEqualTo(std::string const & componentName, ComponentTypeID const componentTypeID, Component const & value) const = 0;
 
-      // virtual void		setEntity(ID<ecs::Entity> const & id, entity::RTEntity const & entity) = 0;
-      // virtual void		setEntities(std::vector<std::pair<ID<Entity>, stde::any>> const & entities) = 0;
-      // virtual void		setComponent(ID<ecs::Entity> const & entityI, Component const & component) = 0;
+      virtual void		setEntity(entity::RTEntity const & entity) = 0; // upgrade to auto detection of new components (auto typing)
+      virtual void		setEntities(std::vector<entity::RTEntity> const & entities) = 0;
+      virtual void		setComponent(ID<ecs::Entity> const & entityId, Component const & component) = 0;
     };
   }
 }
