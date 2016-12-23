@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Sun Dec 18 19:24:51 2016 Gabriel CADET
+** Last update Thu Dec 22 22:38:00 2016 Gabriel CADET
 */
 
 #ifndef CLICONNECTION_HPP_
@@ -48,7 +48,7 @@ namespace ecs::system {
       **
       ** Internaly, it create a new UdpSocket.
       */
-      Connection(network::ASocket *sock);
+      Connection(network::UdpSocket *sock);
 
       /**
       ** \brief Copy constructor. Deleted, because Connection System must not be copyied.
@@ -82,11 +82,10 @@ namespace ecs::system {
     private:
       int	rcvRequest(ecs::database::IDataBase &);
       int	req002Handler(ecs::database::IDataBase &db, request *, std::string const &ip, std::string const &port);
+      int	req005Handler(ecs::database::IDataBase &db, request *, std::string const &ip, std::string const &port);
       int	req102Handler(ecs::database::IDataBase &db, request *, std::string const &ip, std::string const &port);
       int	req104Handler(ecs::database::IDataBase &db, request *, std::string const &ip, std::string const &port);
       int	req105Handler(ecs::database::IDataBase &db, request *, std::string const &ip, std::string const &port);
-
-      void	forwardRequest(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
 
       bool	getCliId(ecs::database::IDataBase &db);
       void	addConnectionRequest(ecs::database::IDataBase &db);
@@ -94,17 +93,24 @@ namespace ecs::system {
 
       void	getServInfo(ecs::database::IDataBase &db, std::string &ip, std::string &port);
 
+      void	getPendingAction(ecs::database::IDataBase &db);
+
     private:
+      typedef std::tuple<std::string, std::string, int, char *> response_t;
+
       network::ASocket									*_sock;
-      std::queue<std::tuple<std::string, std::string, int, char *>>			_respQueue;
+      std::queue<response_t>			_respQueue;
       std::map<char, int (Connection::*)(ecs::database::IDataBase &, request *, std::string const &, std::string const &)>	_reqHandler;
 
       typedef decltype(_reqHandler.begin()) reqIter;
 
       int	_cliId;
       int	_eid;
+      int	_roomId;
 
       bool	_getRoomInfo;
+
+      std::list<pendingAction>	_pending;
   };
 } // namespace system
 

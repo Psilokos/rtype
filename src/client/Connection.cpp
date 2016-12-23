@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 17:48:36 2016 Gabriel CADET
-** Last update Sun Dec 18 19:24:26 2016 Gabriel CADET
+** Last update Fri Dec 23 14:43:39 2016 Gabriel CADET
 */
 
 #include <iostream>
@@ -14,12 +14,15 @@
 
 namespace ecs::system {
   Connection::Connection(network::UdpSocket *sock)
-    : _sock(sock), _cliId(-1), _eid(-1), _getRoomInfo(true)
+    : _sock(sock), _cliId(-1), _eid(-1), _roomId(-1), _getRoomInfo(true)
   {
     int	ret;
 
     _reqHandler[2] = &Connection::req002Handler;
+    _reqHandler[5] = &Connection::req005Handler;
     _reqHandler[102] = &Connection::req102Handler;
+    _reqHandler[104] = &Connection::req104Handler;
+    _reqHandler[105] = &Connection::req105Handler;
   }
 
   void		Connection::update(ecs::database::IDataBase &db) {
@@ -36,21 +39,23 @@ namespace ecs::system {
     else if (_getRoomInfo)
       addRoomInfoRequest(db);
 
+    getPendingAction(db);
+
     if (!_respQueue.empty()) {
       if (-1 == (selRet = network::ASocket::select(std::list<network::ASocket *>(), std::list<network::ASocket *>({_sock}), std::list<network::ASocket *>(), NULL)))
         return ;
-      else if (selRet)
+      else if (selRet) {
         while (not _respQueue.empty()) {
-          std::tuple<std::string, std::string, int, char *>	&resp = _respQueue.front();
-          int							ret;
+          response_t	&resp = _respQueue.front();
+          int		ret;
 
           ret = _sock->sendTo(std::get<3>(resp), std::get<2>(resp), 0, std::get<0>(resp), std::get<1>(resp));
           if (ret < std::get<2>(resp))
-            break ;
-          buf = std::get<3>(resp);
-          delete[] buf;
-          _respQueue.pop();
+            ; //error handling of retry ?
+
+          delete[] std::get<3>(resp);
         }
+      }
     }
 
     if (-1 == (selRet = network::ASocket::select(std::list<network::ASocket *>({_sock}), std::list<network::ASocket *>(), std::list<network::ASocket *>(), NULL)))
@@ -152,26 +157,87 @@ namespace ecs::system {
     return 0;
   }
 
+  int		Connection::req005Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    auto	it = _pending.begin();
+
+    if ((it = std::find_if(it, _pending.end(), [](pendingAction &act){ return std::get<1>(act) == DISCONNECT; })) != _pending.end())
+      _pending.erase(it);
+
+    return 0;
+  }
+
   int		Connection::req102Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
     if (req->sz == 0)
       return (-1);
-
+    //push RoomInfo to db
     return 0;
   }
 
   int		Connection::req104Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
-    std::vector<ecs::database::Entity *>	ents;
+    ecs::database::Entity *	ent;
+    auto	it = _pending.begin();
 
-    ents = db.getEntitiesWithComponentsValue<bool>("RoomInfo", { { "Selected", true } });
-    if (ents.size() != 1)
-      return -1;
-    ents[0]->getComponent("RoomInfo")->setAttr<std::string>("Ip", ip);
-    ents[0]->getComponent("RoomInfo")->setAttr<std::string>("Port", port);
+    if (req->sz != 4 || *(reinterpret_cast<int *>(req->data)) != _roomId)
+      return 0;
+
+    ent = db.getEntityById(_roomId);
+
+    ent->getComponent("RoomInfo")->setAttr<std::string>("Ip", ip);
+    ent->getComponent("RoomInfo")->setAttr<std::string>("Port", port);
     _getRoomInfo = false;
+
+    if ((it = std::find_if(_pending.begin(), _pending.end(), [](pendingAction &act){ return std::get<1>(act) == BaseNet::CONNECT; })) != _pending.end())
+      _pending.erase(it);
+
     return 0;
   }
 
-  void		Connection::forwardRequest(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+  int		Connection::req105Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    auto	it = _pending.begin();
+
+    if ((it = std::find_if(_pending.begin(), _pending.end(), [](pendingAction &act){ return std::get<1>(act) == BaseNet::CONNECT; })) != _pending.end())
+      _pending.erase(it);
+
+    return 0;
+  }
+
+  void		Connection::getPendingAction(ecs::database::IDataBase &db) {
+    std::string	ip;
+    std::string	port;
+    request*	resp;
+    char	*respRaw;
+
+    getNetAction(BaseNet::CONNECTION, _pending);
+
+    if (not _pending.empty())
+      getServInfo(db, ip, port);
+
+    for (pendingAction act : _pending) {
+      switch (std::get<1>(act)) {
+        case DISCONNECT:
+          respRaw = new char[reqHeadSize];
+
+          resp = reinterpret_cast<request *>(respRaw);
+          resp->rc = 3;
+          resp->sz = 0;
+
+          _respQueue.push({ip, port, reqHeadSize + resp->sz, respRaw});
+          break;
+        case CONNECT:
+          respRaw = new char[reqHeadSize + sizeof(int)];
+
+          resp = reinterpret_cast<request *>(respRaw);
+          resp->rc = 103;
+          resp->sz = 4;
+          *reinterpret_cast<int *>(resp->data) = *reinterpret_cast<int *>(std::get<2>(act));
+
+          _respQueue.push({ip, port, reqHeadSize + resp->sz, respRaw});
+          delete[] std::get<2>(act);
+          break;
+        default:
+          break;
+      }
+    }
   }
 } // namespace system
 

@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Nov 28 15:31:01 2016 Gabriel CADET
-** Last update Wed Dec 14 09:35:13 2016 Gabriel CADET
+** Last update Wed Dec 21 14:17:40 2016 Gabriel CADET
 */
 
 #ifndef ASOCKET_HPP_
@@ -51,10 +51,6 @@ namespace network {
       /**
       ** \brief The timeval structure, redefined here to be used with select.
       */
-      struct	timeval {
-        long	tv_sec;
-        long	tv_usec;
-      };
 
     public:
       /**
