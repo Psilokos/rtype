@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sun Dec 18 23:52:24 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 23 13:56:50 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -172,8 +172,10 @@ namespace	entity_component_system
 	return c;
       }
 
+      bool	operator!=(Component const & oth) const	{ return !(*this == oth); }
+
       bool
-      operator==(Component const & oth)
+      operator==(Component const & oth) const
       {
 	if (&oth == this)
 	  return true;
@@ -241,7 +243,7 @@ namespace	entity_component_system
 
       template<char const * name, char const *... _names>
       bool
-      _compare(Component const & oth)
+      _compare(Component const & oth) const
       {
 	if (this->getAttr<name>() == oth.getAttr<name>())
 	  return _compare<_names...>(oth);
@@ -250,7 +252,7 @@ namespace	entity_component_system
 
       template<char const *... _names>
       bool
-      _compare(Component const &, typename std::enable_if<!sizeof...(_names)>::type * = nullptr)
+      _compare(Component const &, typename std::enable_if<!sizeof...(_names)>::type * = nullptr) const
       {
 	return true;
       }

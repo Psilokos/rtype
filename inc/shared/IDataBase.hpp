@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 22 23:01:46 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 24 15:28:42 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -127,6 +127,14 @@ namespace	entity_component_system
       //! \param [in] entityId the entity in which the component belong
       //! \param [in] component the component to set
       virtual void		setComponent(ID<ecs::Entity> const & entityId, Component const & component) = 0;
+
+      //! \brief Gets all changed components since last call
+      //! \return a list of pair with, as first element, the id of the entity to which the component is bind, as second, the type ID of the component, and as third, the component within an Any object
+      virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChanges(void) = 0;
+
+      //! \brief Gets all changed components since last call
+      //! \return a list of pair with, as first element, the id of the entity to which the component is bind, as second, the type ID of the component, and as third, the component within an Any object
+      virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChangesWithAttr(std::string const & attrName) = 0;
     };
   }
 }

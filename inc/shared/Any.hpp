@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sun Dec 18 19:16:36 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 19 01:01:23 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 24 02:12:05 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -160,7 +160,7 @@ public:
   std::type_info const &	type(void) const { return *_v.type(); }
 
   template<typename ValueType>
-  typename std::decay<ValueType>::type	getValue(void) const { return _v.value<typename std::decay<ValueType>::type>(); }
+  typename std::decay<ValueType>::type &	getValue(void) const { return _v.value<typename std::decay<ValueType>::type>(); }
 
 private:
   Value		_v;
