@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 16:14:24 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 24 15:40:02 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sun Dec 25 19:52:10 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cxxabi.h>
@@ -134,6 +134,13 @@ int	main(int, char *[])
   std::cout << "------------------" << std::endl;
 
   lastChanges = db->getLastChangesWithAttr("x");
+  for (auto & tup : lastChanges)
+    {
+      std::cout << "changes detected in entity#" << std::get<0>(tup) << ": ";
+      componentPrinters[static_cast<lel_t>(std::get<1>(tup))](std::get<2>(tup));
+    }
+
+  lastChanges = db->getLastChanges();
   for (auto & tup : lastChanges)
     {
       std::cout << "changes detected in entity#" << std::get<0>(tup) << ": ";
