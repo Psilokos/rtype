@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Nov 30 15:46:47 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sun Dec 18 18:44:46 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:05:46 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -320,9 +320,6 @@ namespace	entity_component_system
       return *this;
     }
 
-    //! \brief Assignement operator, setting the attributes by move from a component::Component
-    //! \param [in] c the source component
-    //! \throw IdentifierNotFound if an attribute is not found in 'c'
     template<typename... Types, char const *... names>
     Component &
     Component::operator=(component::Component<ct::TypesWrapper<Types...>, names...> && c)

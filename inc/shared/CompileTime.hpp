@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 10 05:47:59 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 22 21:47:19 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 15:50:12 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -16,10 +16,11 @@
 
 namespace	compile_time
 {
-  //! \brief wrap a set of types
+  //! \brief Wraps a set of types
   template<typename... Types>
   struct	TypesWrapper
   {
+    //! \brief Checks if the given type is one of the wrapped types
     template<typename ToFind>
     struct	IsWrapped
     {

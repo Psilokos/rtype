@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sun Dec 18 19:16:36 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 24 02:12:05 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:10:38 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -142,25 +142,55 @@ private:
   };
 
 public:
+  //! \brief Default constructor
   Any(void) = default;
+
+  //! \brief Default copy constructor
   Any(Any const &) = default;
+
+  //! \brief Default move constructor
   Any(Any &&) = default;
 
+  //! \brief Constructor storing a value by copy
+  //! \tparam ValueType the type of the value to store
+  //! \param [in] v the value to store by copy
   template<typename ValueType>
   Any(ValueType const & v) : _v(v) {}
 
+  //! \brief Constructor storing a value by move
+  //! \tparam ValueType the type of the value to store
+  //! \param [in] v the value to store by move
   template<typename ValueType>
   Any(ValueType && v) : _v(std::forward<ValueType>(v)) {}
 
+  //! \brief Default destructor
+  ~Any(void) = default;
+
+  //! \brief Default copy assignement operator
   Any &	operator=(Any const &) = default;
+
+  //! \brief Default move assignement operator
   Any &	operator=(Any &&) = default;
 
+  //! \brief Checks if a value is stored
+  //! \return true if a value is stored, false otherwise
   bool	hasValue(void) const	{ return _v; }
 
+  //! \brief Gets the type of the stored value
+  //! \return the type of the stored value if any, typeid(void) otherwise
   std::type_info const &	type(void) const { return *_v.type(); }
 
+  //! \brief Gets the value stored by copy
+  //! \tparam ValueType the type of the stored value
+  //! \return a copy of the stored value
   template<typename ValueType>
-  typename std::decay<ValueType>::type &	getValue(void) const { return _v.value<typename std::decay<ValueType>::type>(); }
+  typename std::decay<ValueType>::type		getValue(void) const { return _v.value<typename std::decay<ValueType>::type>(); }
+
+  //! \brief Gets the value stored by reference
+  //! \tparam ValueType the type of the stored value
+  //! \return a reference to the stored value
+  template<typename ValueType>
+  typename std::decay<ValueType>::type &	getValueByRef(void) const { return _v.value<typename std::decay<ValueType>::type>(); }
 
 private:
   Value		_v;

@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sun Dec 11 21:42:46 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 22 18:11:34 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:43:46 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -291,10 +291,20 @@ namespace	entity_component_system
 	  it->second->component<T>(name) = std::forward<T>(component);
       }
 
+      //! Gets an Iterator to the first component
+      //! \return An Iterator to the first component
       Iterator		begin(void)		{ return Iterator(_components.begin()); }
+
+      //! Gets a ConstIterator to the first component
+      //! \return A ConstIterator to the first component
       ConstIterator	begin(void) const	{ return ConstIterator(_components.begin()); }
 
+      //! Gets an Iterator to the first element following the last component
+      //! \return An Iterator to the first element following the last component
       Iterator		end(void)	{ return Iterator(_components.end()); }
+
+      //! Gets a ConstIterator to the first element following the last component
+      //! \return A ConstIterator to the first element following the last component
       ConstIterator	end(void) const	{ return ConstIterator(_components.end()); }
 
       //! \brief Inserts a RTEntity into an output stream
@@ -428,6 +438,7 @@ namespace	entity_component_system
 	};
       };
 
+      //! \brief An iterator to the stored components
       class	Iterator : public std::iterator<std::bidirectional_iterator_tag,
 						decltype(RTEntity::_components)::value_type,
 						decltype(RTEntity::_components)::difference_type,
@@ -438,21 +449,41 @@ namespace	entity_component_system
 	Iterator(void) = default;
 	Iterator(decltype(RTEntity::_components)::iterator && it);
 
+	//! \brief Pre decrement operator
+	//! \return A reference to the previous iterator
 	Iterator &	operator--(void);
+
+	//! \brief Post decrement operator
+	//! \return A copy of the iterator before the call
 	Iterator	operator--(int);
+
+	//! \brief Pre increment operator
+	//! \return A reference to the next iterator
 	Iterator &	operator++(void);
+
+	//! \brief Post increment operator
+	//! \return A copy of the iterator before the call
 	Iterator	operator++(int);
 
+	//! \brief Dereference operator
+	//! \return A reference to the contained element
 	reference	operator*(void);
+
+	//! \brief Arrow operator
+	//! \return A pointer to the contained element
 	pointer		operator->(void);
 
+	//! \brief Comparison operator. Checks if two iterators are different
 	bool	operator!=(Iterator const & oth) const;
+
+	//! \brief Comparison operator. Checks if two iterators are equal
 	bool	operator==(Iterator const & oth) const;
 
       private:
 	decltype(RTEntity::_components)::iterator	_it;
       };
 
+      //! \brief A constant iterator to the stored components
       class	ConstIterator : public std::iterator<std::bidirectional_iterator_tag,
 						     decltype(RTEntity::_components)::value_type,
 						     decltype(RTEntity::_components)::difference_type,
@@ -463,15 +494,34 @@ namespace	entity_component_system
 	ConstIterator(void) = default;
 	ConstIterator(decltype(RTEntity::_components)::const_iterator && it);
 
+	//! \brief Pre decrement operator
+	//! \return A reference to the previous iterator
 	ConstIterator &	operator--(void);
+
+	//! \brief Post decrement operator
+	//! \return A copy of the iterator before the call
 	ConstIterator	operator--(int);
+
+	//! \brief Pre increment operator
+	//! \return A reference to the next iterator
 	ConstIterator &	operator++(void);
+
+	//! \brief Post increment operator
+	//! \return A copy of the iterator before the call
 	ConstIterator	operator++(int);
 
+	//! \brief Dereference operator
+	//! \return A reference to the contained element
 	reference	operator*(void);
+
+	//! \brief Arrow operator
+	//! \return A pointer to the contained element
 	pointer		operator->(void);
 
+	//! \brief Comparison operator. Checks if two iterators are different
 	bool	operator!=(ConstIterator const & oth) const;
+
+	//! \brief Comparison operator. Checks if two iterators are equal
 	bool	operator==(ConstIterator const & oth) const;
 
       private:
@@ -490,7 +540,7 @@ namespace	entity_component_system::entity
   {
     template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
     static std::map<std::string, std::shared_ptr<RTEntity::Component>>
-    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr)
+    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity, WrappedComponents&&... wrappedComponents)
     {
       return _InitComponentsFromCTEntity<_names...>::template init<idx + 1, WrappedComponents..., std::shared_ptr<RTEntity::Component>>
 	(ctEntity, std::forward<WrappedComponents>(wrappedComponents)..., std::shared_ptr<RTEntity::Component>(new RTEntity::Component(ctEntity.template getComponent<_name>())));
@@ -498,10 +548,11 @@ namespace	entity_component_system::entity
 
     template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
     static std::map<std::string, std::shared_ptr<RTEntity::Component>>
-    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(names)>::type * = nullptr)
+    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity, WrappedComponents&&... wrappedComponents)
     {
       return _InitComponentsFromCTEntity<_names...>::template init<idx + 1, WrappedComponents..., std::shared_ptr<RTEntity::Component>>
-	(std::move(ctEntity), std::forward<WrappedComponents>(wrappedComponents)..., std::shared_ptr<RTEntity::Component>(new RTEntity::Component(std::move(ctEntity.template getComponent<_name>()))));
+	(std::move(ctEntity), std::forward<WrappedComponents>(wrappedComponents)...,
+	 std::shared_ptr<RTEntity::Component>(new RTEntity::Component(std::move(ctEntity.template getComponent<_name>()))));
     }
   };
 
@@ -510,7 +561,7 @@ namespace	entity_component_system::entity
   {
     template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
     static std::map<std::string, std::shared_ptr<RTEntity::Component>>
-    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(names)>::type * = nullptr)
+    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const &, WrappedComponents&&... wrappedComponents)
     {
       return _InitComponentsFromCTEntity::initializedComponents(ct::Indexer<sizeof...(names)>(),
 								ct::Wrapper<decltype(std::string(names))...>(std::string(names)...),
@@ -519,8 +570,7 @@ namespace	entity_component_system::entity
 
     template<unsigned idx, typename... WrappedComponents, typename... ComponentsTypes, char const *... names>
     static std::map<std::string, std::shared_ptr<RTEntity::Component>>
-    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&,
-	 WrappedComponents&&... wrappedComponents, typename std::enable_if<idx == sizeof...(names)>::type * = nullptr)
+    init(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> &&, WrappedComponents&&... wrappedComponents)
     {
       return _InitComponentsFromCTEntity::initializedComponents(ct::Indexer<sizeof...(names)>(),
 								ct::Wrapper<decltype(std::string(names))...>(std::string(names)...),
@@ -543,13 +593,17 @@ namespace	entity_component_system::entity
   template<typename... ComponentsTypes, typename... ComponentsNames>
   RTEntity::RTEntity(database::Entity && databaseEntity, ct::TypesWrapper<ComponentsTypes...> && componentsTypes, ComponentsNames&&... names)
     : _id(databaseEntity.getID()),
-      _components(_initComponents<0>(std::move(databaseEntity), std::move(componentsTypes), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...))) {}
+      _components(_initComponents<0>(std::move(databaseEntity), std::move(componentsTypes),
+				     ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...)))
+  {}
 
   template<typename... ComponentsTypes, char const *... names>
-  RTEntity::RTEntity(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity) : _id(ctEntity.getID()), _components(_InitComponentsFromCTEntity<names...>::template init<0>(ctEntity)) {}
+  RTEntity::RTEntity(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> const & ctEntity)
+    : _id(ctEntity.getID()), _components(_InitComponentsFromCTEntity<names...>::template init<0>(ctEntity)) {}
 
   template<typename... ComponentsTypes, char const *... names>
-  RTEntity::RTEntity(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity) : _id(ctEntity.getID()), _components(_InitComponentsFromCTEntity<names...>::template init<0>(std::move(ctEntity))) {}
+  RTEntity::RTEntity(CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> && ctEntity)
+    : _id(ctEntity.getID()), _components(_InitComponentsFromCTEntity<names...>::template init<0>(std::move(ctEntity))) {}
 
   template<typename... ComponentsTypes, typename... ComponentsNames>
   RTEntity &
@@ -565,7 +619,8 @@ namespace	entity_component_system::entity
   RTEntity::assign(database::Entity && databaseEntity, ct::TypesWrapper<ComponentsTypes...> && componentsTypes, ComponentsNames&&... names)
   {
     _id = databaseEntity.getID();
-    _components = _initComponents<0>(std::move(databaseEntity), std::move(componentsTypes), ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
+    _components = _initComponents<0>(std::move(databaseEntity), std::move(componentsTypes),
+				     ct::Wrapper<decltype(std::string(names))...>(std::string(std::forward<ComponentsNames>(names))...));
     return *this;
   }
 
@@ -592,9 +647,10 @@ namespace	entity_component_system::entity
   RTEntity::_initComponents(entity_component_system::database::Entity const & databaseEntity, ct::TypesWrapper<ComponentType, ComponentsTypes...> &&,
 			    ct::Wrapper<ComponentsNames...> && names, WrappedComponents&&... wrappedComponents, typename std::enable_if<idx < sizeof...(ComponentsNames)>::type *)
   {
-    return _initComponents<idx + 1, WrappedComponents..., std::shared_ptr<Component>>(databaseEntity, ct::TypesWrapper<ComponentsTypes...>(),
-										      std::move(names), std::forward<WrappedComponents>(wrappedComponents)...,
-										      std::shared_ptr<RTEntity::Component>(new RTEntity::Component(ComponentType(databaseEntity[std::get<idx>(names.values)]))));
+    return _initComponents<idx + 1, WrappedComponents..., std::shared_ptr<Component>>
+      (databaseEntity, ct::TypesWrapper<ComponentsTypes...>(),
+       std::move(names), std::forward<WrappedComponents>(wrappedComponents)...,
+       std::shared_ptr<RTEntity::Component>(new RTEntity::Component(ComponentType(databaseEntity[std::get<idx>(names.values)]))));
   }
 
   template<unsigned idx, typename... WrappedComponents, typename ComponentType, typename... ComponentsTypes, typename... ComponentsNames>

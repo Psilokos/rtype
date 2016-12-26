@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 24 14:51:49 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:22:43 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -23,10 +23,13 @@ namespace	entity_component_system
 {
   namespace	database
   {
+    //! \brief DataBase class storing all entities
+    //! \tparam ComponentTypes All component types (must be of type ComponentTypes)
     template<typename ComponentTypes>
     class		DataBase : public IDataBase
     {
     public:
+      //! \brief Default constructor
       DataBase(void) : _componentBuilders(_InitComponentUtils<ComponentTypes>::template initBuilders<0>()),
 		       _componentRetrievers(_InitComponentUtils<ComponentTypes>::template initRetrievers<0>()),
 		       _componentComparators(_InitComponentUtils<ComponentTypes>::template initComparators<0>()),
@@ -35,15 +38,27 @@ namespace	entity_component_system
 		       _componentInAnyIDGetters(_InitComponentUtils<ComponentTypes>::template initComponentInAnyIDGetters<0>()),
 		       _entitiesNb(0), _componentsNb(0) {}
 
+      //! \brief Deleted copy constructor
       DataBase(DataBase const &) = delete;
+
+      //! \brief Deleted move constructor
       DataBase(DataBase &&) = delete;
+
+      //! \brief Default destructor
       ~DataBase(void) = default;
 
+      //! \brief Deleted copy assignement operator
       DataBase &	operator=(DataBase const &) = delete;
+
+      //! \brief Deleted move assignement operator
       DataBase &	operator=(DataBase &&) = delete;
 
+      //! \brief Creates an entity
+      //! \return its ID
       virtual ID<ecs::Entity>	createEntity(void) { return this->createEntity("unknownEntity"); }
 
+      //! \brief Creates an entity with a name
+      //! \return its ID
       virtual ID<ecs::Entity>
       createEntity(std::string const & name)
       {
@@ -52,6 +67,8 @@ namespace	entity_component_system
 	return _entitiesNb++;
       }
 
+      //! \brief Creates an entity from an assembly.
+      //! \param [in,out] assembly the assembly to copy in DB. Its is set within itself
       virtual void	createEntityFromAssembly(IAssembly & assembly)
       {
 	Dispatcher<Assemblies, IAssemblyDispatcher, AssemblyBuilder<DataBase<ComponentTypes>>>	dsp;
@@ -68,6 +85,9 @@ namespace	entity_component_system
 	_buildEntity<0, names...>(as);
       }
 
+      //! \brief Gets the name of an entity
+      //! \param [in] id the entity's ID
+      //! \return the requested entity name
       virtual std::string
       getEntityName(ID<ecs::Entity> const & id) const
       {
@@ -77,6 +97,9 @@ namespace	entity_component_system
 	return "";
       };
 
+      //! \brief Sets the name of an entity
+      //! \param [in] id the entity's ID
+      //! \param [in] name the new name of the entity
       virtual void
       setEntityName(ID<ecs::Entity> const & id, std::string const & name)
       {
@@ -85,6 +108,9 @@ namespace	entity_component_system
 	    pair.second = name;
       }
 
+      //! \brief Creates a component
+      //! \param [in] componentTypeID the component type enum value
+      //! \return its ID
       virtual ID<ecs::Component>
       createComponent(ComponentTypeID const componentTypeID)
       {
@@ -92,6 +118,10 @@ namespace	entity_component_system
 	return _componentsNb++;
       }
 
+      //! \brief Creates a component of the given type and binds it to an entity
+      //! \param [in] entityId the id of the entity in which will be bind the new component
+      //! \param [in] componentTypeID the id corresponding to the component type to create
+      //! \param [in] componentName the name of the component in the entity
       virtual ID<ecs::Component>
       createAndBindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, std::string const & componentName)
       {
@@ -107,6 +137,12 @@ namespace	entity_component_system
 	return 0; // THROW
       }
 
+      //! \brief Binds a component to an entity
+      //! \param [in] entityId the id of the entity in which will be bind the component
+      //! \param [in] componentTypeID the id corresponding to the component type to create
+      //! \param [in] componentId the id of the component to bind
+      //! \param [in] componentName the name of the component in the entity
+      //! \return the componentId passed in parameter
       virtual ID<ecs::Component>
       bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, ID<ecs::Component> const & componentId, std::string const & componentName)
       {
@@ -123,6 +159,9 @@ namespace	entity_component_system
 	return 0; // THROW
       }
 
+      //! \brief Gets an entity from its id
+      //! \param [in] id the id of the entity to retrieve
+      //! \return an Any instance containing an entity::RTEntity if found, nothing otherwise
       virtual Any
       getEntity(ID<ecs::Entity> const & id) const
       {
@@ -144,6 +183,9 @@ namespace	entity_component_system
 	return Any();
       }
 
+      //! \brief Gets a component from its id
+      //! \param [in] id the id of the component to retrieve
+      //! \return an Any instance containing a Component if found, nothing otherwise
       virtual Any
       getComponent(ID<ecs::Component> const & id) const
       {
@@ -154,6 +196,10 @@ namespace	entity_component_system
 	return Any();
       }
 
+      //! \brief Gets a component from its id and its entity's id
+      //! \param [in] entityId the id of the entity in which the component is stored
+      //! \param [in] componentId the id of the component to retrieve
+      //! \return an Any instance containing a Component if found, nothing otherwise
       virtual Any
       getComponentFromEntity(ID<ecs::Entity> const & entityId, ID<ecs::Component> const & componentId) const
       {
@@ -168,18 +214,31 @@ namespace	entity_component_system
 	return Any();
       }
 
+      //! \brief Gets all entities having a component named 'componentName'
+      //! \param [in] componentName the name of a component
+      //! \return a list with all matching entities
       virtual std::list<entity::RTEntity>
       getAllEntitiesWithComponent(std::string const & componentName) const
       {
 	return _getAllEntitiesWithComponent([&componentName](std::tuple<ComponentTypeID, ID<ecs::Component>, std::string> const & tup){return std::get<2>(tup) == componentName;});
       }
 
+      //! \brief Gets all entities having a component of type 'componentTypeID'
+      //! \param [in] componentTypeID the type of a component
+      //! \return a list with all matching entities
       virtual std::list<entity::RTEntity>
       getAllEntitiesWithComponent(ComponentTypeID const componentTypeID) const
       {
-	return _getAllEntitiesWithComponent([componentTypeID](std::tuple<ComponentTypeID, ID<ecs::Component>, std::string> const & tup){return DataBase::_componentType(tup) == componentTypeID;});
+	return _getAllEntitiesWithComponent([componentTypeID](std::tuple<ComponentTypeID, ID<ecs::Component>, std::string> const & tup)
+					    {
+					      return DataBase::_componentType(tup) == componentTypeID;
+					    });
       }
 
+      //! \brief Gets all entities having a component of type 'componentTypeID' named 'componentName'
+      //! \param [in] componentName the name of a component
+      //! \param [in] componentTypeID the type of a component
+      //! \return a list with all matching entities
       virtual std::list<entity::RTEntity>
       getAllEntitiesWithComponent(std::string const & componentName, ComponentTypeID const componentTypeID) const
       {
@@ -189,12 +248,24 @@ namespace	entity_component_system
 					    });
       }
 
+      //! \brief Gets all entities with a component being equal to 'value'
+      //! \param [in] componentTypeID the type of the compared component
+      //! \param [in] value the component value to compare
+      //! \return a list with all matching entities
       virtual std::list<entity::RTEntity>
       getAllEntitiesWithComponentEqualTo(ComponentTypeID const componentTypeID, Component const & value) const
       {
-	return _getAllEntitiesWithComponentEqualTo(value, [componentTypeID](std::tuple<ComponentTypeID, ID<ecs::Component>, std::string> const & tup){return DataBase::_componentType(tup) == componentTypeID;});
+	return _getAllEntitiesWithComponentEqualTo(value, [componentTypeID](std::tuple<ComponentTypeID, ID<ecs::Component>, std::string> const & tup)
+						   {
+						     return DataBase::_componentType(tup) == componentTypeID;
+						   });
       }
 
+      //! \brief Gets all entities with a component being equal to 'value' and named 'componentName'
+      //! \param [in] componentName the name of the component to compare
+      //! \param [in] componentTypeID the type of the compared component
+      //! \param [in] value the component value to compare
+      //! \return a list with all matching entities
       virtual std::list<entity::RTEntity>
       getAllEntitiesWithComponentEqualTo(std::string const & componentName, ComponentTypeID const componentTypeID, Component const & value) const
       {
@@ -205,6 +276,8 @@ namespace	entity_component_system
 						   });
       }
 
+      //! \brief Sets an entity
+      //! \param [in] entities the entity to set
       virtual void
       setEntity(entity::RTEntity const & entity)
       {
@@ -242,6 +315,8 @@ namespace	entity_component_system
 	  }
       }
 
+      //! \brief Sets a list of entity
+      //! \param [in] entities the list of entity to set
       virtual void
       setEntities(std::vector<entity::RTEntity> const & entities)
       {
@@ -249,6 +324,9 @@ namespace	entity_component_system
 	  this->setEntity(e);
       }
 
+      //! \brief Sets a component
+      //! \param [in] entityId the entity in which the component belong
+      //! \param [in] component the component to set
       virtual void
       setComponent(ID<ecs::Entity> const & entityId, Component const & component)
       {
@@ -265,8 +343,14 @@ namespace	entity_component_system
 		  }
       }
 
+      //! \brief Gets all changed components since last call
+      //! \return a list of pair with, as first element, the id of the entity to which the component is bind,
+      //! as second, the type ID of the component, and as third, the component within an Any object
       virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChanges(void) { return std::move(_lastChanges); }
 
+      //! \brief Gets all changed components since last call
+      //! \return a list of pair with, as first element, the id of the entity to which the component is bind,
+      //! as second, the type ID of the component, and as third, the component within an Any object
       virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>
       getLastChangesWithAttr(std::string const & attrName)
       {
@@ -290,6 +374,10 @@ namespace	entity_component_system
 	return lastChanges;
       }
 
+      //! \brief Inserts a DataBase into an output stream
+      //! \param [out] os the output stream in which the given DataBase will be inserted
+      //! \param [in] e the DataBase to insert in the stream
+      //! \return a reference to the given output stream 'os' to allow operator chaining
       friend std::ostream &
       operator<<(std::ostream & os, DataBase<ComponentTypes> const & db)
       {

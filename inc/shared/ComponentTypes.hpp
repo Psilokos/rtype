@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 20:03:54 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sun Dec 18 17:16:17 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:03:23 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -18,11 +18,15 @@ namespace	entity_component_system
 {
   namespace	database
   {
+    //! \brief All component types (see its specialization below)
     template<typename...> struct	ComponentTypes;
 
+    //! \brief All component types, wrapped in a list of ComponentTypePair
     template<ComponentTypeID... componentTypes, typename... Components>
     struct	ComponentTypes<ComponentTypePair<componentTypes, Components>...>
     {
+      //! \brief Gets the ComponentTypePair for a given index
+      //! \tparam idx the index of the ComponentTypePair to retrieve
       template<unsigned idx>
       struct	GetComponentTypePair
       {
@@ -40,9 +44,12 @@ namespace	entity_component_system
 	  typedef CTPair	Type;
 	};
 
+	//! \brief the requested ComponentTypePair
 	typedef typename _GetComponentTypePair<idx, ct::TypesWrapper<ComponentTypePair<componentTypes, Components>...>>::Type	Type;
       };
 
+      //! \brief Gets the component type for a given enum value
+      //! \tparam typeID the enum value attached to the requested component type
       template<ComponentTypeID typeID>
       struct	GetComponentType
       {
@@ -60,9 +67,12 @@ namespace	entity_component_system
 	  typedef typename CTPair::Type		Type;
 	};
 
+	//! \brief the component type attached to the enum value 'typeID'
 	typedef typename _GetComponentType<ct::TypesWrapper<ComponentTypePair<componentTypes, Components>...>>::Type	Type;
       };
 
+      //! \brief Gets the enum value for a given component type
+      //! \tparam Component the component type attached to the requested enum value
       template<typename Component>
       struct	GetComponentTypeID
       {
@@ -80,6 +90,7 @@ namespace	entity_component_system
 	  static constexpr ComponentTypeID	typeID = CTPair::typeID;
 	};
 
+	//! \brief the enum value attached to the component type 'Component'
 	static constexpr ComponentTypeID	typeID = _GetComponentTypeID<ct::TypesWrapper<ComponentTypePair<componentTypes, Components>...>>::typeID;
       };
     };

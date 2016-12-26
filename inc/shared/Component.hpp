@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Fri Dec 23 13:56:50 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 15:53:29 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -172,8 +172,14 @@ namespace	entity_component_system
 	return c;
       }
 
+      //! \brief Checks that two components are not equal
+      //! \param [in] oth the other component
+      //! \return true if the two components are different, false otherwise
       bool	operator!=(Component const & oth) const	{ return !(*this == oth); }
 
+      //! \brief Checks that two components are equal
+      //! \param [in] oth the other component
+      //! \return true if the two components are equal, false otherwise
       bool
       operator==(Component const & oth) const
       {

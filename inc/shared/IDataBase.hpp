@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 24 15:28:42 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:21:24 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -68,7 +68,8 @@ namespace	entity_component_system
       //! \param [in] componentId the id of the component to bind
       //! \param [in] componentName the name of the component in the entity
       //! \return the componentId passed in parameter
-      virtual ID<ecs::Component>	bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, ID<ecs::Component> const & componentId, std::string const & componentName) = 0;
+      virtual ID<ecs::Component>	bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID,
+						      ID<ecs::Component> const & componentId, std::string const & componentName) = 0;
 
       //! \brief Gets an entity from its id
       //! \param [in] id the id of the entity to retrieve
@@ -113,7 +114,8 @@ namespace	entity_component_system
       //! \param [in] componentTypeID the type of the compared component
       //! \param [in] value the component value to compare
       //! \return a list with all matching entities
-      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponentEqualTo(std::string const & componentName, ComponentTypeID const componentTypeID, Component const & value) const = 0;
+      virtual std::list<entity::RTEntity>	getAllEntitiesWithComponentEqualTo(std::string const & componentName,
+										   ComponentTypeID const componentTypeID, Component const & value) const = 0;
 
       //! \brief Sets an entity
       //! \param [in] entities the entity to set
@@ -129,11 +131,13 @@ namespace	entity_component_system
       virtual void		setComponent(ID<ecs::Entity> const & entityId, Component const & component) = 0;
 
       //! \brief Gets all changed components since last call
-      //! \return a list of pair with, as first element, the id of the entity to which the component is bind, as second, the type ID of the component, and as third, the component within an Any object
+      //! \return a list of pair with, as first element, the id of the entity to which the component is bind,
+      //! as second, the type ID of the component, and as third, the component within an Any object
       virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChanges(void) = 0;
 
       //! \brief Gets all changed components since last call
-      //! \return a list of pair with, as first element, the id of the entity to which the component is bind, as second, the type ID of the component, and as third, the component within an Any object
+      //! \return a list of pair with, as first element, the id of the entity to which the component is bind,
+      //! as second, the type ID of the component, and as third, the component within an Any object
       virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChangesWithAttr(std::string const & attrName) = 0;
     };
   }
