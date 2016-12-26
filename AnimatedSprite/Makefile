@@ -15,13 +15,14 @@ RM	=	rm -rf
 OBJ     =	$(SRC:.cpp=.o)
 
 CPPFLAGS	+=	-lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -std=c++11 -g3
-CPPFLAGS	+= 	-I./Headers
+CPPFLAGS	+= 	-I./Include
 #CPPFLAGS	+=	-Wall -Wextra -Werror
 
 NAME	=	R-Type
 
-SRC	=	Sources/main.cpp \
-		Sources/RegisterWin.cpp
+SRC	=	Source/main.cpp \
+		Source/Animation.cpp \
+		Source/AnimatedSprite.cpp
 
 AOK	=	echo -e "\\033[32mDone\\033[0m"
 AKO	=	echo -e "\\033[31mFailed\\033[0m"
