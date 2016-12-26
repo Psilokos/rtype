@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 16:14:24 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 18:45:21 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 19:10:48 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cxxabi.h>
@@ -147,7 +147,8 @@ int	main(int, char *[])
       componentPrinters[static_cast<lel_t>(std::get<1>(tup))](std::get<2>(tup));
     }
 
-  db->deleteEntity(0);
+  db->deleteComponent(asPlayer.getID(), asPlayer.getComponent<::physicObjID>().getID());
+  db->deleteEntity(asPhysicObj.getID());
 
   dumpDB(db);
 

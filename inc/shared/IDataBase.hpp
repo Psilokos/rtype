@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 18:49:59 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 19:00:38 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -61,6 +61,11 @@ namespace	entity_component_system
       //! \return the componentId passed in parameter
       virtual ID<ecs::Component>	bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID,
 						      ID<ecs::Component> const & componentId, std::string const & componentName) = 0;
+
+      //! \brief Deletes a component
+      //! \param [in] entityID the ID of the entity to which belong the component to delete
+      //! \param [in] componentID the ID of the component to delete
+      virtual void	deleteComponent(ID<ecs::Entity> const & entityID, ID<ecs::Component> const & componentID) = 0;
 
       //! \brief Deletes an entity and all its components
       //! \param [in] entityID the ID of the entity to delete

@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 18:44:05 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 19:06:27 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -150,9 +150,39 @@ namespace	entity_component_system
 	return 0; // THROW
       }
 
-      // std::map<ID<ecs::Entity>, std::vector<std::tuple<ComponentTypeID, ID<ecs::Component>, std::string>>>				_entityComponentMap;
-      // std::array<std::vector<std::pair<ID<ecs::Component>, Component>>, static_cast<unsigned>(ComponentTypeID::ComponentTypesNb)>	_components;
+      //! \brief Deletes a component
+      //! \param [in] entityID the ID of the entity to which belong the component to delete
+      //! \param [in] componentID the ID of the component to delete
+      virtual void
+      deleteComponent(ID<ecs::Entity> const & entityID, ID<ecs::Component> const & componentID)
+      {
+	_mtx.lock();
+	{
+	  auto	entityIt = _entityComponentMap.find(entityID);
 
+	  if (entityIt != _entityComponentMap.end())
+	    {
+	      for (auto componentIt = entityIt->second.begin(); componentIt != entityIt->second.end(); ++componentIt)
+		if (DataBase::_componentID(*componentIt) == componentID)
+		  {
+		    for (auto componentDataIt = _components[static_cast<unsigned>(DataBase::_componentType(*componentIt))].begin();
+			 componentDataIt != _components[static_cast<unsigned>(DataBase::_componentType(*componentIt))].end();
+			 ++componentDataIt)
+		      if (componentDataIt->first == componentID)
+			{
+			  _components[static_cast<unsigned>(DataBase::_componentType(*componentIt))].erase(componentDataIt);
+			  break;
+			}
+		    entityIt->second.erase(componentIt);
+		    break;
+		  }
+	    }
+	}
+	_mtx.unlock();
+      }
+
+      //! \brief Deletes an entity and all its components
+      //! \param [in] entityID the ID of the entity to delete
       virtual void
       deleteEntity(ID<ecs::Entity> const & entityID)
       {
