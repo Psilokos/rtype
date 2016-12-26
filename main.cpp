@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 16:14:24 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sun Dec 25 19:52:10 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 16:45:55 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cxxabi.h>
@@ -29,7 +29,7 @@ struct	InitComponentPrinters<ecs::database::ComponentTypes<ecs::database::Compon
 
     return InitComponentPrinters<ecs::database::ComponentTypes<ecs::database::ComponentTypePair<componentTypesIDs, Components>...>>::template
       init<idx + 1, ComponentPrinters..., std::function<void(Any const &)>>(std::forward<ComponentPrinters>(componentPrinters)...,
-									    [](Any const & any){ std::cout << any.getValue<typename CTPair::Type>() << std::endl; });
+									    [](Any const & any){ std::cout << any.getValueByRef<typename CTPair::Type>() << std::endl; });
   }
 
   template<unsigned idx, typename... ComponentPrinters>
@@ -66,8 +66,8 @@ int	main(int, char *[])
 
   dumpDB(db);
 
-  asPhysicObj = db->getEntity(asPhysicObj.getID()).getValue<ecs::entity::RTEntity>();
-  asPlayer = db->getEntity(asPlayer.getID()).getValue<ecs::entity::RTEntity>();
+  asPhysicObj = db->getEntity(asPhysicObj.getID()).getValueByRef<ecs::entity::RTEntity>();
+  asPlayer = db->getEntity(asPlayer.getID()).getValueByRef<ecs::entity::RTEntity>();
 
   asPhysicObj.getComponent<::pos>().getAttr<::x>() = 50;
   asPhysicObj.getComponent<::pos>().getAttr<::y>() = 50;
@@ -104,7 +104,7 @@ int	main(int, char *[])
   std::cout << "------------------" << std::endl;
 
   entityList = db->getAllEntitiesWithComponentEqualTo(ecs::database::ComponentTypeID::BasicUnsignedShort,
-						      db->getEntity(asPlayer.getID()).getValue<ecs::entity::RTEntity>().getComponent<ecs::component::Basic<unsigned short>>(::health));
+						      db->getEntity(asPlayer.getID()).getValueByRef<ecs::entity::RTEntity>().getComponent<ecs::component::Basic<unsigned short>>(::health));
   for (auto & e : entityList)
     {
       std::cout << "someEntity =>\t(" << e.getID() << ") [with ";
@@ -115,7 +115,7 @@ int	main(int, char *[])
   std::cout << "------------------" << std::endl;
 
   entityList = db->getAllEntitiesWithComponentEqualTo(::health, ecs::database::ComponentTypeID::BasicUnsignedShort,
-						      db->getEntity(asPlayer.getID()).getValue<ecs::entity::RTEntity>().getComponent<ecs::component::Basic<unsigned short>>(::health));
+						      db->getEntity(asPlayer.getID()).getValueByRef<ecs::entity::RTEntity>().getComponent<ecs::component::Basic<unsigned short>>(::health));
   for (auto & e : entityList)
     {
       auto it = e.begin();
