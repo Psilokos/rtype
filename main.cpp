@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 16:14:24 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 16:45:55 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 18:45:21 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #include <cxxabi.h>
@@ -146,6 +146,10 @@ int	main(int, char *[])
       std::cout << "changes detected in entity#" << std::get<0>(tup) << ": ";
       componentPrinters[static_cast<lel_t>(std::get<1>(tup))](std::get<2>(tup));
     }
+
+  db->deleteEntity(0);
+
+  dumpDB(db);
 
   return 0;
 }

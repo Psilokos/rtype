@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sun Dec 18 19:16:36 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 16:10:38 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 17:18:26 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -17,6 +17,7 @@
 #include <string>
 #include <typeinfo>
 
+//! \brief Class that can store any type of value, or nothing
 class	Any
 {
 public:
