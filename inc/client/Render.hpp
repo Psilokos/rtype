@@ -1,8 +1,8 @@
 /*
- * @Author: Stephane.Lejeune 
- * @Date: 2016-12-26 17:54:41 
- * @Last Modified by:   Stephane.Lejeune 
- * @Last Modified time: 2016-12-26 17:54:41 
+ * @Author: Stephane.Lejeune
+ * @Date: 2016-12-26 17:54:41
+ * @Last Modified by:   Stephane.Lejeune
+ * @Last Modified time: 2016-12-26 17:54:41
  */
 
 #ifndef RENDER_HPP_
@@ -14,8 +14,9 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 
+#include "ISystem.hpp"
 
-class Render
+class Render : public ISystem
 {
 public:
     Render();
@@ -31,7 +32,7 @@ public:
     int   SelectServer();
     int   SelectRoom();
     int   SelectGameOver();
-    int   GameLoop();
+    int   update(ecs::database::IDataBase &db);
 public:
 
 

@@ -1,10 +1,10 @@
 /*
- * @Author: Stephane.Lejeune 
- * @Date: 2016-12-26 17:53:56 
- * @Last Modified by:   Stephane.Lejeune 
- * @Last Modified time: 2016-12-26 17:53:56 
+ * @Author: Stephane.Lejeune
+ * @Date: 2016-12-26 17:53:56
+ * @Last Modified by:   Stephane.Lejeune
+ * @Last Modified time: 2016-12-26 17:53:56
  */
- 
+
 #include "Render.hpp"
 
 Render::Render()
@@ -14,9 +14,9 @@ Render::Render()
 }
 
 
-int Render::GameLoop()
+void Render::update(ecs::database::IDataBase &db)
 {
-    sf::RenderWindow      window(sf::VideoMode(1280, 720), "Rtype", sf::Style::Close);
+    static sf::RenderWindow      window(sf::VideoMode(1280, 720), "Rtype", sf::Style::Close);
     static int            State = 0;
 
     while (window.isOpen())
@@ -67,7 +67,7 @@ int Render::GameLoop()
             window.draw(_aff_no);
         }
     window.display();
-    window.clear(); 
+    window.clear();
     }
 return 0;
 }

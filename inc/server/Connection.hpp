@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Tue Dec 13 12:10:29 2016 Gabriel CADET
+** Last update Mon Dec 26 18:13:52 2016 Gabriel CADET
 */
 
 #ifndef CONNECTION_HPP_
@@ -74,7 +74,7 @@ namespace ecs::system {
       ** \param [in, out] db reference on the ECS DataBase. Information are read and stored here.
       ** Permit inter system communications.
       */
-      void	update(ecs::database::IDataBase &);
+      void	update(ecs::database::IDataBase &db);
 
       /*
       ** Private member methods
