@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 16:22:43 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 19:06:27 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -13,6 +13,7 @@
 #include <array>
 #include <functional>
 #include <map>
+#include <mutex>
 #include "AssemblyBuilder.hpp"
 #include "Entity.hpp"
 #include "Dispatcher.hpp"
@@ -62,8 +63,10 @@ namespace	entity_component_system
       virtual ID<ecs::Entity>
       createEntity(std::string const & name)
       {
+	_mtx.lock();
 	_entities.push_back({_entitiesNb, name});
 	_entityComponentMap.emplace(_entitiesNb, typename decltype(_entityComponentMap)::mapped_type());
+	_mtx.unlock();
 	return _entitiesNb++;
       }
 
@@ -80,9 +83,134 @@ namespace	entity_component_system
       template<typename... ComponentsTypes, char const *... names>
       void	createEntityFromAssembly(entity::CTEntity<ct::TypesWrapper<ComponentsTypes...>, names...> & as)
       {
+	_mtx.lock();
 	as.setID(_entitiesNb);
-	this->createEntity();
+	_entities.push_back({_entitiesNb, "unknownEntity"});
+	_entityComponentMap.emplace(_entitiesNb++, typename decltype(_entityComponentMap)::mapped_type());
 	_buildEntity<0, names...>(as);
+	_mtx.unlock();
+      }
+
+      //! \brief Creates a component
+      //! \param [in] componentTypeID the component type enum value
+      //! \return its ID
+      virtual ID<ecs::Component>
+      createComponent(ComponentTypeID const componentTypeID)
+      {
+	_mtx.lock();
+	_components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
+	_mtx.unlock();
+	return _componentsNb++;
+      }
+
+      //! \brief Creates a component of the given type and binds it to an entity
+      //! \param [in] entityId the id of the entity in which will be bind the new component
+      //! \param [in] componentTypeID the id corresponding to the component type to create
+      //! \param [in] componentName the name of the component in the entity
+      virtual ID<ecs::Component>
+      createAndBindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, std::string const & componentName)
+      {
+	_mtx.lock();
+	for (auto & pair : _entities)
+	  if (pair.first == entityId)
+	    {
+	      auto	it = _entityComponentMap.find(pair.first);
+
+	      it->second.push_back(typename decltype(_entityComponentMap)::mapped_type::value_type(componentTypeID, _componentsNb, componentName));
+	      _components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
+	      _mtx.unlock();
+	      return _componentsNb++;
+	    }
+	_mtx.unlock();
+	return 0; // THROW
+      }
+
+      //! \brief Binds a component to an entity
+      //! \param [in] entityId the id of the entity in which will be bind the component
+      //! \param [in] componentTypeID the id corresponding to the component type to create
+      //! \param [in] componentId the id of the component to bind
+      //! \param [in] componentName the name of the component in the entity
+      //! \return the componentId passed in parameter
+      virtual ID<ecs::Component>
+      bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, ID<ecs::Component> const & componentId, std::string const & componentName)
+      {
+	_mtx.lock();
+	for (auto & pair : _entities)
+	  if (pair.first == entityId)
+	    {
+	      typedef typename decltype(_entityComponentMap)::mapped_type	MappedType;
+
+	      auto	it = _entityComponentMap.find(pair.first);
+
+	      it->second.push_back(typename MappedType::value_type(componentTypeID, componentId, componentName));
+	      _mtx.unlock();
+	      return componentId;
+	    }
+	_mtx.unlock();
+	return 0; // THROW
+      }
+
+      //! \brief Deletes a component
+      //! \param [in] entityID the ID of the entity to which belong the component to delete
+      //! \param [in] componentID the ID of the component to delete
+      virtual void
+      deleteComponent(ID<ecs::Entity> const & entityID, ID<ecs::Component> const & componentID)
+      {
+	_mtx.lock();
+	{
+	  auto	entityIt = _entityComponentMap.find(entityID);
+
+	  if (entityIt != _entityComponentMap.end())
+	    {
+	      for (auto componentIt = entityIt->second.begin(); componentIt != entityIt->second.end(); ++componentIt)
+		if (DataBase::_componentID(*componentIt) == componentID)
+		  {
+		    for (auto componentDataIt = _components[static_cast<unsigned>(DataBase::_componentType(*componentIt))].begin();
+			 componentDataIt != _components[static_cast<unsigned>(DataBase::_componentType(*componentIt))].end();
+			 ++componentDataIt)
+		      if (componentDataIt->first == componentID)
+			{
+			  _components[static_cast<unsigned>(DataBase::_componentType(*componentIt))].erase(componentDataIt);
+			  break;
+			}
+		    entityIt->second.erase(componentIt);
+		    break;
+		  }
+	    }
+	}
+	_mtx.unlock();
+      }
+
+      //! \brief Deletes an entity and all its components
+      //! \param [in] entityID the ID of the entity to delete
+      virtual void
+      deleteEntity(ID<ecs::Entity> const & entityID)
+      {
+	_mtx.lock();
+	for (auto it = _entities.begin(); it != _entities.end(); ++it)
+	  if (it->first == entityID)
+	    {
+	      _entities.erase(it);
+	      break;
+	    }
+	{
+	  auto	entityIt = _entityComponentMap.find(entityID);
+
+	  if (entityIt != _entityComponentMap.end())
+	    {
+	      for (auto & tup : entityIt->second)
+		for (auto componentIt = _components[static_cast<unsigned>(DataBase::_componentType(tup))].begin();
+		     componentIt != _components[static_cast<unsigned>(DataBase::_componentType(tup))].end();
+		     ++componentIt)
+		  if (DataBase::_componentID(tup) == componentIt->first)
+		    {
+		      _components[static_cast<unsigned>(DataBase::_componentType(tup))].erase(componentIt);
+		      break;
+		    }
+	      _entityComponentMap.erase(entityIt);
+	    }
+	}
+	_mtx.unlock();
       }
 
       //! \brief Gets the name of an entity
@@ -103,60 +231,14 @@ namespace	entity_component_system
       virtual void
       setEntityName(ID<ecs::Entity> const & id, std::string const & name)
       {
+	_mtx.lock();
 	for (auto & pair : _entities)
 	  if (pair.first == id)
-	    pair.second = name;
-      }
-
-      //! \brief Creates a component
-      //! \param [in] componentTypeID the component type enum value
-      //! \return its ID
-      virtual ID<ecs::Component>
-      createComponent(ComponentTypeID const componentTypeID)
-      {
-	_components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
-	return _componentsNb++;
-      }
-
-      //! \brief Creates a component of the given type and binds it to an entity
-      //! \param [in] entityId the id of the entity in which will be bind the new component
-      //! \param [in] componentTypeID the id corresponding to the component type to create
-      //! \param [in] componentName the name of the component in the entity
-      virtual ID<ecs::Component>
-      createAndBindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, std::string const & componentName)
-      {
-	for (auto & pair : _entities)
-	  if (pair.first == entityId)
 	    {
-	      auto	it = _entityComponentMap.find(pair.first);
-
-	      it->second.push_back(typename decltype(_entityComponentMap)::mapped_type::value_type(componentTypeID, _componentsNb, componentName));
-	      _components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
-	      return _componentsNb++;
+	      pair.second = name;
+	      break;
 	    }
-	return 0; // THROW
-      }
-
-      //! \brief Binds a component to an entity
-      //! \param [in] entityId the id of the entity in which will be bind the component
-      //! \param [in] componentTypeID the id corresponding to the component type to create
-      //! \param [in] componentId the id of the component to bind
-      //! \param [in] componentName the name of the component in the entity
-      //! \return the componentId passed in parameter
-      virtual ID<ecs::Component>
-      bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID, ID<ecs::Component> const & componentId, std::string const & componentName)
-      {
-	for (auto & pair : _entities)
-	  if (pair.first == entityId)
-	    {
-	      typedef typename decltype(_entityComponentMap)::mapped_type	MappedType;
-
-	      auto	it = _entityComponentMap.find(pair.first);
-
-	      it->second.push_back(typename MappedType::value_type(componentTypeID, componentId, componentName));
-	      return componentId;
-	    }
-	return 0; // THROW
+	_mtx.unlock();
       }
 
       //! \brief Gets an entity from its id
@@ -165,21 +247,26 @@ namespace	entity_component_system
       virtual Any
       getEntity(ID<ecs::Entity> const & id) const
       {
-	auto	it = _entityComponentMap.find(id);
+	_mtx.lock();
+	{
+	  auto	it = _entityComponentMap.find(id);
 
-	if (it != _entityComponentMap.end())
-	  {
-	    entity::RTEntity	e(id);
+	  if (it != _entityComponentMap.end())
+	    {
+	      entity::RTEntity	e(id);
 
-	    for (auto & tup : it->second)
-	      for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
-		if (pair.first == DataBase::_componentID(tup))
-		  {
-		    _componentRetrievers[static_cast<unsigned>(DataBase::_componentType(tup))](e, pair.second, DataBase::_componentName(tup));
-		    break;
-		  }
-	    return Any(e);
-	  }
+	      for (auto & tup : it->second)
+		for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
+		  if (pair.first == DataBase::_componentID(tup))
+		    {
+		      _componentRetrievers[static_cast<unsigned>(DataBase::_componentType(tup))](e, pair.second, DataBase::_componentName(tup));
+		      break;
+		    }
+	      _mtx.unlock();
+	      return Any(e);
+	    }
+	}
+	_mtx.unlock();
 	return Any();
       }
 
@@ -189,10 +276,15 @@ namespace	entity_component_system
       virtual Any
       getComponent(ID<ecs::Component> const & id) const
       {
+	_mtx.lock();
 	for (auto & vect : _components)
 	  for (auto & pair : vect)
 	    if (pair.first == id)
-	      return Any(pair.second);
+	      {
+		_mtx.unlock();
+		return Any(pair.second);
+	      }
+	_mtx.unlock();
 	return Any();
       }
 
@@ -203,14 +295,21 @@ namespace	entity_component_system
       virtual Any
       getComponentFromEntity(ID<ecs::Entity> const & entityId, ID<ecs::Component> const & componentId) const
       {
-	auto	it = _entityComponentMap.find(entityId);
+	_mtx.lock();
+	{
+	  auto	it = _entityComponentMap.find(entityId);
 
-	if (it != _entityComponentMap.end())
-	  for (auto & tup : it->second)
-	    if (std::get<1>(tup) == componentId)
-	      for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
-		if (pair.first == componentId)
-		  return Any(pair.second);
+	  if (it != _entityComponentMap.end())
+	    for (auto & tup : it->second)
+	      if (std::get<1>(tup) == componentId)
+		for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
+		  if (pair.first == componentId)
+		    {
+		      _mtx.unlock();
+		      return Any(pair.second);
+		    }
+	}
+	_mtx.unlock();
 	return Any();
       }
 
@@ -281,38 +380,43 @@ namespace	entity_component_system
       virtual void
       setEntity(entity::RTEntity const & entity)
       {
-	auto	entityIt = _entityComponentMap.find(entity.getID());
+	_mtx.lock();
+	{
+	  auto	entityIt = _entityComponentMap.find(entity.getID());
 
-	if (entityIt != _entityComponentMap.end())
-	  {
-	    typename decltype(_entityComponentMap)::mapped_type		components(entityIt->second);
+	  if (entityIt != _entityComponentMap.end())
+	    {
+	      typename decltype(_entityComponentMap)::mapped_type		components(entityIt->second);
 
-	    for (auto & componentPair : entity)
-	      {
-		bool	found = false;
+	      for (auto & componentPair : entity)
+		{
+		  bool	found = false;
 
-		for (auto componentsIt = components.begin(); componentsIt != components.end(); ++componentsIt)
-		  {
-		    if (DataBase::_componentName(*componentsIt) == componentPair.first)
-		      {
-			found = true;
+		  for (auto componentsIt = components.begin(); componentsIt != components.end(); ++componentsIt)
+		    {
+		      if (DataBase::_componentName(*componentsIt) == componentPair.first)
+			{
+			  found = true;
 
-			for (auto & componentPairDB : _components[static_cast<unsigned>(DataBase::_componentType(*componentsIt))])
-			  if (componentPairDB.first == DataBase::_componentID(*componentsIt))
-			    _componentSettersFromRTEntity[static_cast<unsigned>(DataBase::_componentType(*componentsIt))](_lastChanges, entityIt->first, componentPairDB.second, componentPair);
-		      }
-		    if (found)
-		      {
-			components.erase(componentsIt);
-			break;
-		      }
-		  }
-		if (!found)
-		  {
-		    // create component
-		  }
-	      }
-	  }
+			  for (auto & componentPairDB : _components[static_cast<unsigned>(DataBase::_componentType(*componentsIt))])
+			    if (componentPairDB.first == DataBase::_componentID(*componentsIt))
+			      _componentSettersFromRTEntity[static_cast<unsigned>(DataBase::_componentType(*componentsIt))](_lastChanges, entityIt->first,
+															    componentPairDB.second, componentPair);
+			}
+		      if (found)
+			{
+			  components.erase(componentsIt);
+			  break;
+			}
+		    }
+		  if (!found)
+		    {
+		      // create component
+		    }
+		}
+	    }
+	}
+	_mtx.unlock();
       }
 
       //! \brief Sets a list of entity
@@ -330,23 +434,37 @@ namespace	entity_component_system
       virtual void
       setComponent(ID<ecs::Entity> const & entityId, Component const & component)
       {
-	auto	entityIt = _entityComponentMap.find(entityId);
+	_mtx.lock();
+	{
+	  auto	entityIt = _entityComponentMap.find(entityId);
 
-	if (entityIt != _entityComponentMap.end())
-	  for (auto & tup : entityIt->second)
-	    if (DataBase::_componentID(tup) == component.getID())
-	      for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
-		if (pair.first == component.getID())
-		  {
-		    _componentSetters[static_cast<unsigned>(DataBase::_componentType(tup))](_lastChanges, entityId, pair.second, component);
-		    return;
-		  }
+	  if (entityIt != _entityComponentMap.end())
+	    for (auto & tup : entityIt->second)
+	      if (DataBase::_componentID(tup) == component.getID())
+		for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
+		  if (pair.first == component.getID())
+		    {
+		      _componentSetters[static_cast<unsigned>(DataBase::_componentType(tup))](_lastChanges, entityId, pair.second, component);
+		      _mtx.unlock();
+		      return;
+		    }
+	}
+	_mtx.unlock();
       }
 
       //! \brief Gets all changed components since last call
       //! \return a list of pair with, as first element, the id of the entity to which the component is bind,
       //! as second, the type ID of the component, and as third, the component within an Any object
-      virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChanges(void) { return std::move(_lastChanges); }
+      virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	getLastChanges(void)
+      {
+	_mtx.lock();
+	{
+	  std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	lastChanges = std::move(_lastChanges);
+
+	  _mtx.unlock();
+	  return std::move(lastChanges);
+	}
+      }
 
       //! \brief Gets all changed components since last call
       //! \return a list of pair with, as first element, the id of the entity to which the component is bind,
@@ -354,24 +472,28 @@ namespace	entity_component_system
       virtual std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>
       getLastChangesWithAttr(std::string const & attrName)
       {
-	std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	lastChanges;
-	auto								it = _lastChanges.begin();
+	_mtx.lock();
+	{
+	  std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	lastChanges;
+	  auto								it = _lastChanges.begin();
 
-	while (it != _lastChanges.end())
-	  {
-	    ID<ecs::Component> const	id = _componentInAnyIDGetters[static_cast<unsigned>(std::get<1>(*it))](std::get<2>(*it));
-	    auto			entityIt = _entityComponentMap.find(std::get<0>(*it));
-	    auto const			nxtIt = std::next(it);
+	  while (it != _lastChanges.end())
+	    {
+	      ID<ecs::Component> const	id = _componentInAnyIDGetters[static_cast<unsigned>(std::get<1>(*it))](std::get<2>(*it));
+	      auto			entityIt = _entityComponentMap.find(std::get<0>(*it));
+	      auto const		nxtIt = std::next(it);
 
-	    if (entityIt != _entityComponentMap.end())
-	      for (auto & tup : entityIt->second)
-		if (DataBase::_componentID(tup) == id)
-		  for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
-		    if (pair.first == id && pair.second.hasAttr(attrName))
-		      lastChanges.splice(lastChanges.end(), _lastChanges, it);
-	    it = nxtIt;
-	  }
-	return lastChanges;
+	      if (entityIt != _entityComponentMap.end())
+		for (auto & tup : entityIt->second)
+		  if (DataBase::_componentID(tup) == id)
+		    for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
+		      if (pair.first == id && pair.second.hasAttr(attrName))
+			lastChanges.splice(lastChanges.end(), _lastChanges, it);
+	      it = nxtIt;
+	    }
+	  _mtx.unlock();
+	  return std::move(lastChanges);
+	}
       }
 
       //! \brief Inserts a DataBase into an output stream
@@ -381,38 +503,42 @@ namespace	entity_component_system
       friend std::ostream &
       operator<<(std::ostream & os, DataBase<ComponentTypes> const & db)
       {
-	auto	entityIt = db._entities.begin();
+	db._mtx.lock();
+	{
+	  auto	entityIt = db._entities.begin();
 
-	while (entityIt != db._entities.end())
-	  {
-	    auto	it = db._entityComponentMap.find(entityIt->first);
+	  while (entityIt != db._entities.end())
+	    {
+	      auto	it = db._entityComponentMap.find(entityIt->first);
 
-	    os << entityIt->second << " =>\t(" << entityIt->first << ") [with ";
-	    if (it != db._entityComponentMap.end())
-	      {
-		auto	componentIt = it->second.begin();
+	      os << entityIt->second << " =>\t(" << entityIt->first << ") [with ";
+	      if (it != db._entityComponentMap.end())
+		{
+		  auto	componentIt = it->second.begin();
 
-		while (componentIt != it->second.end())
-		  {
-		    os << DataBase::_componentName(*componentIt) << ": (" << DataBase::_componentID(*componentIt) << ") ";
-		    for (auto & cPair : db._components[static_cast<unsigned>(DataBase::_componentType(*componentIt))])
-		      if (cPair.first == DataBase::_componentID(*componentIt))
-			{
-			  os << cPair.second;
-			  break;
-			}
-		    if (++componentIt != it->second.end())
-		      os << ", ";
-		    else
-		      break;
-		  }
-	      }
-	    os << ']';
-	    if (++entityIt != db._entities.end())
-	      os << std::endl;
-	    else
-	      break;
-	  }
+		  while (componentIt != it->second.end())
+		    {
+		      os << DataBase::_componentName(*componentIt) << ": (" << DataBase::_componentID(*componentIt) << ") ";
+		      for (auto & cPair : db._components[static_cast<unsigned>(DataBase::_componentType(*componentIt))])
+			if (cPair.first == DataBase::_componentID(*componentIt))
+			  {
+			    os << cPair.second;
+			    break;
+			  }
+		      if (++componentIt != it->second.end())
+			os << ", ";
+		      else
+			break;
+		    }
+		}
+	      os << ']';
+	      if (++entityIt != db._entities.end())
+		os << std::endl;
+	      else
+		break;
+	    }
+	}
+	db._mtx.unlock();
 	return os << std::flush;
       }
 
@@ -433,6 +559,8 @@ namespace	entity_component_system
       unsigned																_componentsNb;
 
       std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>>	_lastChanges;
+
+      mutable std::mutex	_mtx;
 
     private:
       template<unsigned idx, char const * _name, char const *... _names, typename... ComponentsTypes, char const *... names>
@@ -457,6 +585,7 @@ namespace	entity_component_system
       {
 	std::list<entity::RTEntity>	entities;
 
+	_mtx.lock();
 	for (auto & ePair : _entityComponentMap)
 	  for (auto & tup0 : ePair.second)
 	    if (cond(tup0))
@@ -473,6 +602,7 @@ namespace	entity_component_system
 		entities.push_back(e);
 		break;
 	      }
+	_mtx.unlock();
 	return entities;
       }
 
@@ -482,6 +612,7 @@ namespace	entity_component_system
 	std::list<entity::RTEntity>	entities;
 	bool				found;
 
+	_mtx.lock();
 	for (auto & ePair : _entityComponentMap)
 	  {
 	    found = false;
@@ -510,6 +641,7 @@ namespace	entity_component_system
 		  break;
 	      }
 	  }
+	_mtx.unlock();
 	return entities;
       }
 

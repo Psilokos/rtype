@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 16:21:24 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Mon Dec 26 19:00:38 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -14,6 +14,7 @@
 #include <vector>
 #include "Any.hpp"
 #include "ComponentTypeID.hpp"
+#include "Entity.hpp"
 #include "IAssembly.hpp"
 #include "ID.hpp"
 
@@ -41,16 +42,6 @@ namespace	entity_component_system
       //! \param [in,out] assembly the source assembly. The created entity's id is set in the assembly
       virtual void		createEntityFromAssembly(IAssembly & assembly) = 0;
 
-      //! \brief Gets the name of an entity
-      //! \param [in] id the entity's id
-      //! \return the name of the requested entity
-      virtual std::string	getEntityName(ID<ecs::Entity> const & id) const = 0;
-
-      //! \brief Sets the name of an entity
-      //! \param [in] id the entity's id
-      //! \param [in] name
-      virtual void		setEntityName(ID<ecs::Entity> const & id, std::string const & name) = 0;
-
       //! \brief Creates a component of the given type
       //! \param [in] componentTypeID the id corresponding to the component type to create
       //! \return the created component's id
@@ -70,6 +61,25 @@ namespace	entity_component_system
       //! \return the componentId passed in parameter
       virtual ID<ecs::Component>	bindComponent(ID<ecs::Entity> const & entityId, ComponentTypeID const componentTypeID,
 						      ID<ecs::Component> const & componentId, std::string const & componentName) = 0;
+
+      //! \brief Deletes a component
+      //! \param [in] entityID the ID of the entity to which belong the component to delete
+      //! \param [in] componentID the ID of the component to delete
+      virtual void	deleteComponent(ID<ecs::Entity> const & entityID, ID<ecs::Component> const & componentID) = 0;
+
+      //! \brief Deletes an entity and all its components
+      //! \param [in] entityID the ID of the entity to delete
+      virtual void	deleteEntity(ID<ecs::Entity> const & entityID) = 0;
+
+      //! \brief Gets the name of an entity
+      //! \param [in] id the entity's id
+      //! \return the name of the requested entity
+      virtual std::string	getEntityName(ID<ecs::Entity> const & id) const = 0;
+
+      //! \brief Sets the name of an entity
+      //! \param [in] id the entity's id
+      //! \param [in] name
+      virtual void		setEntityName(ID<ecs::Entity> const & id, std::string const & name) = 0;
 
       //! \brief Gets an entity from its id
       //! \param [in] id the id of the entity to retrieve
