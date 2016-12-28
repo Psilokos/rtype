@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Thu Dec 15 23:10:02 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 17 16:58:29 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 28 03:14:37 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -30,6 +30,8 @@ namespace	entity_component_system
     ID(ID<Entity> const &) = default;
     ID(ID<Entity> &&) = default;
     ~ID(void) = default;
+
+    operator unsigned(void) const { return _id; }
 
     ID<Entity> &	operator=(ID<Entity> const &) = default;
     ID<Entity> &	operator=(ID<Entity> &&) = default;
@@ -57,6 +59,8 @@ namespace	entity_component_system
     ID(ID<Component> const &) = default;
     ID(ID<Component> &&) = default;
     ~ID(void) = default;
+
+    operator unsigned(void) const { return _id; }
 
     ID<Component> &	operator=(ID<Component> const &) = default;
     ID<Component> &	operator=(ID<Component> &&) = default;

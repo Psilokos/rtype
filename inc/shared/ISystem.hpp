@@ -1,24 +1,27 @@
-/*
-** ISystem.hpp for rtype in /home/phantomas/Project/Tek3/Advanced_CPP/rtype/inc/shared
-**
-** Made by Gabriel CADET
-** Login   <gabriel.cadet@epitech.eu>
-**
-** Started on  Wed Dec 07 19:37:59 2016 Gabriel CADET
-** Last update Mon Dec 26 18:43:29 2016 Gabriel CADET
-*/
+//
+// ISystem.hpp for R-Type in /home/lecouv_v/rendu/rtype
+//
+// Made by Victorien LE COUVIOUR--TUFFET
+// Login   <lecouv_v@epitech.eu>
+//
+// Started on  Tue Dec 27 11:21:10 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 27 19:28:06 2016 Victorien LE COUVIOUR--TUFFET
+//
 
-#ifndef ISYSTEM_HPP_
-#define ISYSTEM_HPP_
+#pragma once
 
 #include "IDataBase.hpp"
 
-namespace ecs::system {
-  class ISystem {
+namespace	entity_component_system
+{
+  namespace	system
+  {
+    class	ISystem
+    {
     public:
-      virtual ~ISystem() {}
+      virtual ~ISystem(void) = default;
 
-      virtual void	update(ecs::database::IDataBase &) = 0;
-  };
-} // namespace ecs::system
-#endif /* !ISYSTEM_HPP_ */
+      virtual void	update(database::IDataBase & db) = 0;
+    };
+  }
+}

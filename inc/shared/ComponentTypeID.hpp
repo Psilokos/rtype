@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 21:20:25 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 15:54:33 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 27 22:14:09 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -19,10 +19,13 @@ namespace	entity_component_system
       {
 	BasicIdEntity,
 	BasicUnsignedShort,
+	BasicUInt32,
 	Vector2Int,
 	Vector2Unsigned,
 	TestUnsigned,
 	TestString,
+	BufferUInt8,
+	DynAllocBufferUInt8,
 	ComponentTypesNb
       };
   }

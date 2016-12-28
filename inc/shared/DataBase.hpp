@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 19:06:27 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 27 23:10:15 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -267,6 +267,27 @@ namespace	entity_component_system
 	    }
 	}
 	_mtx.unlock();
+	return Any();
+      }
+
+      //! \brief Gets an entity from its name
+      //! \param [in] name the name of the entity to retrieve
+      //! \return an Any instance constainer an entity::RTEntity if found, nothing otherwise
+      virtual Any
+      getEntity(std::string const & name) const
+      {
+	std::pair<bool, ID<ecs::Entity>>	searchRes;
+
+	if (name == "unknownEntity")
+	  return Any();
+	_mtx.lock();
+	searchRes.first = false;
+	for (auto & pair : _entities)
+	  if (pair.second == name)
+	    searchRes = {true, pair.first};
+	_mtx.unlock();
+	if (searchRes.first)
+	  return this->getEntity(searchRes.second);
 	return Any();
       }
 

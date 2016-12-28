@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:44:29 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 19:00:38 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 27 17:02:02 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -85,6 +85,11 @@ namespace	entity_component_system
       //! \param [in] id the id of the entity to retrieve
       //! \return an Any instance containing an entity::RTEntity if found, nothing otherwise
       virtual Any				getEntity(ID<ecs::Entity> const & id) const = 0;
+
+      //! \brief Gets an entity from its name
+      //! \param [in] name the name of the entity to retrieve
+      //! \return an Any instance containing an entity::RTEntity if found, nothing otherwise
+      virtual Any				getEntity(std::string const & name) const = 0;
 
       //! \brief Gets a component from its id
       //! \param [in] id the id of the component to retrieve

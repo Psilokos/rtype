@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Dec 19 02:53:26 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 22 21:48:42 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Wed Dec 28 02:56:56 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -13,6 +13,9 @@
 #include "AllComponents.hpp"
 #include "ID.hpp"
 
+// les elements marquer par 'uc' sont utiliser dans ce use case
+
+// pour eviter les cross includes
 namespace	entity_component_system
 {
   namespace	entity
@@ -27,8 +30,8 @@ namespace	entity_component_system
   }
 }
 
+// differents noms de components
 constexpr char	pos[] = "pos";
-constexpr char	size[] = "size";
 constexpr char	dir[] = "dir";
 
 constexpr char	physicObjID[] = "physicObjID";
@@ -37,6 +40,11 @@ constexpr char	health[] = "health";
 constexpr char	test0[] = "test0";
 constexpr char	test1[] = "test1";
 
+constexpr char	key[] = "key"; // uc
+constexpr char	count[] = "count"; // uc
+constexpr char	result[] = "result"; // uc
+
+// definitions de types d'entity
 namespace	entity_component_system
 {
   namespace	entity
@@ -49,10 +57,13 @@ namespace	entity_component_system
 
     template<typename T>
     using Test2 = CTEntity<ct::TypesWrapper<ecs::component::Test<T>, ecs::component::Test<T>>, ::test0, ::test1>;
+
+    typedef CTEntity<ct::TypesWrapper<component::DynAllocBuffer<std::uint8_t>, component::Buffer<std::uint8_t>, component::DynAllocBuffer<std::uint8_t>>, ::key, ::count, ::result>	HMAC; // uc
+    typedef CTEntity<ct::TypesWrapper<component::Basic<std::uint32_t>>, ::result>													TOTP; // uc
   }
 
   namespace	database
   {
-    typedef ct::TypesWrapper<entity::PhysicObject, entity::Player, entity::Test<std::string>>		Assemblies;
+    typedef ct::TypesWrapper<entity::PhysicObject, entity::Player, entity::Test<std::string>, entity::HMAC, entity::TOTP>		Assemblies; // uc
   }
 }
