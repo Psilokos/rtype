@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Wed Dec  7 17:12:15 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Mon Dec 26 15:53:29 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Tue Dec 27 16:53:19 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -48,6 +48,14 @@ namespace	entity_component_system
       //! \brief Constructor initializing the id
       //! \param [in] id the ID of the component in database
       Component(ID<ecs::Component> const & id) : _id(id) {}
+
+      // //! \brief Constructor initializing the attributes by copy
+      // //! \param [in] values values to initialize attributes
+      // Component(Types const &... values) : _values(values...) {}
+
+      // //! \brief Constructor initializing the attributes by move
+      // //! \param [in] values values to initialize attributes
+      // Component(Types&&... values) : _values(std::forward<Types>(values)...) {}
 
       //! \brief Constructor initializing the attributes by copy
       //! \param [in] id the ID of the component in database

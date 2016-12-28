@@ -5,7 +5,7 @@
 ## Login   <lecouv_v@epitech.eu>
 ##
 ## Started on  Mon Nov 28 15:36:12 2016 Victorien LE COUVIOUR--TUFFET
-## Last update Mon Dec 26 17:13:43 2016 Victorien LE COUVIOUR--TUFFET
+## Last update Wed Dec 28 01:13:41 2016 Victorien LE COUVIOUR--TUFFET
 ##
 
 NAME_SERVER		= rtype-srv
@@ -13,7 +13,7 @@ NAME_CLIENT		= rtype-cli.exe
 
 CXXFLAGS		+= -W -Wall -Werror -Wextra
 CXXFLAGS		+= -I $(DIR_INC_SHARED) $(DEBUG)
-LDFLAGS			= -lpthread -lgtest -Wl,-rpath='$$ORIGIN/$(DIR_LIB)'
+LDFLAGS			= -lpthread -lcrypto -lgtest -Wl,-rpath='$$ORIGIN/$(DIR_LIB)'
 LDFLAGS_SERVER		=
 LDFLAGS_CLIENT		=
 
@@ -30,14 +30,18 @@ DIR_SRC_CLIENT		= $(DIR_SRC)client/
 DIR_SRC_SHARED_SERVER	= $(DIR_SRC)shared_server/
 DIR_SRC_SHARED_CLIENT	= $(DIR_SRC)shared_client/
 
-SRCS_SERVER		= main.cpp
+SRCS_SERVER		= mainSysTest.cpp
 
 SRCS_CLIENT		=
 
-SRCS_SHARED_SERVER	= $(DIR_SRC_SHARED_SERVER)DataBaseEntity.cpp		\
+SRCS_SHARED_SERVER	= $(DIR_SRC_SHARED_SERVER)App.cpp			\
+			  $(DIR_SRC_SHARED_SERVER)DataBaseEntity.cpp		\
 			  $(DIR_SRC_SHARED_SERVER)IdentifierFound.cpp		\
 			  $(DIR_SRC_SHARED_SERVER)IdentifierNotFound.cpp	\
-			  $(DIR_SRC_SHARED_SERVER)RTEntity.cpp
+			  $(DIR_SRC_SHARED_SERVER)RTEntity.cpp			\
+			  $(DIR_SRC_SHARED_SERVER)HMacGenerator.cpp		\
+			  $(DIR_SRC_SHARED_SERVER)Printer.cpp			\
+			  $(DIR_SRC_SHARED_SERVER)TOTPGenerator.cpp
 
 SRCS_SHARED_CLIENT	=
 
