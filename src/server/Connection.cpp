@@ -5,14 +5,14 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 17:48:36 2016 Gabriel CADET
-** Last update Tue Dec 13 14:28:27 2016 Gabriel CADET
+** Last update Thu Dec 29 19:14:31 2016 Gabriel CADET
 */
 
 #include <iostream>
 
 #include "Connection.hpp"
 
-namespace ecs::system {
+namespace entity_component_system::system {
   Connection::Connection()
     : _sock(new network::UdpSocket())
   {
@@ -73,30 +73,34 @@ namespace ecs::system {
   }
 
   int			Connection::req001Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
-    unsigned int	eid;
     char		*respRaw;
     request		*resp;
+    ecs::component::ConInfo	cmp;
+    std::string			username;
 
-    if (not db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } }).empty())
+    cmp.setAttr<::ip>(ip);
+    cmp.setAttr<::port>(port);
+
+    if (not db.getAllEntitiesWithComponentEqualTo(database::ComponentTypeID::ConInfo, cmp).empty())
       return 0;
 
-    ecs::database::Component	*ConInfo = new ecs::database::Component({ "ip", "port" });
-    ecs::database::Component	*UserName = new ecs::database::Component({ "username" });
+    username.insert(0, req->data, req->sz - 1);
+    std::cout << username << std::endl;
 
-    eid = db.addEntity();
+    ecs::entity::User	newUsr;
 
-    ConInfo->setAttr<std::string>("ip", ip);
-    ConInfo->setAttr<std::string>("port", port);
-    UserName->setAttr<std::string>("username", req->data);
+    newUsr.getComponent<::ConInfo>().setAttr<::ip>(ip);
+    newUsr.getComponent<::ConInfo>().setAttr<::port>(port);
+    newUsr.getComponent<::UserInfo>().setAttr<::value>(username);
 
-    db.bindComponent("ConInfo", ConInfo, eid);
-    db.bindComponent("UserName", UserName, eid);
+    db.createEntityFromAssembly(newUsr);
 
     respRaw = new char[reqHeadSize + sizeof(unsigned int)];
+
     resp = reinterpret_cast<request *>(respRaw);
     resp->rc = 2;
     resp->sz = sizeof(unsigned int);
-    *reinterpret_cast<unsigned int *>(resp->data) = eid;
+    *reinterpret_cast<unsigned int *>(resp->data) = newUsr.getID();
     _respQueue.push({ip, port, reqHeadSize + resp->sz, respRaw});
 
     return 0;
@@ -106,12 +110,16 @@ namespace ecs::system {
     int		eid;
     char	*respRaw;
     request	*resp;
-    std::vector<ecs::database::Entity *>	info;
+    std::list<ecs::entity::RTEntity>	info;
+    ecs::component::ConInfo	cmp;
 
-    if ((info = db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } })).empty())
+    cmp.setAttr<::ip>(ip);
+    cmp.setAttr<::port>(port);
+
+    if ((info = db.getAllEntitiesWithComponentEqualTo(database::ComponentTypeID::ConInfo, cmp)).empty())
       return 0;
-    for (auto ent : info)
-      db.removeEntity(ent->getId());
+    for (auto &ent : info)
+      db.deleteEntity(ent.getID());
     forwardRequest(db, req, ip, port);
     respRaw = new char[reqHeadSize];
     resp = reinterpret_cast<request *>(respRaw);
@@ -125,9 +133,13 @@ namespace ecs::system {
     int		eid;
     char	*respRaw;
     request	*resp;
-    std::vector<ecs::database::Entity *>	info;
+    std::list<ecs::entity::RTEntity>	info;
+    ecs::component::ConInfo	cmp;
 
-    if ((info = db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } })).empty())
+    cmp.setAttr<::ip>(ip);
+    cmp.setAttr<::port>(port);
+
+    if ((info = db.getAllEntitiesWithComponentEqualTo(database::ComponentTypeID::ConInfo, cmp)).empty())
       return 0;
 
     respRaw = new char[reqHeadSize];
@@ -142,9 +154,13 @@ namespace ecs::system {
     int		eid;
     char	*respRaw;
     request	*resp;
-    std::vector<ecs::database::Entity *>	info;
+    std::list<ecs::entity::RTEntity>	info;
+    ecs::component::ConInfo	cmp;
 
-    if (db.getEntitiesWithComponentsValue<std::string>("ConInfo", { { "ip", ip }, { "port", port } }).empty())
+    cmp.setAttr<::ip>(ip);
+    cmp.setAttr<::port>(port);
+
+    if ((info = db.getAllEntitiesWithComponentEqualTo(database::ComponentTypeID::ConInfo, cmp)).empty())
       return 0;
     //info = getRoomInfo;
     if (info.empty()) {

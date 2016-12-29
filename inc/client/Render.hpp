@@ -16,65 +16,71 @@
 
 #include "ISystem.hpp"
 
-class Render : public ISystem
-{
-public:
-    Render();
-    ~Render();
-    int   LoadEntity();
-    int   SetScene();
-    int   SetSound();
-    int   SetServer();
-    int   SetSceneLogin();
-    int   SetSceneRoom();
-    int   SetSceneGameOver();
-    int   GetUsername();
-    int   SelectServer();
-    int   SelectRoom();
-    int   SelectGameOver();
-    int   update(ecs::database::IDataBase &db);
-public:
+namespace ecs = entity_component_system;
+
+namespace entity_component_system {
+  namespace system {
+    class Render : public ISystem
+    {
+      public:
+        Render();
+        ~Render();
+        int   LoadEntity();
+        int   SetScene();
+        int   SetSound();
+        int   SetServer();
+        int   SetSceneLogin();
+        int   SetSceneRoom();
+        int   SetSceneGameOver();
+        int   GetUsername();
+        int   SelectServer();
+        int   SelectRoom();
+        int   SelectGameOver();
+        void   update(ecs::database::IDataBase &db);
+      public:
 
 
-//LoadEntity
-    sf::SoundBuffer               _sound_buff;
-    sf::Font                      _font;
-    sf::Texture                   _background;
-    sf::Texture                   _backgroundRoom;
-    sf::Texture                   _backgroundGame;
-    sf::Texture                   _backgroundGameOver;
-    sf::Texture                   _login;
-    sf::Texture                   _loginRoom;
+        //LoadEntity
+        sf::SoundBuffer               _sound_buff;
+        sf::Font                      _font;
+        sf::Texture                   _background;
+        sf::Texture                   _backgroundRoom;
+        sf::Texture                   _backgroundGame;
+        sf::Texture                   _backgroundGameOver;
+        sf::Texture                   _login;
+        sf::Texture                   _loginRoom;
 
-//SetEntity
+        //SetEntity
 
-    //Sound
-    sf::Sound                     _sound;
+        //Sound
+        sf::Sound                     _sound;
 
-    //SceneLogin
-    sf::Sprite                    _Background;
-    sf::RectangleShape            _TexteZone;
-    std::string                   _username;
-    sf::Text                      _aff_username;
-    sf::Text                      _aff_server1;
+        //SceneLogin
+        sf::Sprite                    _Background;
+        sf::RectangleShape            _TexteZone;
+        std::string                   _username;
+        sf::Text                      _aff_username;
+        sf::Text                      _aff_server1;
 
-    //SceneRoom
-    sf::Sprite                    _BackgroundRoom;
-    sf::RectangleShape            _TexteZoneRoom;
-    sf::Text                      _aff_Room;
+        //SceneRoom
+        sf::Sprite                    _BackgroundRoom;
+        sf::RectangleShape            _TexteZoneRoom;
+        sf::Text                      _aff_Room;
 
-    //SceneGame
-    sf::Sprite                    _BackgroundGame;
+        //SceneGame
+        sf::Sprite                    _BackgroundGame;
 
-    //SceneGameOver
-    sf::Sprite                    _BackgroundGameOver;
-    sf::Text                      _aff_continue;
-    sf::Text                      _aff_yes;
-    sf::Text                      _aff_no;
+        //SceneGameOver
+        sf::Sprite                    _BackgroundGameOver;
+        sf::Text                      _aff_continue;
+        sf::Text                      _aff_yes;
+        sf::Text                      _aff_no;
 
-//Render
-    sf::Event                     _event;
-};
+        //Render
+        sf::Event                     _event;
+    };
+  }
+}
 
 
 #endif /* ! RENDER_HPP_*/

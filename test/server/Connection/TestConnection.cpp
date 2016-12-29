@@ -26,8 +26,7 @@ void	sendLoop(network::UdpSocket &cli, void *data, int size) {
 
 TEST_F(TestConnection, SimpleConnection) {
   std::thread				Connection(CoLoop, std::ref(*_db), 1);
-  std::vector<ecs::database::Entity *>	ents;
-  ecs::database::Component		*cmp;
+  std::list<ecs::entity::RTEntity>	ents;
   char					*rawReq;
   network::UdpSocket			cli;
 
@@ -41,18 +40,16 @@ TEST_F(TestConnection, SimpleConnection) {
   Connection.join();
   send.join();
   delete[] rawReq;
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   ASSERT_EQ(1, ents.size());
-  for (auto ent : ents) {
-    cmp = ent->getComponent("ConInfo");
-    EXPECT_EQ("127.0.0.1", cmp->getAttr<std::string>("ip"));
+  for (auto &ent : ents) {
+    EXPECT_EQ("127.0.0.1", ent.getComponent<ecs::component::ConInfo>("ConInfo").getAttr<::ip>());
   }
 }
 
 TEST_F(TestConnection, TwoClients) {
   std::thread				Connection(CoLoop, std::ref(*_db), 2);
-  std::vector<ecs::database::Entity *>	ents;
-  ecs::database::Component		*cmp;
+  std::list<ecs::entity::RTEntity>	ents;
   network::UdpSocket			clis1;
   network::UdpSocket			clis2;
   char					*rawReq;
@@ -68,17 +65,16 @@ TEST_F(TestConnection, TwoClients) {
   Connection.join();
   cli1.join();
   cli2.join();
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   ASSERT_EQ(2, ents.size());
-  for (auto ent : ents) {
-    cmp = ent->getComponent("ConInfo");
-    EXPECT_EQ("127.0.0.1", cmp->getAttr<std::string>("ip"));
+  for (auto &ent : ents) {
+    EXPECT_EQ("127.0.0.1", ent.getComponent<ecs::component::ConInfo>("ConInfo").getAttr<::ip>());
   }
 }
 
 TEST_F(TestConnection, BadRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 1);
-  std::vector<ecs::database::Entity *>	ents;
+  std::list<ecs::entity::RTEntity>	ents;
   ecs::database::Component		*cmp;
   char					*rawReq;
   network::UdpSocket			cli;
@@ -93,13 +89,13 @@ TEST_F(TestConnection, BadRequest) {
   Connection.join();
   send.join();
   delete[] rawReq;
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   ASSERT_EQ(0, ents.size());
 }
 
 TEST_F(TestConnection, UnconnectedRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 1);
-  std::vector<ecs::database::Entity *>	ents;
+  std::list<ecs::entity::RTEntity>	ents;
   ecs::database::Component		*cmp;
   char					*rawReq;
   network::UdpSocket			cli;
@@ -114,13 +110,13 @@ TEST_F(TestConnection, UnconnectedRequest) {
   Connection.join();
   send.join();
   delete[] rawReq;
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   ASSERT_EQ(0, ents.size());
 }
 
 TEST_F(TestConnection, LoginRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 2);
-  std::vector<ecs::database::Entity *>	ents;
+  std::list<ecs::entity::RTEntity>	ents;
   ecs::database::Component		*cmp;
   char					*rawReq;
   char					resp[512];
@@ -142,17 +138,17 @@ TEST_F(TestConnection, LoginRequest) {
   Connection.join();
 
   delete[] rawReq;
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   EXPECT_EQ("127.0.0.1", ip);
   EXPECT_EQ("4242", port);
   ASSERT_EQ(1, ents.size());
-  ASSERT_EQ(*(int *)((ecs::system::BaseNet::request *)resp)->data, ents[0]->getId());
-  EXPECT_EQ("Helloworld", ents[0]->getComponent("UserName")->getAttr<std::string>("username"));
+  ASSERT_EQ(*(int *)((ecs::system::BaseNet::request *)resp)->data, ents.front().getID());
+  EXPECT_EQ("Helloworld", ents.front().getComponent<ecs::component::UserInfo>("UserInfo").getAttr<::value>());
 }
 
 TEST_F(TestConnection, DisconnectRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 2);
-  std::vector<ecs::database::Entity *>	ents;
+  std::list<ecs::entity::RTEntity>	ents;
   ecs::database::Component		*cmp;
   char					*rawReq;
   network::UdpSocket			cli;
@@ -171,7 +167,7 @@ TEST_F(TestConnection, DisconnectRequest) {
 
   usleep(1000);
   delete[] rawReq;
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   ASSERT_EQ(1, ents.size());
 
   rawReq = new char[3];
@@ -184,7 +180,7 @@ TEST_F(TestConnection, DisconnectRequest) {
 
   usleep(1000);
   delete[] rawReq;
-  ents = _db->getEntitiesWithComponents("ConInfo");
+  ents = _db->getAllEntitiesWithComponent("ConInfo");
   ASSERT_EQ(0, ents.size());
 
   Connection.join();

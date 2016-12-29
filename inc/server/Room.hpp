@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 14 16:33:31 2016 Gabriel CADET
-** Last update Thu Dec 15 19:16:18 2016 Gabriel CADET
+** Last update Thu Dec 29 17:27:41 2016 Gabriel CADET
 */
 
 #ifndef ROOM_HPP_
@@ -15,9 +15,9 @@
 
 #include "ISystem.hpp"
 
-#include "MockDb.hpp"
+#include "IDataBase.hpp"
 
-namespace ecs::system {
+namespace entity_component_system::system {
   /**
   ** \brief Room system.
   **
@@ -69,8 +69,8 @@ namespace ecs::system {
       void	update(ecs::database::IDataBase &db);
 
     private:
-      void	manageRoomEntities(ecs::database::IDataBase &db, std::vector<ecs::database::Entity *> &ents) const;
-      ecs::database::Entity *	addRoomEntity(ecs::database::IDataBase &db) const;
+      void	manageRoomEntities(ecs::database::IDataBase &db, std::list<ecs::entity::RTEntity> &ents) const;
+      ecs::entity::RTEntity	&addRoomEntity(ecs::database::IDataBase &db) const;
 
     private:
       unsigned int	_minRoom;

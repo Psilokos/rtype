@@ -5,18 +5,19 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Dec 12 16:24:00 2016 Gabriel CADET
-** Last update Mon Dec 12 17:17:40 2016 Gabriel CADET
+** Last update Thu Dec 29 18:40:07 2016 Gabriel CADET
 */
 
 #ifndef TESTCONNECTION_HPP_
 #define TESTCONNECTION_HPP_
 
-#include "MockDb.hpp"
+#include "IDataBase.hpp"
+#include "DataBase.hpp"
 
 class TestConnection : public ::testing::Test {
   protected:
     virtual void SetUp() {
-      _db = new ecs::database::IDataBase;
+      _db = new ecs::database::DataBase<RTypeComponents>();
     }
 
     virtual void TearDown() {

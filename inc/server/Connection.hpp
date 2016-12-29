@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Mon Dec 26 18:13:52 2016 Gabriel CADET
+** Last update Thu Dec 29 17:58:50 2016 Gabriel CADET
 */
 
 #ifndef CONNECTION_HPP_
@@ -22,9 +22,9 @@
 #include "ASocket.hpp"
 #include "Socket.hpp"
 
-#include "MockDb.hpp"
+#include "IDataBase.hpp"
 
-namespace ecs::system {
+namespace entity_component_system::system {
   /**
   ** \brief Connection system. Welcome new client and redirect these into the rooms.
   **

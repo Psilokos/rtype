@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 19:35:32 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec 28 03:01:39 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 29 17:48:45 2016 Gabriel CADET
 //
 
 #pragma once
@@ -31,6 +31,16 @@ constexpr char	y[] = "y";
 constexpr char	data[] = "data"; // uc
 constexpr char	size[] = "size"; // uc
 
+/* RoomInfo component attr */
+constexpr char	slots[] = "slots";
+constexpr char	clients[] = "clients";
+constexpr char	spectate[] = "spectate";
+constexpr char	gamestate[] = "gamestate";
+
+/* ConInfo component addt */
+constexpr char	ip[] = "ip";
+constexpr char	port[] = "port";
+
 // definitions de types de components
 namespace	entity_component_system
 {
@@ -50,6 +60,11 @@ namespace	entity_component_system
 
     template<typename T>
     using DynAllocBuffer = Component<ct::TypesWrapper<std::shared_ptr<typename std::decay<T>::type>, std::uint32_t>, ::data, ::size>; // uc
+
+    typedef ecs::component::Component<ct::TypesWrapper<char, char, bool, int>, ::slots, ::clients, ::spectate, ::gamestate> RoomInfo;
+
+    typedef ecs::component::Component<ct::TypesWrapper<std::string, std::string>, ::ip, ::port> ConInfo;
+    typedef ecs::component::Basic<std::string>	UserInfo;
   }
 }
 
@@ -62,4 +77,7 @@ typedef ecs::database::ComponentTypes<ecs::database::ComponentTypePair<ecs::data
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::TestUnsigned,		ecs::component::Test<unsigned>>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::TestString,		ecs::component::Test<std::string>>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::BufferUInt8,		ecs::component::Buffer<std::uint8_t>>,
+				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::RoomInfo,		ecs::component::RoomInfo>,
+				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::ConInfo,			ecs::component::ConInfo>,
+				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::UserInfo,		ecs::component::UserInfo>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::DynAllocBufferUInt8,	ecs::component::DynAllocBuffer<std::uint8_t>>>		RTypeComponents; // uc

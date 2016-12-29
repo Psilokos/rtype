@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Dec 19 02:53:26 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Wed Dec 28 02:56:56 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Thu Dec 29 17:59:45 2016 Gabriel CADET
 //
 
 #pragma once
@@ -44,6 +44,10 @@ constexpr char	key[] = "key"; // uc
 constexpr char	count[] = "count"; // uc
 constexpr char	result[] = "result"; // uc
 
+constexpr char	RoomInfo[] = "RoomInfo";
+constexpr char	ConInfo[] = "ConInfo";
+constexpr char	UserInfo[] = "UserInfo";
+
 // definitions de types d'entity
 namespace	entity_component_system
 {
@@ -60,10 +64,14 @@ namespace	entity_component_system
 
     typedef CTEntity<ct::TypesWrapper<component::DynAllocBuffer<std::uint8_t>, component::Buffer<std::uint8_t>, component::DynAllocBuffer<std::uint8_t>>, ::key, ::count, ::result>	HMAC; // uc
     typedef CTEntity<ct::TypesWrapper<component::Basic<std::uint32_t>>, ::result>													TOTP; // uc
+
+    typedef CTEntity<ct::TypesWrapper<component::RoomInfo>, ::RoomInfo> Room;
+
+    typedef CTEntity<ct::TypesWrapper<component::UserInfo, component::ConInfo>, ::UserInfo, ::ConInfo> User;
   }
 
   namespace	database
   {
-    typedef ct::TypesWrapper<entity::PhysicObject, entity::Player, entity::Test<std::string>, entity::HMAC, entity::TOTP>		Assemblies; // uc
+    typedef ct::TypesWrapper<entity::PhysicObject, entity::Player, entity::Test<std::string>, entity::HMAC, entity::TOTP, entity::Room, entity::User>		Assemblies; // uc
   }
 }

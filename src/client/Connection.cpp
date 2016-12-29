@@ -5,14 +5,14 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 17:48:36 2016 Gabriel CADET
-** Last update Fri Dec 23 14:43:39 2016 Gabriel CADET
+** Last update Tue Dec 27 18:46:23 2016 Gabriel CADET
 */
 
 #include <iostream>
 
 #include "CliConnection.hpp"
 
-namespace ecs::system {
+namespace entity_component_system::system {
   Connection::Connection(network::UdpSocket *sock)
     : _sock(sock), _cliId(-1), _eid(-1), _roomId(-1), _getRoomInfo(true)
   {
@@ -85,11 +85,11 @@ namespace ecs::system {
   }
 
   bool		Connection::getCliId(ecs::database::IDataBase &db) {
-    std::vector<ecs::database::Entity *>	ents;
+    std::list<ecs::entity::RTEntity>	ents;
 
-    ents = db.getEntitiesWithComponents("User");
+    ents = db.getAllEntitiesWithComponent("User");
     if (ents.size() == 1) {
-      _cliId = ents[0]->getId();
+      _cliId = ents.front().getID();
       return true;
     }
     return false;

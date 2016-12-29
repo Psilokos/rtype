@@ -5,38 +5,36 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 14 16:34:13 2016 Gabriel CADET
-** Last update Thu Dec 15 19:23:47 2016 Gabriel CADET
+** Last update Thu Dec 29 17:44:00 2016 Gabriel CADET
 */
 
 #include "Room.hpp"
 
-namespace ecs::system {
+namespace entity_component_system::system {
   Room::Room(unsigned int minRoom, unsigned char slots, bool spect, int maxRoom)
   : _minRoom(minRoom), _slots(slots), _spect(spect), _maxRoom(maxRoom)
   {}
 
   void						Room::update(ecs::database::IDataBase &db) {
-    std::vector<ecs::database::Entity *>	ents;
+    std::list<ecs::entity::RTEntity>	ents;
 
     manageRoomEntities(db, ents);
   }
 
-  ecs::database::Entity		*Room::addRoomEntity(ecs::database::IDataBase &db) const {
-    int				eid;
-    ecs::database::Component	*RoomInfo = new ecs::database::Component({ "Id", "Slots", "Clients", "Spect", "GameState" });
+  ecs::entity::RTEntity		&Room::addRoomEntity(ecs::database::IDataBase &db) const {
+    ecs::entity::Room	room;
 
-    eid = db.addEntity();
-    db.bindComponent("RoomInfo", RoomInfo, eid);
-    RoomInfo->setAttr<int>("Id", eid);
-    RoomInfo->setAttr<char>("Slots", _slots);
-    RoomInfo->setAttr<char>("Clients", 0);
-    RoomInfo->setAttr<bool>("Spect", _spect);
-    RoomInfo->setAttr<int>("GameState", 0);
-    return db.getEntityById(eid);
+    room.getComponent<::RoomInfo>().setAttr<::slots>(_slots);
+    room.getComponent<::RoomInfo>().setAttr<::clients>(0);
+    room.getComponent<::RoomInfo>().setAttr<::spectate>(_spect);
+    room.getComponent<::RoomInfo>().setAttr<::gamestate>(0);
+
+    db.createEntityFromAssembly(room);
+    return db.getEntity(room.getID()).getValueByRef<entity::RTEntity>();
   }
 
-  void				Room::manageRoomEntities(ecs::database::IDataBase &db, std::vector<ecs::database::Entity *> &ents) const {
-    ents = db.getEntitiesWithComponents("RoomInfo");
+  void		Room::manageRoomEntities(ecs::database::IDataBase &db, std::list<ecs::entity::RTEntity> &ents) const {
+    ents = db.getAllEntitiesWithComponent(ecs::database::ComponentTypeID::RoomInfo);
 
     if (ents.size() < _minRoom) {
       for (int i = ents.size(); i < _minRoom; ++i) {
@@ -45,21 +43,21 @@ namespace ecs::system {
     }
     else {
       bool	full = true;
-      for (auto ent : ents) {
-        if (ent->getComponent("RoomInfo")->getAttr<char>("Clients") < _slots) {
+      for (auto &ent : ents) {
+        if (ent.getComponent<component::RoomInfo>("RoomInfo").getAttr<::clients>() < _slots) {
           full = false;
           break ;
         }
       }
 
       if (full && ents.size() < _maxRoom) {
-        ents.push_back(addRoomEntity(db));
+        addRoomEntity(db);
       }
       else if (ents.size() > _minRoom) {
         int	nb = ents.size() - _minRoom;
 
-        std::remove_if(ents.begin(), ents.end(), [this, &nb](ecs::database::Entity *ent)-> bool {
-            if (nb > this->_minRoom && ent->getComponent("Clients")->getAttr<char>("Clients") == 0) {
+        std::remove_if(ents.begin(), ents.end(), [this, &nb](ecs::entity::RTEntity &ent) -> bool {
+            if (nb > this->_minRoom && ent.getComponent<component::RoomInfo>("RoomInfo").getAttr<::clients>() == 0) {
               --nb;
               return true;
             }
