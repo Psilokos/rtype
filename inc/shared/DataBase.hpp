@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Nov 28 15:30:40 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Tue Dec 27 23:10:15 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Fri Dec 30 17:48:11 2016 Victorien LE COUVIOUR--TUFFET
 //
 
 #pragma once
@@ -98,7 +98,7 @@ namespace	entity_component_system
       createComponent(ComponentTypeID const componentTypeID)
       {
 	_mtx.lock();
-	_components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
+	_components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[componentTypeID](_componentsNb)});
 	_mtx.unlock();
 	return _componentsNb++;
       }
@@ -117,7 +117,7 @@ namespace	entity_component_system
 	      auto	it = _entityComponentMap.find(pair.first);
 
 	      it->second.push_back(typename decltype(_entityComponentMap)::mapped_type::value_type(componentTypeID, _componentsNb, componentName));
-	      _components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[static_cast<unsigned>(componentTypeID)](_componentsNb)});
+	      _components[static_cast<unsigned>(componentTypeID)].push_back({_componentsNb, _componentBuilders[componentTypeID](_componentsNb)});
 	      _mtx.unlock();
 	      return _componentsNb++;
 	    }
@@ -259,7 +259,7 @@ namespace	entity_component_system
 		for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
 		  if (pair.first == DataBase::_componentID(tup))
 		    {
-		      _componentRetrievers[static_cast<unsigned>(DataBase::_componentType(tup))](e, pair.second, DataBase::_componentName(tup));
+		      _componentRetrievers.at(DataBase::_componentType(tup))(e, pair.second, DataBase::_componentName(tup));
 		      break;
 		    }
 	      _mtx.unlock();
@@ -421,8 +421,8 @@ namespace	entity_component_system
 
 			  for (auto & componentPairDB : _components[static_cast<unsigned>(DataBase::_componentType(*componentsIt))])
 			    if (componentPairDB.first == DataBase::_componentID(*componentsIt))
-			      _componentSettersFromRTEntity[static_cast<unsigned>(DataBase::_componentType(*componentsIt))](_lastChanges, entityIt->first,
-															    componentPairDB.second, componentPair);
+			      _componentSettersFromRTEntity[DataBase::_componentType(*componentsIt)](_lastChanges, entityIt->first,
+												     componentPairDB.second, componentPair);
 			}
 		      if (found)
 			{
@@ -465,7 +465,7 @@ namespace	entity_component_system
 		for (auto & pair : _components[static_cast<unsigned>(DataBase::_componentType(tup))])
 		  if (pair.first == component.getID())
 		    {
-		      _componentSetters[static_cast<unsigned>(DataBase::_componentType(tup))](_lastChanges, entityId, pair.second, component);
+		      _componentSetters[DataBase::_componentType(tup)](_lastChanges, entityId, pair.second, component);
 		      _mtx.unlock();
 		      return;
 		    }
@@ -500,7 +500,7 @@ namespace	entity_component_system
 
 	  while (it != _lastChanges.end())
 	    {
-	      ID<ecs::Component> const	id = _componentInAnyIDGetters[static_cast<unsigned>(std::get<1>(*it))](std::get<2>(*it));
+	      ID<ecs::Component> const	id = _componentInAnyIDGetters[std::get<1>(*it)](std::get<2>(*it));
 	      auto			entityIt = _entityComponentMap.find(std::get<0>(*it));
 	      auto const		nxtIt = std::next(it);
 
@@ -564,14 +564,14 @@ namespace	entity_component_system
       }
 
     private:
-      std::vector<std::function<Component(unsigned const)>>									_componentBuilders;
-      std::vector<std::function<void(entity::RTEntity &, Component const &, std::string const &)>>				_componentRetrievers;
-      std::vector<std::function<bool(Component const &, Component const &)>>							_componentComparators;
-      std::vector<std::function<void(std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>> &, ID<ecs::Entity> const &,
-				     database::Component &, database::Component const &)>>					_componentSetters;
-      std::vector<std::function<void(std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>> &, ID<ecs::Entity> const &,
-				     database::Component &, entity::RTEntity::ConstIterator::value_type const &)>>		_componentSettersFromRTEntity;
-      std::vector<std::function<ID<ecs::Component>(Any const &)>>								_componentInAnyIDGetters;
+      std::map<ComponentTypeID, std::function<Component(unsigned const)>>									_componentBuilders;
+      std::map<ComponentTypeID, std::function<void(entity::RTEntity &, Component const &, std::string const &)>>				_componentRetrievers;
+      std::map<ComponentTypeID, std::function<bool(Component const &, Component const &)>>							_componentComparators;
+      std::map<ComponentTypeID, std::function<void(std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>> &,
+						   ID<ecs::Entity> const &, database::Component &, database::Component const &)>>		_componentSetters;
+      std::map<ComponentTypeID, std::function<void(std::list<std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>> &, ID<ecs::Entity> const &,
+						   database::Component &, entity::RTEntity::ConstIterator::value_type const &)>>		_componentSettersFromRTEntity;
+      std::map<ComponentTypeID, std::function<ID<ecs::Component>(Any const &)>>									_componentInAnyIDGetters;
 
       std::vector<std::pair<ID<ecs::Entity>, std::string>>										_entities;
       std::map<ID<ecs::Entity>, std::vector<std::tuple<ComponentTypeID, ID<ecs::Component>, std::string>>>				_entityComponentMap;
@@ -617,7 +617,7 @@ namespace	entity_component_system
 		  for (auto & cPair : _components[static_cast<unsigned>(DataBase::_componentType(tup1))])
 		    if (cPair.first == std::get<1>(tup1))
 		      {
-			_componentRetrievers[static_cast<unsigned>(DataBase::_componentType(tup1))](e, cPair.second, DataBase::_componentName(tup1));
+			_componentRetrievers.at(DataBase::_componentType(tup1))(e, cPair.second, DataBase::_componentName(tup1));
 			break;
 		      }
 		entities.push_back(e);
@@ -642,7 +642,7 @@ namespace	entity_component_system
 		if (cond(tup0))
 		  {
 		    for (auto & cPair0 : _components[static_cast<unsigned>(DataBase::_componentType(tup0))])
-		      if (cPair0.first == DataBase::_componentID(tup0) && _componentComparators[static_cast<unsigned>(DataBase::_componentType(tup0))](value, cPair0.second))
+		      if (cPair0.first == DataBase::_componentID(tup0) && _componentComparators.at(DataBase::_componentType(tup0))(value, cPair0.second))
 			{
 			  entity::RTEntity	e(ePair.first);
 
@@ -650,7 +650,7 @@ namespace	entity_component_system
 			    for (auto & cPair1 : _components[static_cast<unsigned>(DataBase::_componentType(tup1))])
 			      if (cPair1.first == std::get<1>(tup1))
 				{
-				  _componentRetrievers[static_cast<unsigned>(DataBase::_componentType(tup1))](e, cPair1.second, DataBase::_componentName(tup1));
+				  _componentRetrievers.at(DataBase::_componentType(tup1))(e, cPair1.second, DataBase::_componentName(tup1));
 				  break;
 				}
 			  entities.push_back(e);
@@ -683,9 +683,11 @@ namespace	entity_component_system
 	{
 	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
 
+	  constexpr ComponentTypeID	typeID = CTPair::typeID;
+
 	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
 	    initBuilders<idx + 1, ComponentBuilders..., typename decltype(_componentBuilders)::value_type>(std::forward<ComponentBuilders>(componentBuilders)...,
-													    [](unsigned const componentsNb){return typename CTPair::Type(componentsNb);});
+													   { typeID, [](unsigned const componentsNb){return typename CTPair::Type(componentsNb);} });
 	}
 
 	template<unsigned idx, typename... ComponentBuilders>
@@ -701,10 +703,12 @@ namespace	entity_component_system
 	{
 	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
 
+	  constexpr ComponentTypeID	typeID = CTPair::typeID;
+
 	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
 	    initRetrievers<idx + 1, ComponentRetrievers..., typename decltype(_componentRetrievers)::value_type>
 	    (std::forward<ComponentRetrievers>(componentRetrievers)...,
-	     [](entity::RTEntity & e, Component const & c, std::string const & name){e.addComponent(name, typename CTPair::Type(c));});
+	     { typeID, [](entity::RTEntity & e, Component const & c, std::string const & name){e.addComponent(name, typename CTPair::Type(c));} });
 	}
 
 	template<unsigned idx, typename... ComponentRetrievers>
@@ -720,10 +724,12 @@ namespace	entity_component_system
 	{
 	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
 
+	  constexpr ComponentTypeID	typeID = CTPair::typeID;
+
 	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
 	    initComparators<idx + 1, ComponentComparators..., typename decltype(_componentComparators)::value_type>
 	    (std::forward<ComponentComparators>(componentComparators)...,
-	     [](Component const & lhs, Component const & rhs){return typename CTPair::Type(lhs) == typename CTPair::Type(rhs);});
+	     { typeID, [](Component const & lhs, Component const & rhs){return typename CTPair::Type(lhs) == typename CTPair::Type(rhs);} });
 	}
 
 	template<unsigned idx, typename... ComponentComparators>
@@ -743,17 +749,19 @@ namespace	entity_component_system
 
 	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
 	    initSetters<idx + 1, ComponentSetters..., typename decltype(_componentSetters)::value_type>
-	    (std::forward<ComponentSetters>(componentSetters)..., [typeID](decltype(DataBase::_lastChanges) & lastChanges, ID<ecs::Entity> const & eID,
-									   database::Component & oldComponent, database::Component const & newComponent)
-	     {
-	       typename CTPair::Type const	newCTComponent = newComponent;
+	    (std::forward<ComponentSetters>(componentSetters)...,
+	     { typeID,
+		 [typeID](decltype(DataBase::_lastChanges) & lastChanges, ID<ecs::Entity> const & eID,
+			  database::Component & oldComponent, database::Component const & newComponent)
+		   {
+		     typename CTPair::Type const	newCTComponent = newComponent;
 
-	       if (typename CTPair::Type(oldComponent) != newCTComponent)
-		 {
-		   lastChanges.push_back(std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>(eID, typeID, newCTComponent));
-		   oldComponent = std::move(newCTComponent);
-		 }
-	     });
+		     if (typename CTPair::Type(oldComponent) != newCTComponent)
+		       {
+			 lastChanges.push_back(std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>(eID, typeID, newCTComponent));
+			 oldComponent = std::move(newCTComponent);
+		       }
+		   } });
 	}
 
 	template<unsigned idx, typename... ComponentSetters>
@@ -773,16 +781,19 @@ namespace	entity_component_system
 
 	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
 	    initSettersFromRTEntity<idx + 1, ComponentSetters..., typename decltype(_componentSettersFromRTEntity)::value_type>
-	    (std::forward<ComponentSetters>(componentSetters)..., [typeID](decltype(DataBase::_lastChanges) & lastChanges, ID<ecs::Entity> const & eID,
-									   database::Component & oldComponent, entity::RTEntity::ConstIterator::value_type const & newComponentPair)
-	     {
-	       typename CTPair::Type const	newComponent = newComponentPair.second->component<typename CTPair::Type>(newComponentPair.first);
+	    (std::forward<ComponentSetters>(componentSetters)...,
+	     { typeID,
+		 [typeID](decltype(DataBase::_lastChanges) & lastChanges, ID<ecs::Entity> const & eID,
+			  database::Component & oldComponent, entity::RTEntity::ConstIterator::value_type const & newComponentPair)
+		   {
+		     typename CTPair::Type const	newComponent = newComponentPair.second->component<typename CTPair::Type>(newComponentPair.first);
 
-	       if (typename CTPair::Type(oldComponent) != newComponent)
-		 {
-		   lastChanges.push_back(std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>(eID, typeID, newComponent));
-		   oldComponent = std::move(newComponent);
-		 }
+		     if (typename CTPair::Type(oldComponent) != newComponent)
+		       {
+			 lastChanges.push_back(std::tuple<ID<ecs::Entity>, ComponentTypeID, Any>(eID, typeID, newComponent));
+			 oldComponent = std::move(newComponent);
+		       }
+		   }
 	     });
 	}
 
@@ -799,10 +810,12 @@ namespace	entity_component_system
 	{
 	  typedef typename ComponentTypes::template GetComponentTypePair<idx>::Type	CTPair;
 
+	  constexpr ComponentTypeID	typeID = CTPair::typeID;
+
 	  return _InitComponentUtils<database::ComponentTypes<ComponentTypePair<componentTypesIDs, Components>...>>::template
 	    initComponentInAnyIDGetters<idx + 1, Lambda..., typename decltype(_componentInAnyIDGetters)::value_type>
 	    (std::forward<Lambda>(lambdas)...,
-	     [](Any const & component){ return component.getValue<typename CTPair::Type>().getID(); });
+	     { typeID, [](Any const & component){ return component.getValue<typename CTPair::Type>().getID(); } });
 	}
 
 	template<unsigned idx, typename... Lambda>
