@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Fri Dec 02 14:09:53 2016 Gabriel CADET
-** Last update Fri Dec 09 14:05:32 2016 Gabriel CADET
+** Last update Fri Dec 30 16:35:57 2016 Gabriel CADET
 */
 
 #ifndef UNIXSOCK_HPP_
@@ -220,6 +220,7 @@ namespace network {
     }
 
     cbuf[ret] = 0;
+    buf.assign(cbuf);
     delete[] cbuf;
 
     return ret;
@@ -333,7 +334,6 @@ namespace network {
   ASocket	*Socket<dom, type, proto>::accept(std::string const &addr, std::string const &service) {
     if (proto == IPPROTO_UDP || type == SOCK_DGRAM)
       throw ; //specify exception here please
-    t_socket	nsock;
     addrinfo	hints;
     addrinfo	*destinfo;
     int		addrlen;

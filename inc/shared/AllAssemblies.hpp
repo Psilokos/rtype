@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Mon Dec 19 02:53:26 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 29 17:59:45 2016 Gabriel CADET
+// Last update Sat Dec 31 14:59:07 2016 Gabriel CADET
 //
 
 #pragma once
@@ -47,6 +47,7 @@ constexpr char	result[] = "result"; // uc
 constexpr char	RoomInfo[] = "RoomInfo";
 constexpr char	ConInfo[] = "ConInfo";
 constexpr char	UserInfo[] = "UserInfo";
+constexpr char	ServSelected[] = "ServSelected";
 
 // definitions de types d'entity
 namespace	entity_component_system
@@ -68,6 +69,7 @@ namespace	entity_component_system
     typedef CTEntity<ct::TypesWrapper<component::RoomInfo>, ::RoomInfo> Room;
 
     typedef CTEntity<ct::TypesWrapper<component::UserInfo, component::ConInfo>, ::UserInfo, ::ConInfo> User;
+    typedef CTEntity<ct::TypesWrapper<component::ServSelected, component::ConInfo>, ::ServSelected, ::ConInfo>	Server;
   }
 
   namespace	database

@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 19:35:32 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Thu Dec 29 17:48:45 2016 Gabriel CADET
+// Last update Sat Dec 31 18:15:41 2016 Gabriel CADET
 //
 
 #pragma once
@@ -41,6 +41,8 @@ constexpr char	gamestate[] = "gamestate";
 constexpr char	ip[] = "ip";
 constexpr char	port[] = "port";
 
+constexpr char	RoomID[] = "RoomID";
+
 // definitions de types de components
 namespace	entity_component_system
 {
@@ -65,6 +67,8 @@ namespace	entity_component_system
 
     typedef ecs::component::Component<ct::TypesWrapper<std::string, std::string>, ::ip, ::port> ConInfo;
     typedef ecs::component::Basic<std::string>	UserInfo;
+    typedef ecs::component::Basic<bool>	ServSelected;
+    typedef ecs::component::Basic<ecs::ID<ecs::Entity>>	RoomID;
   }
 }
 
@@ -77,7 +81,8 @@ typedef ecs::database::ComponentTypes<ecs::database::ComponentTypePair<ecs::data
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::TestUnsigned,		ecs::component::Test<unsigned>>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::TestString,		ecs::component::Test<std::string>>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::BufferUInt8,		ecs::component::Buffer<std::uint8_t>>,
+				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::DynAllocBufferUInt8,	ecs::component::DynAllocBuffer<std::uint8_t>>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::RoomInfo,		ecs::component::RoomInfo>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::ConInfo,			ecs::component::ConInfo>,
 				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::UserInfo,		ecs::component::UserInfo>,
-				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::DynAllocBufferUInt8,	ecs::component::DynAllocBuffer<std::uint8_t>>>		RTypeComponents; // uc
+				      ecs::database::ComponentTypePair<ecs::database::ComponentTypeID::ServSelected,		ecs::component::ServSelected>>		RTypeComponents; // uc

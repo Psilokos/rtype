@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Mon Dec 19 23:42:11 2016 Gabriel CADET
-** Last update Thu Dec 29 19:02:26 2016 Gabriel CADET
+** Last update Sat Dec 31 14:26:44 2016 Gabriel CADET
 */
 
 #include "BaseNet.hpp"
@@ -13,6 +13,7 @@
 namespace entity_component_system::system {
   std::mutex	BaseNet::actionLock;
   std::list<BaseNet::pendingAction>	BaseNet::actionList;
+  std::map<ecs::ID<ecs::Entity>, ecs::ID<ecs::Entity>>	BaseNet::_relation_id;
 
   void	BaseNet::makeNetAction(BaseNet::targetSystem service, netAction act, char *data) {
     std::lock_guard<std::mutex>	lock(actionLock);
