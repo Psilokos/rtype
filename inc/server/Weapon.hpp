@@ -5,49 +5,47 @@
 // Login   <rochef_q@epitech.net>
 // 
 // Started on  Tue Dec  6 17:30:58 2016 Quentin Rochefort
-// Last update Sat Dec 10 21:46:37 2016 Quentin Rochefort
+// Last update Sat Dec 31 16:27:33 2016 Quentin Rochefort
 //
 
 #ifndef __WEAPON_HPP__
 # define __WEAPON_HPP__
 
+# include <map>
+# include "WeaponType.hpp"
+# include "Bullet.hpp"
+
 namespace	weapon
 {
-
-  enum		eWeaponType {
-    TYPE1,
-    TYPE2,
-    TYPE3
-  };
   
   class		Weapon
   {
     
   private:
 
-    unsigned	_damage;
-    unsigned	_speed;
+    unsigned	_cadence;
+    Bullet	*_bullet;
 
-    void		setAttributes(const unsigned damage, const unsigned speed);
+    void	setAttributes(const unsigned cadence) { _cadence = cadence; }
 
   public:
-    Weapon(const eWeaponType weaponType);
+    Weapon(const eWeaponType weaponType, const int idOwner);
     Weapon(const Weapon &other) {
-      _damage = other._damage;
-      _speed = other._speed;
+      _cadence = other._cadence;
+      _bullet = other._bullet;
     }
     
-    virtual ~Weapon(void) {}
+    ~Weapon(void) { delete _bullet; }
     
-    virtual unsigned	getDamage(void) const = 0;
-    virtual void	setDamage(const unsigned damage) = 0;
-
-    virtual unsigned	getSpeed(void) const = 0;
-    virtual void	setSpeed(const unsigned speed) = 0;
+    unsigned	getCadence(void) const { return _cadence; }
+    void	setCadence(const unsigned cadence) { _cadence = cadence; }
+    
+    Bullet	*getBullet(void) const { return _bullet; }
+    void	setBullet(Bullet *bullet) { delete _bullet; _bullet = bullet; }
 
     Weapon		&operator=(const Weapon &other) {
-      _damage = other._damage;
-      _speed = other._speed;
+      _cadence = other._cadence;
+      _bullet = other._bullet;
       return *this;
     }
     

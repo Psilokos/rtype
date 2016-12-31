@@ -5,7 +5,7 @@
 ## Login   <rochef_q@epitech.net>
 ## 
 ## Started on  Tue Mar  3 18:11:26 2015 quentin rochefort
-## Last update Sun Dec 11 16:40:25 2016 Quentin Rochefort
+## Last update Sat Dec 31 03:14:13 2016 Quentin Rochefort
 ##
 
 NAME	= rtype
@@ -20,7 +20,12 @@ DIR_SRCS	= src/server/
 SRCS	= $(DIR_SRCS)main.cpp	\
 	  $(DIR_SRCS)Map.cpp	\
 	  $(DIR_SRCS)Weapon.cpp	\
-	  $(DIR_SRCS)Block.cpp
+	  $(DIR_SRCS)Block.cpp	\
+	  $(DIR_SRCS)Bullet.cpp	\
+	  $(DIR_SRCS)Enemy.cpp	\
+	  $(DIR_SRCS)SinusoidalPattern.cpp	\
+	  $(DIR_SRCS)ACharacter.cpp	\
+	  $(DIR_SRCS)Player.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 

@@ -5,7 +5,7 @@
 // Login   <rochef_q@epitech.net>
 // 
 // Started on  Sat Dec 10 20:59:03 2016 Quentin Rochefort
-// Last update Sat Dec 10 21:46:40 2016 Quentin Rochefort
+// Last update Fri Dec 23 12:25:42 2016 Quentin Rochefort
 //
 
 #include "Weapon.hpp"
@@ -13,28 +13,23 @@
 namespace	weapon
 {
   
-  Weapon::Weapon(const eWeaponType weaponType)
+  Weapon::Weapon(const eWeaponType weaponType, const int idOwner)
   {
     switch (weaponType)
       {
-      case TYPE1:
-	setAttributes(100, 20);
+      case GUN:
+	setAttributes(100);
 	break;
-      case TYPE2:
-	setAttributes(80, 30);
+      case LASER:
+	setAttributes(80);
 	break;
-      case TYPE3:
-	setAttributes(60, 40);
+      case RAPIDGUN:
+	setAttributes(60);
 	break;
       default:
 	break;
       }
-  }
-
-  void	Weapon::setAttributes(const unsigned damage, const unsigned speed)
-  {
-    _damage = damage;
-    _speed = speed;
+    _bullet = new Bullet(0, weaponType, idOwner);
   }
   
 }

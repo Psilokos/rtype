@@ -5,13 +5,15 @@
 // Login   <rochef_q@epitech.net>
 // 
 // Started on  Fri Dec  2 19:10:48 2016 Quentin Rochefort
-// Last update Sat Dec 10 21:32:22 2016 Quentin Rochefort
+// Last update Sat Dec 31 16:29:04 2016 Quentin Rochefort
 //
 
 #ifndef __PLAYER_HPP__
 # define __PLAYER_HPP__
 
 # include "ACharacter.hpp"
+# include "WeaponType.hpp"
+# include "Powerup.hpp"
 
 namespace	character
 {
@@ -21,28 +23,32 @@ namespace	character
 
   public:
 
-    Player(const int id, const std::pair<unsigned, unsigned> &pos,
-	   const std::pair<unsigned, unsigned> &hitbox, weapon::Weapon *weapon,
-	   const unsigned hp = 100, const unsigned speed = 10) : ACharacter(id, pos, hitbox, weapon,
-									    hp, speed) {}
-    Player(const int id, const unsigned posX, const unsigned posY,
-	   const std::pair<unsigned, unsigned> &hitbox, weapon::Weapon *weapon,
-	   const unsigned hp = 100, const unsigned speed = 10) : ACharacter(id, posX, posY, hitbox,
-									    weapon, hp, speed) {}
-    Player(const int id, const std::pair<unsigned, unsigned> &pos,
-	   const unsigned sizeX, const unsigned sizeY, weapon::Weapon *weapon,
-	   const unsigned hp = 100, const unsigned speed = 10) : ACharacter(id, pos, sizeX, sizeY,
-									    weapon, hp, speed) {}
-    Player(const int id, const unsigned posX, const unsigned posY,
-	   const unsigned sizeX, const unsigned sizeY, weapon::Weapon *weapon,
-	   const unsigned hp = 100, const unsigned speed = 10) : ACharacter(id, posX, posY, sizeX,
-									    sizeY, weapon, hp,
-									    speed) {}
+    typedef std::map<map::ePowerupType, void (Player::*)(void)>	PowerEffect;
+    
+  private:
+
+    static PowerEffect	_takeEffect;
+
+    void	hpPlus(void);
+    void	otherWeapon(void);
+    void	otherBullet(void);
+    void	bulletPlus(void);
+    void	speedPlus(void);
+    
+  public:
+
+    Player(const int id,
+	   const std::pair<unsigned, unsigned> &pos) : ACharacter(id, pos, std::make_pair(2, 1),
+								  new weapon::Weapon(weapon::GUN, id)) {
+      _score = 0;
+      _pattern = new map::AffinePattern(std::make_pair(0, 0)); }
     Player(const Player &other) = delete;
 
     virtual ~Player(void) {}
 
-    virtual void	setWeapon(weapon::Weapon *weapon) { _weapon = weapon; }
+    virtual void	setWeapon(weapon::Weapon *weapon) { delete _weapon; _weapon = weapon; }
+
+    virtual void       	takePowerup(const map::Powerup *powerup) { _takeEffect[powerup->getEffect()]; }
     
     Player&		operator=(const Player &other) = delete;
     
