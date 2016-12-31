@@ -5,25 +5,22 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Fri Dec 23 16:04:27 2016 Gabriel CADET
-** Last update Mon Dec 26 15:19:22 2016 Gabriel CADET
+// Last update Sat Dec 31 16:55:44 2016 Victorien LE COUVIOUR--TUFFET
 */
 
 #ifndef TRANSMIT_HPP_
 #define TRANSMIT_HPP_
 
-#include <map>
-#include <queue>
 #include <list>
+#include <map>
+#include <memory>
 #include <tuple>
 #include <string>
-#include <utility>
 
+#include "AllAssemblies.hpp"
 #include "ISystem.hpp"
 #include "BaseNet.hpp"
-#include "ASocket.hpp"
 #include "Socket.hpp"
-
-#include "MockDb.hpp"
 
 namespace ecs::system {
   /**
@@ -50,36 +47,37 @@ namespace ecs::system {
   ** The comportement of the Tranmsition system, such as the request it can receive and Handle, is define by the presence or absence of a UDPSocket
   ** during it's construction.
   **/
-  class Transmition : public BaseNet {
+  class Transmit : public BaseNet {
     public:
       /**
       ** \brief Default constructor. Use when Server-side.
       */
-      Transmition();
+      Transmit();
 
       /**
       ** \brief Client-side constructor.
       **
       ** \param [in] sock UDPSocket to be used to send and receive data.
       */
-      Transmition(network::UDPSocket *sock);
+      Transmit(network::UDPSocket *sock);
 
       /**
       ** \brief Copy constructor. Deleted, as System must not be copyied.
       */
-      Transmition(Tranmsition const &oth) = delete;
+      Transmit(Transmit const &) = delete;
+      Transmit(Transmit &&) = delete;
 
       /**
       ** \brief Destructor.
       **
       ** Delete internal socket, if serverSide.
       */
-      ~Transmition();
+      virtual ~Transmit(void) = default;
 
       /**
       ** \brief Assignation operator. Deleted.
       */
-      Transmition	&operator=(Transmition const &oth) = delete;
+      Transmit	&operator=(Transmit const &oth) = delete;
 
       /**
       ** \brief Update function. System entry point.
@@ -88,28 +86,29 @@ namespace ecs::system {
       **
       ** \param [in, out] db Reference on the ECS DataBase.
       */
-      void	update(ecs::database::IDataBase &db);
+      virtual void	update(ecs::database::IDataBase & db);
 
       /*
       ** Private member methods.
       */
     private:
-      int	rcvRequest(ecs::database::IDataBase &);
+      int	_rcvRequest(ecs::database::IDataBase & db);
 
-      int	req005Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req201Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req202Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req203Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req204Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req301Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req302Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
-      int	req303Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req005Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req201Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req202Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req203Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req204Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req301Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req302Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
+      int	_req303Handle(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port);
 
     private:
       typedef std::tuple<std::string, std::string, int, char *>	message_t;
       typedef std::list<message_t>				msgQueue_t;
 
-      bool			_clientSide;
+    std::map<ID<ecs::Entity>, std::pair<std::unique_ptr<network::UDPSocket>, std::list<ID<ecs::Entity>>>>	_roomClientsMap;
+    std::map<ID<ecs::Entity>, std::list<std::pair<request, unsigned>>>						_clientComponentsMap; // map of request to send (components) | unsigned is hash
   };
 } // namespace ecs::system
 

@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Fri Dec 09 16:26:34 2016 Gabriel CADET
-** Last update Thu Dec 22 20:23:41 2016 Gabriel CADET
+// Last update Sat Dec 31 18:18:16 2016 Victorien LE COUVIOUR--TUFFET
 */
 
 #ifndef BASENET_HPP_
@@ -21,20 +21,20 @@ namespace ecs::system {
   class BaseNet : public ISystem {
     public:
       struct request {
-        unsigned char	rc;
-        unsigned short	sz;
-        char		data[0];
+	unsigned char	rc;
+	unsigned short	sz;
+	char		data[0];
       } __attribute__((__packed__));
 
       enum targetSystem {
-        CONNECTION,
-        TRANSMIT
+	CONNECTION,
+	TRANSMIT
       };
 
       enum netAction {
-        DISCONNECT,
-        CONNECT,
-        MENU
+	DISCONNECT,
+	CONNECT,
+	MENU
       };
 
       typedef std::tuple<targetSystem, netAction, char *> pendingAction;

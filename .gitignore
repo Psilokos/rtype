@@ -28,9 +28,11 @@
 *.out
 *.app
 
-# Configuration files
 .syntastic_cpp_config
 
 # Documentation files
-docs/
+docs/doxygen
 tags
+
+# Test files
+#test.cpp
