@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Fri Dec 23 16:04:27 2016 Gabriel CADET
-// Last update Sat Dec 31 16:55:44 2016 Victorien LE COUVIOUR--TUFFET
+// Last update Sat Dec 31 19:20:36 2016 Victorien LE COUVIOUR--TUFFET
 */
 
 #ifndef TRANSMIT_HPP_
@@ -108,7 +108,7 @@ namespace ecs::system {
       typedef std::list<message_t>				msgQueue_t;
 
     std::map<ID<ecs::Entity>, std::pair<std::unique_ptr<network::UDPSocket>, std::list<ID<ecs::Entity>>>>	_roomClientsMap;
-    std::map<ID<ecs::Entity>, std::list<std::pair<request, unsigned>>>						_clientComponentsMap; // map of request to send (components) | unsigned is hash
+    std::map<ID<ecs::Entity>, std::list<std::pair<std::unique_ptr<request>, unsigned>>>				_clientComponentsMap;
   };
 } // namespace ecs::system
 
