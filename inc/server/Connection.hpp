@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Thu Dec 29 17:58:50 2016 Gabriel CADET
+** Last update Sat Dec 31 16:23:42 2016 Gabriel CADET
 */
 
 #ifndef CONNECTION_HPP_
@@ -85,8 +85,7 @@ namespace entity_component_system::system {
       int	req003Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
       int	req004Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
       int	req101Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
-
-      void	forwardRequest(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
+      int	req103Handler(ecs::database::IDataBase &, request *, std::string const &, std::string const &);
 
     private:
       network::ASocket									*_sock;

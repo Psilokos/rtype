@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 14:47:41 2016 Gabriel CADET
-** Last update Tue Dec 27 17:29:00 2016 Gabriel CADET
+** Last update Sat Dec 31 14:30:39 2016 Gabriel CADET
 */
 
 #ifndef CLICONNECTION_HPP_
@@ -16,11 +16,14 @@
 #include <tuple>
 #include <string>
 #include <utility>
+#include <limits.h>
 
 #include "ISystem.hpp"
 #include "BaseNet.hpp"
 #include "ASocket.hpp"
 #include "Socket.hpp"
+
+#include "IDataBase.hpp"
 
 namespace entity_component_system {
   namespace system {
@@ -73,7 +76,7 @@ namespace entity_component_system {
          ** \param [in, out] db reference on the ECS DataBase. Information are read and stored here.
          ** Permit inter system communications.
          */
-        void	update(ecs::database::IDataBase &);
+        void	update(ecs::database::IDataBase &db);
 
         /*
          ** Private member methods
@@ -103,9 +106,9 @@ namespace entity_component_system {
 
         typedef decltype(_reqHandler.begin()) reqIter;
 
-        int	_cliId;
-        int	_eid;
-        int	_roomId;
+        ecs::ID<ecs::Entity>	_cliId;
+        ecs::ID<ecs::Entity>	_eid;
+        ecs::ID<ecs::Entity>	_roomId;
 
         bool	_getRoomInfo;
 

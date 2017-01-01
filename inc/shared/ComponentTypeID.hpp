@@ -5,7 +5,7 @@
 // Login   <lecouv_v@epitech.eu>
 //
 // Started on  Sat Dec 17 21:20:25 2016 Victorien LE COUVIOUR--TUFFET
-// Last update Sat Dec 31 14:53:20 2016 Gabriel CADET
+// Last update Sat Dec 31 18:39:29 2016 Gabriel CADET
 //
 
 #pragma once
@@ -29,6 +29,7 @@ namespace	entity_component_system
         RoomInfo,
         ConInfo,
         UserInfo,
+        RoomID,
         ServSelected,
 	ComponentTypesNb
       };

@@ -5,7 +5,7 @@
 ** Login   <gabriel.cadet@epitech.eu>
 **
 ** Started on  Wed Dec 07 17:48:36 2016 Gabriel CADET
-** Last update Tue Dec 27 18:46:23 2016 Gabriel CADET
+** Last update Sat Dec 31 20:00:38 2016 Gabriel CADET
 */
 
 #include <iostream>
@@ -14,7 +14,7 @@
 
 namespace entity_component_system::system {
   Connection::Connection(network::UdpSocket *sock)
-    : _sock(sock), _cliId(-1), _eid(-1), _roomId(-1), _getRoomInfo(true)
+    : _sock(sock), _cliId(UINT_MAX), _eid(UINT_MAX), _roomId(UINT_MAX), _getRoomInfo(true)
   {
     int	ret;
 
@@ -30,11 +30,14 @@ namespace entity_component_system::system {
     char	*buf;
     timeval	timeout;
 
-    if (_cliId == -1)
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+
+    if (UINT_MAX == _cliId)
       if (getCliId(db) == false)
         return ;
 
-    if (_eid == -1)
+    if (UINT_MAX == _eid)
       addConnectionRequest(db);
     else if (_getRoomInfo)
       addRoomInfoRequest(db);
@@ -58,7 +61,7 @@ namespace entity_component_system::system {
       }
     }
 
-    if (-1 == (selRet = network::ASocket::select(std::list<network::ASocket *>({_sock}), std::list<network::ASocket *>(), std::list<network::ASocket *>(), NULL)))
+    if (-1 == (selRet = network::ASocket::select(std::list<network::ASocket *>({_sock}), std::list<network::ASocket *>(), std::list<network::ASocket *>(), &timeout)))
       return ;
     else if (selRet)
       rcvRequest(db);
@@ -84,7 +87,7 @@ namespace entity_component_system::system {
     return 0;
   }
 
-  bool		Connection::getCliId(ecs::database::IDataBase &db) {
+  bool					Connection::getCliId(ecs::database::IDataBase &db) {
     std::list<ecs::entity::RTEntity>	ents;
 
     ents = db.getAllEntitiesWithComponent("User");
@@ -102,7 +105,7 @@ namespace entity_component_system::system {
     std::string	port;
     std::string	username;
 
-    username = db.getEntityById(_cliId)->getComponent("User")->getAttr<std::string>("UserName");
+    username = db.getEntity(_cliId).getValueByRef<entity::RTEntity>().getComponent<ecs::component::UserInfo>("UserInfo").getAttr<::value>();
     reqRaw = new char[reqHeadSize + username.length()];
     req = reinterpret_cast<request *>(reqRaw);
     req->rc = 1;
@@ -117,26 +120,22 @@ namespace entity_component_system::system {
     request	*req;
     std::string	ip;
     std::string	port;
-    std::string	username;
 
-    username = db.getEntityById(_cliId)->getComponent("User")->getAttr<std::string>("UserName");
-    reqRaw = new char[reqHeadSize + username.length()];
+    reqRaw = new char[reqHeadSize];
     req = reinterpret_cast<request *>(reqRaw);
     req->rc = 101;
-    req->sz = username.length();
-    username.copy(req->data, username.length());
     getServInfo(db, ip, port);
     _respQueue.push({ ip, port, reqHeadSize + req->sz, reqRaw });
   }
 
-  void		getServInfo(ecs::database::IDataBase &db, std::string &ip, std::string &port) {
-    std::vector<ecs::database::Entity *>	ents;
-    std::string			defaultIp = "127.0.0.1";
-    std::string			defaultPort = "4242";
+  void						Connection::getServInfo(ecs::database::IDataBase &db, std::string &ip, std::string &port) {
+    std::list<entity::RTEntity>			ents;
+    std::string					defaultIp = "127.0.0.1";
+    std::string					defaultPort = "4242";
 
-    if ((ents = db.getEntitiesWithComponentsValue<bool>("ServInfo", { { "Selected", true } })).size() == 1) {
-      ip = ents[0]->getComponent("ServInfo")->getAttr<std::string>("Ip");
-      port = ents[0]->getComponent("ServInfo")->getAttr<std::string>("Port");
+    if ((ents = db.getAllEntitiesWithComponentEqualTo(database::ComponentTypeID::ServSelected, component::ServSelected(0, true))).size() != 0) {
+      ip = ents.front().getComponent<component::ConInfo>("ConInfo").getAttr<::ip>();
+      port = ents.front().getComponent<component::ConInfo>("ConInfo").getAttr<::port>();
     }
     else {
       ip = defaultIp;
@@ -145,15 +144,12 @@ namespace entity_component_system::system {
   }
 
   int		Connection::req002Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
-    ecs::database::Component	*ServEnt = new ecs::database::Component({"id"});
     if (req->sz < sizeof(unsigned int))
       return (-1);
 
     _eid = *reinterpret_cast<unsigned int *>(req->data);
 
-    ServEnt->setAttr<unsigned int>("id", _eid);
-    db.bindComponent("ServEnt", ServEnt, _cliId);
-
+    BaseNet::_relation_id[_eid] = _cliId;
     return 0;
   }
 
@@ -167,23 +163,49 @@ namespace entity_component_system::system {
   }
 
   int		Connection::req102Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    BaseNet::dbInfo	*cmp;
+    entity::Room	room;
+    std::shared_ptr<component::RoomInfo>	inf;
+
     if (req->sz == 0)
       return (-1);
-    //push RoomInfo to db
+
+    cmp = reinterpret_cast<dbInfo *>(req->data);
+    inf = component::RoomInfo::deserialize(req->data, req->sz);
+
+    if (_relation_id.find(cmp->eid) == _relation_id.end()) {
+      room.setComponent<::RoomInfo>(*inf);
+      db.createEntityFromAssembly(room);
+      BaseNet::_relation_id[cmp->eid] = room.getID();
+    }
+    else {
+      auto relation = _relation_id.find(cmp->eid);
+      room = db.getEntity(relation->second).getValueByRef<entity::RTEntity>();
+      room.setComponent<::RoomInfo>(*inf);
+      db.setEntity(room);
+    }
+
     return 0;
   }
 
-  int		Connection::req104Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
-    ecs::database::Entity *	ent;
-    auto	it = _pending.begin();
+  int			Connection::req104Handler(ecs::database::IDataBase &db, request *req, std::string const &ip, std::string const &port) {
+    entity::RTEntity	ent;
+    BaseNet::dbInfo	*tmp;
+    std::shared_ptr<component::ConInfo>	inf;
+    std::string				srvPort;
+    auto		it = _pending.begin();
 
-    if (req->sz != 4 || *(reinterpret_cast<int *>(req->data)) != _roomId)
+    if (UINT_MAX == _roomId)
       return 0;
 
-    ent = db.getEntityById(_roomId);
+    ent = db.getEntity(_roomId).getValueByRef<entity::RTEntity>();
 
-    ent->getComponent("RoomInfo")->setAttr<std::string>("Ip", ip);
-    ent->getComponent("RoomInfo")->setAttr<std::string>("Port", port);
+    tmp = reinterpret_cast<dbInfo *>(req->data);
+    inf = component::ConInfo::deserialize(req->data, req->sz);
+    if (inf->getAttr<::ip>() == "0.0.0.0")
+      getServInfo(db, inf->getAttr<::ip>(), srvPort);
+    ent.addComponent(std::string(::ConInfo), *inf);
+    db.setEntity(ent);
     _getRoomInfo = false;
 
     if ((it = std::find_if(_pending.begin(), _pending.end(), [](pendingAction &act){ return std::get<1>(act) == BaseNet::CONNECT; })) != _pending.end())
@@ -229,7 +251,8 @@ namespace entity_component_system::system {
           resp = reinterpret_cast<request *>(respRaw);
           resp->rc = 103;
           resp->sz = 4;
-          *reinterpret_cast<int *>(resp->data) = *reinterpret_cast<int *>(std::get<2>(act));
+          *reinterpret_cast<unsigned *>(resp->data) = *reinterpret_cast<unsigned *>(std::get<2>(act));
+          _roomId = *reinterpret_cast<unsigned *>(resp->data);
 
           _respQueue.push({ip, port, reqHeadSize + resp->sz, respRaw});
           delete[] std::get<2>(act);

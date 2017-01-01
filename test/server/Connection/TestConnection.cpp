@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <iostream>
 
 #include <thread>
 #include <cstring>
@@ -40,7 +41,7 @@ TEST_F(TestConnection, SimpleConnection) {
   Connection.join();
   send.join();
   delete[] rawReq;
-  ents = _db->getAllEntitiesWithComponent("ConInfo");
+  ents = _db->getAllEntitiesWithComponent(ecs::database::ComponentTypeID::ConInfo);
   ASSERT_EQ(1, ents.size());
   for (auto &ent : ents) {
     EXPECT_EQ("127.0.0.1", ent.getComponent<ecs::component::ConInfo>("ConInfo").getAttr<::ip>());
@@ -75,7 +76,6 @@ TEST_F(TestConnection, TwoClients) {
 TEST_F(TestConnection, BadRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 1);
   std::list<ecs::entity::RTEntity>	ents;
-  ecs::database::Component		*cmp;
   char					*rawReq;
   network::UdpSocket			cli;
 
@@ -96,7 +96,6 @@ TEST_F(TestConnection, BadRequest) {
 TEST_F(TestConnection, UnconnectedRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 1);
   std::list<ecs::entity::RTEntity>	ents;
-  ecs::database::Component		*cmp;
   char					*rawReq;
   network::UdpSocket			cli;
 
@@ -117,10 +116,8 @@ TEST_F(TestConnection, UnconnectedRequest) {
 TEST_F(TestConnection, LoginRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 2);
   std::list<ecs::entity::RTEntity>	ents;
-  ecs::database::Component		*cmp;
   char					*rawReq;
   char					resp[512];
-  int					recv;
   network::UdpSocket			cli;
   std::string				ip, port;
 
@@ -133,7 +130,7 @@ TEST_F(TestConnection, LoginRequest) {
   send.join();
   std::thread				send2(sendLoop, std::ref(cli), rawReq, 3 + sizeof("Helloworld"));
   send2.join();
-  recv = cli.recvFrom(resp, 7, 0, ip, port);
+  cli.recvFrom(resp, 7, 0, ip, port);
 
   Connection.join();
 
@@ -149,7 +146,6 @@ TEST_F(TestConnection, LoginRequest) {
 TEST_F(TestConnection, DisconnectRequest) {
   std::thread				Connection(CoLoop, std::ref(*_db), 2);
   std::list<ecs::entity::RTEntity>	ents;
-  ecs::database::Component		*cmp;
   char					*rawReq;
   network::UdpSocket			cli;
   std::string				ip, port;
